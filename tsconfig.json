@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "jsx": "react",
+    "lib": ["es6"],
+    "moduleResolution": "node",
+    "noEmit": true,
+    "strict": true,
+    "target": "esnext",
+    "baseUrl": ".",
+    "paths": {
+      "": ["src/"],
+      "tests": ["tests/*"],
+      "@components/*": ["src/components/*"],
+      "@ultis/*": ["./src/ultis/*"],
+      "@svgs/*": ["./src/svgs/*"],
+      "@nav/*": ["./src/nav/*"],
+      "@assets/*": ["./src/assets/*"],
+      "@screens/*": ["./src/screens/*"],
+      "@actions/*": ["./src/actions/*"],
+      "@api/*": ["./src/api/*"],
+      "@config/*": ["./src/config/*"],
+      "@navigation/*": ["./src/navigation/*"],
+      "@reducers/*": ["./src/reducers/*"],
+      "@sagas/*": ["./src/sagas/*"],
+      "@store/*": ["./src/store/*"],
+      "@fonts/*": ["./src/fonts/*"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js"
+  ]
+}
