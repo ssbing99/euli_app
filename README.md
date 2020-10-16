@@ -1,4 +1,4 @@
-# HEALER ver2
+# Euli App
 
 ## Features
 
