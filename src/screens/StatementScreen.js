@@ -266,6 +266,7 @@ export default class StatementScreen extends Component {
             navigation={this.props.navigation}
             setting={modalBtnSetting}
             btnText="Search"
+            underlayColor={colors.red}
             onPressButton={this._searchModal.bind(this)}
           />
         </View>

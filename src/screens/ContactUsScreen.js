@@ -54,7 +54,7 @@ export default class ContactUsScreen extends Component {
       btnWidth: btnWidth.normal,
       btnHeight: btnHeight,
       backgroundColor: colors.white,
-      color: colors.black,
+      color: colors.primary,
       style: {
         marginTop: 10,
       },

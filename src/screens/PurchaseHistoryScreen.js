@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -66,26 +67,45 @@ export default class PurchaseHistoryScreen extends Component {
         />
         <ScrollView>
           <DataTable>
-            <DataTable.Header>
-              <DataTable.Title>Date</DataTable.Title>
-              <DataTable.Title>Doc No.</DataTable.Title>
-              <DataTable.Title>Item ID</DataTable.Title>
-              <DataTable.Title numeric>OrderQty</DataTable.Title>
-            </DataTable.Header>
+            <ScrollView
+              horizontal
+              contentContainerStyle={{ flexDirection: 'column' }}>
+              <DataTable.Header style={{ width: 500 }}>
+                <DataTable.Title style={{ flex: 2 }}>Date</DataTable.Title>
+                <DataTable.Title style={{ flex: 2 }}>Doc No.</DataTable.Title>
+                <DataTable.Title style={{ flex: 2 }}>Item ID</DataTable.Title>
+                <DataTable.Title numeric style={{ flex: 1 }}>
+                  Item Price
+                </DataTable.Title>
+                <DataTable.Title numeric style={{ flex: 1 }}>
+                  OrderQty
+                </DataTable.Title>
+              </DataTable.Header>
 
-            <DataTable.Row>
-              <DataTable.Cell>26/12/2017</DataTable.Cell>
-              <DataTable.Cell>INV001091</DataTable.Cell>
-              <DataTable.Cell>ADD-JJ</DataTable.Cell>
-              <DataTable.Cell numeric>4</DataTable.Cell>
-            </DataTable.Row>
+              <DataTable.Row style={{ width: 500 }}>
+                <DataTable.Cell style={{ flex: 2 }}>26/12/2017</DataTable.Cell>
+                <DataTable.Cell style={{ flex: 2 }}>INV001091</DataTable.Cell>
+                <DataTable.Cell style={{ flex: 2 }}>ADD-JJ</DataTable.Cell>
+                <DataTable.Cell numeric style={{ flex: 1 }}>
+                  5.00
+                </DataTable.Cell>
+                <DataTable.Cell numeric style={{ flex: 1 }}>
+                  4
+                </DataTable.Cell>
+              </DataTable.Row>
 
-            <DataTable.Row>
-              <DataTable.Cell>26/12/2017</DataTable.Cell>
-              <DataTable.Cell>INV001091</DataTable.Cell>
-              <DataTable.Cell>ADD-JJ</DataTable.Cell>
-              <DataTable.Cell numeric>4</DataTable.Cell>
-            </DataTable.Row>
+              <DataTable.Row style={{ width: 500 }}>
+                <DataTable.Cell style={{ flex: 2 }}>26/12/2017</DataTable.Cell>
+                <DataTable.Cell style={{ flex: 2 }}>INV001091</DataTable.Cell>
+                <DataTable.Cell style={{ flex: 2 }}>ADD-JJ</DataTable.Cell>
+                <DataTable.Cell numeric style={{ flex: 1 }}>
+                  5.00
+                </DataTable.Cell>
+                <DataTable.Cell numeric style={{ flex: 1 }}>
+                  4
+                </DataTable.Cell>
+              </DataTable.Row>
+            </ScrollView>
 
             <DataTable.Pagination
               page={1}
@@ -195,6 +215,7 @@ export default class PurchaseHistoryScreen extends Component {
           <PrimeButton
             navigation={this.props.navigation}
             setting={modalBtnSetting}
+            underlayColor={colors.red}
             btnText="Close"
             onPressButton={() => this.toggleModal(false)}
           />
@@ -260,6 +281,7 @@ export default class PurchaseHistoryScreen extends Component {
             navigation={this.props.navigation}
             setting={modalBtnSetting}
             btnText="Search"
+            underlayColor={colors.red}
             onPressButton={this._searchModal.bind(this)}
           />
         </View>

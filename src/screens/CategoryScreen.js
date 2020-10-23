@@ -63,13 +63,13 @@ export default class CategoryScreen extends Component {
             />
           )}
           tabBarUnderlineStyle={{
-            backgroundColor: colors.black,
+            backgroundColor: colors.primary,
           }}
           style={{
             height: scrollableTabHeight,
           }}
           tabBarBackgroundColor={colors.white}
-          tabBarActiveTextColor={colors.black}
+          tabBarActiveTextColor={colors.primary}
           tabBarInactiveTextColor={colors.gray}
           tabBarTextStyle={{
             fontFamily: fontFamily.medium,

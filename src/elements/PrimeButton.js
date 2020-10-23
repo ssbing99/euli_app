@@ -22,8 +22,8 @@ export default class PrimeButton extends Component {
       setting: {
         btnWidth = 0,
         btnHeight = 0,
-        backgroundColor = colors.black,
-        borderColor = colors.black,
+        backgroundColor = colors.primary,
+        borderColor = colors.primary,
         color = colors.white,
         style = {},
       },

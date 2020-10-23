@@ -91,6 +91,7 @@ export default class SignIn extends Component {
           <PrimeButton
             navigation={this.props.navigation}
             setting={signInBtnSetting}
+            underlayColor={colors.red}
             btnText="SIGN IN"
             onPressButton={this.handleOnPressSignIn.bind(this)}
           />

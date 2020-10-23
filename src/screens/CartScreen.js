@@ -52,7 +52,7 @@ export default class CartScreen extends Component {
             <Text
               normal
               regular
-              style={{ color: '#c8c8c8', textAlign: 'center' }}>
+              style={{ color: '#efefef', textAlign: 'center' }}>
               {PRODUCTS == null || PRODUCTS.length <= 0
                 ? 'No item'
                 : 'Review ' + PRODUCTS.length + ' items '}
@@ -137,6 +137,7 @@ export default class CartScreen extends Component {
                 <PrimeButton
                   navigation={this.props.navigation}
                   setting={btnSetting}
+                  underlayColor={colors.red}
                   btnText="CHECK OUT"
                   onPressButton={() =>
                     this.props.navigation.navigate('CheckOutBillingScreen')
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
     width: deviceWidth,
     paddingTop: spaceVertical.semiSmall,
     paddingBottom: responsiveHeight(2.1),
-    backgroundColor: colors.black,
+    backgroundColor: colors.primary,
   },
   header: {
     marginBottom: 9,

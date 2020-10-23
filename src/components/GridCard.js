@@ -69,7 +69,7 @@ export default class GridCard extends Component {
             style={[CommonStyles.wishCont, wishIconStyles]}
             onPress={onPressIcon}>
             <Image
-              source={require('../../img/icons/ic_heart.png')}
+              source={require('../../img/icons/ic_red_heart.png')}
               style={CommonStyles.wishIcon}
             />
           </TouchableOpacity>

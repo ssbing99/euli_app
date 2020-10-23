@@ -21,6 +21,7 @@ import {
   deviceWidth,
   deviceHeight,
   indicatorStyles,
+  colors,
 } from '../styles/variables';
 import CommonStyles from '../styles/CommonStyles';
 
@@ -161,6 +162,7 @@ export default class CheckOutBillingScreen extends Component {
           navigation={this.props.navigation}
           setting={btnSetting}
           btnText="NEXT"
+          underlayColor={colors.red}
           onPressButton={() => {
             // if (fullName == '') {
             //   Toast.show({

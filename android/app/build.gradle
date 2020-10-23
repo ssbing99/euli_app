@@ -220,6 +220,7 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation 'com.android.support:multidex:1.0.3'
     implementation project(':@react-native-community_viewpager')
+    compile project(':react-native-print')
 
     implementation "com.facebook.react:react-native:+"  // From node_modules
 

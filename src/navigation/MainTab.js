@@ -20,6 +20,7 @@ import StoreStack from './StoreStack';
 import ColorStack from './ColorStack';
 import ProfileStack from './ProfileStack';
 import CameraStack from './CameraStack';
+import { cps } from 'redux-saga/effects';
 
 const TabIcon = ({ focused, normalSrc, activeSrc, width, height }) => {
   let iconSrc = normalSrc;
@@ -44,19 +45,19 @@ export default function MainTab() {
     <Tab.Navigator
       initialRouteName="HomeStack"
       tabBarOptions={{
-        activeTintColor: '#e91e63',
-        showLabel: false,
+        activeTintColor: colors.primary,
+        showLabel: true,
       }}>
       <Tab.Screen
         name="HomeStack"
         component={HomeStack}
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: 'Latest News',
           tabBarIcon: ({ focused }) =>
             TabIcon({
               focused,
-              activeSrc: require('../../img/icons/ic_home_active.png'),
-              normalSrc: require('../../img/icons/ic_home.png'),
+              activeSrc: require('../../img/icons/red_newspaper.png'),
+              normalSrc: require('../../img/icons/newspaper.png'),
               width: homeIc.width,
               height: homeIc.height,
             }),
@@ -66,12 +67,12 @@ export default function MainTab() {
         name="StoreStack"
         component={StoreStack}
         options={{
-          tabBarLabel: 'Store',
+          tabBarLabel: 'Items',
           tabBarIcon: ({ focused }) =>
             TabIcon({
               focused,
-              activeSrc: require('../../img/icons/ic_category_active.png'),
-              normalSrc: require('../../img/icons/ic_category.png'),
+              activeSrc: require('../../img/icons/tshirt-crew-outline_active.png'),
+              normalSrc: require('../../img/icons/tshirt-crew-outline.png'),
               width: categoryIc.width,
               height: categoryIc.height,
             }),
@@ -81,12 +82,12 @@ export default function MainTab() {
         name="CameraStack"
         component={CameraStack}
         options={{
-          tabBarLabel: 'Camera',
+          tabBarLabel: 'Colour Picker',
           tabBarIcon: ({ focused }) =>
             TabIcon({
               focused,
-              activeSrc: require('../../img/icons/camera-outline-active.png'),
-              normalSrc: require('../../img/icons/camera-outline.png'),
+              activeSrc: require('../../img/icons/camera-enhance-outline_active.png'),
+              normalSrc: require('../../img/icons/camera-enhance-outline.png'),
               width: cameratabIc.width,
               height: cameratabIc.height,
             }),
@@ -96,12 +97,12 @@ export default function MainTab() {
         name="ColorStack"
         component={ColorStack}
         options={{
-          tabBarLabel: 'Color',
+          tabBarLabel: 'Colour List',
           tabBarIcon: ({ focused }) =>
             TabIcon({
               focused,
-              activeSrc: require('../../img/icons/ic_heart.png'),
-              normalSrc: require('../../img/icons/outline_ic_heart.png'),
+              activeSrc: require('../../img/icons/heart-outline_active.png'),
+              normalSrc: require('../../img/icons/heart-outline.png'),
               width: cartIc.width,
               height: cartIc.height,
             }),
@@ -111,12 +112,12 @@ export default function MainTab() {
         name="ProfileStack"
         component={ProfileStack}
         options={{
-          tabBarLabel: 'Profile',
+          tabBarLabel: 'Home',
           tabBarIcon: ({ focused }) =>
             TabIcon({
               focused,
-              activeSrc: require('../../img/icons/ic_profile_active.png'),
-              normalSrc: require('../../img/icons/ic_profile.png'),
+              activeSrc: require('../../img/icons/account-circle-outline_active.png'),
+              normalSrc: require('../../img/icons/account-circle-outline.png'),
               width: profileIc.width,
               height: profileIc.height,
             }),

@@ -19,6 +19,7 @@ import {
   walletIc,
   outlineHeartIc,
   logoutIc,
+  cameratabIc,
 } from '../../styles/icon-variables';
 import { avaImg } from '../../styles/image-variables';
 
@@ -76,6 +77,26 @@ export default class NormalProfile extends Component {
               this.props.navigation.navigate('NotificationScreen')
             }
           /> */}
+          <ListItem
+            leftIcon={require('../../../img/icons/newspaper.png')}
+            leftIconStyles={{
+              width: walletIc.width,
+              height: walletIc.height,
+            }}
+            header="Latest News"
+            borderWidth={responsiveWidth(91.47)}
+            onPressItem={() => this.props.navigation.navigate('HomeStack')}
+          />
+          <ListItem
+            leftIcon={require('../../../img/icons/camera-enhance-outline.png')}
+            leftIconStyles={{
+              width: cameratabIc.width,
+              height: cameratabIc.height,
+            }}
+            header="Colour Picker"
+            borderWidth={responsiveWidth(91.47)}
+            onPressItem={() => this.props.navigation.navigate('CameraStack')}
+          />
           <ListItem
             leftIcon={require('../../../img/icons/ic_order.png')}
             leftIconStyles={{

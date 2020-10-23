@@ -16,7 +16,6 @@ import SelectBox from '../elements/SelectBox';
 import PrimeModal from '../elements/PrimeModal';
 import PrimeButton from '../elements/PrimeButton';
 import { DatePicker, Form, Icon } from 'native-base';
-import { ScrollView as GestureHandlerScrollView } from 'react-native-gesture-handler';
 
 import CommonStyles from '../styles/CommonStyles';
 import {
@@ -32,6 +31,7 @@ import {
 import { searchIc } from '../styles/icon-variables';
 import { CUSTOMERS } from '../static/data';
 import { DataTable } from 'react-native-paper';
+import RNPrint from 'react-native-print';
 
 export default class InvoiceScreen extends Component {
   constructor(props) {
@@ -89,7 +89,11 @@ export default class InvoiceScreen extends Component {
 
               <DataTable.Row style={{ width: 600 }}>
                 <DataTable.Cell style={{ flex: 1 }}>
-                  <Text style={{ color: colors.green }}>Print</Text>
+                  <Text
+                    style={{ color: colors.green }}
+                    onPress={() => this._onPrint()}>
+                    Print
+                  </Text>
                 </DataTable.Cell>
                 <DataTable.Cell style={{ flex: 2 }}>INV001091</DataTable.Cell>
                 <DataTable.Cell style={{ flex: 2 }}>26/12/2017</DataTable.Cell>
@@ -103,7 +107,11 @@ export default class InvoiceScreen extends Component {
 
               <DataTable.Row style={{ width: 600 }}>
                 <DataTable.Cell style={{ flex: 1 }}>
-                  <Text style={{ color: colors.green }}>Print</Text>
+                  <Text
+                    style={{ color: colors.green }}
+                    onPress={() => this._onPrint()}>
+                    Print
+                  </Text>
                 </DataTable.Cell>
                 <DataTable.Cell style={{ flex: 2 }}>INV001091</DataTable.Cell>
                 <DataTable.Cell style={{ flex: 2 }}>26/12/2017</DataTable.Cell>
@@ -225,6 +233,7 @@ export default class InvoiceScreen extends Component {
             navigation={this.props.navigation}
             setting={modalBtnSetting}
             btnText="Close"
+            underlayColor={colors.red}
             onPressButton={() => this.toggleModal(false)}
           />
         </View>
@@ -289,6 +298,7 @@ export default class InvoiceScreen extends Component {
             navigation={this.props.navigation}
             setting={modalBtnSetting}
             btnText="Search"
+            underlayColor={colors.red}
             onPressButton={this._searchModal.bind(this)}
           />
         </View>
@@ -307,6 +317,12 @@ export default class InvoiceScreen extends Component {
       selectedState: state,
       isSelectedState: true,
     });
+  }
+
+  async _onPrint(
+    url = 'https://stage.thebitetribe.com/uploads/Statement%20Sample.pdf',
+  ) {
+    await RNPrint.print({ filePath: url });
   }
 }
 

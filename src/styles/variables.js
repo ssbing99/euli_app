@@ -54,6 +54,7 @@ const colors = {
   gray: 'rgb(155,155,155)',
   lightGray: 'rgb(216,216,216)',
   transparent: 'rgba(0,0,0,0)',
+  primary: '#ea1e25',
 };
 
 // font family

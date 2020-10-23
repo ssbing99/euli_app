@@ -22,6 +22,7 @@ import {
   deviceWidth,
   deviceHeight,
   indicatorStyles,
+  colors,
 } from '../styles/variables';
 import { doneIc } from '../styles/icon-variables';
 
@@ -123,6 +124,7 @@ export default class CheckOutConfirmScreen extends Component {
             <PrimeButton
               navigation={this.props.navigation}
               setting={btnSetting}
+              underlayColor={colors.red}
               btnText="CONTINUE SHOPPING"
               onPressButton={this._handleClickContinue.bind(this)}
             />

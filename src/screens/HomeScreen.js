@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     marginTop: spaceVertical.small,
     marginBottom: spaceVertical.semiSmall,
     paddingVertical: spaceVertical.small / 2,
-    backgroundColor: colors.black,
+    backgroundColor: colors.primary,
   },
   slideImg: {
     width: bannerWidth,
