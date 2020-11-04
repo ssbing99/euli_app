@@ -2,6 +2,7 @@ import { Dimensions, Platform } from 'react-native';
 
 const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
+const isIOS = Platform.OS === 'ios';
 
 // responsive
 const responsiveHeight = (h) => {
@@ -174,6 +175,7 @@ if (deviceWidth >= 768) {
 }
 
 export {
+  isIOS,
   responsiveHeight,
   responsiveWidth,
   btnWidth,

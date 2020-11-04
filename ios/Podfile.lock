@@ -243,6 +243,8 @@ PODS:
     - React-Core
   - react-native-pdf (6.2.2):
     - React-Core
+  - react-native-print (0.6.0):
+    - React
   - react-native-progress-bar-android (1.0.3):
     - React
   - react-native-progress-view (1.2.1):
@@ -370,6 +372,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-pdf (from `../node_modules/react-native-pdf`)
+  - react-native-print (from `../node_modules/react-native-print`)
   - "react-native-progress-bar-android (from `../node_modules/@react-native-community/progress-bar-android`)"
   - "react-native-progress-view (from `../node_modules/@react-native-community/progress-view`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -444,6 +447,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera"
   react-native-pdf:
     :path: "../node_modules/react-native-pdf"
+  react-native-print:
+    :path: "../node_modules/react-native-print"
   react-native-progress-bar-android:
     :path: "../node_modules/@react-native-community/progress-bar-android"
   react-native-progress-view:
@@ -521,6 +526,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 512e560d0e985d0e8c479a54a4e5c147a9c83493
   react-native-camera: 5c1fbfecf63b802b8ca4a71c60d30a71550fb348
   react-native-pdf: 4b5a9e4465a6a3b399e91dc4838eb44ddf716d1f
+  react-native-print: d2d083f2305faacfba12d3896ec6ca72303da2b2
   react-native-progress-bar-android: d1b109b86c699d36f6a7099dab1a117dc1d66d3c
   react-native-progress-view: 0b937488a5730aeec461b00c4eb438e1fe626015
   react-native-safe-area-context: 8260e5157617df4b72865f44006797f895b2ada7
