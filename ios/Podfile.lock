@@ -241,6 +241,8 @@ PODS:
     - React-Core
   - react-native-camera/RN (3.40.0):
     - React-Core
+  - react-native-get-pixel-color (1.1.0-alpha.23):
+    - React
   - react-native-pdf (6.2.2):
     - React-Core
   - react-native-print (0.6.0):
@@ -371,6 +373,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-camera (from `../node_modules/react-native-camera`)
+  - react-native-get-pixel-color (from `../node_modules/react-native-get-pixel-color`)
   - react-native-pdf (from `../node_modules/react-native-pdf`)
   - react-native-print (from `../node_modules/react-native-print`)
   - "react-native-progress-bar-android (from `../node_modules/@react-native-community/progress-bar-android`)"
@@ -445,6 +448,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   react-native-camera:
     :path: "../node_modules/react-native-camera"
+  react-native-get-pixel-color:
+    :path: "../node_modules/react-native-get-pixel-color"
   react-native-pdf:
     :path: "../node_modules/react-native-pdf"
   react-native-print:
@@ -525,6 +530,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 1540d1c01bb493ae3124ed83351b1b6a155db7da
   React-jsinspector: 512e560d0e985d0e8c479a54a4e5c147a9c83493
   react-native-camera: 5c1fbfecf63b802b8ca4a71c60d30a71550fb348
+  react-native-get-pixel-color: 68005d505be66fd0329f65e67b2a3db83154fde3
   react-native-pdf: 4b5a9e4465a6a3b399e91dc4838eb44ddf716d1f
   react-native-print: d2d083f2305faacfba12d3896ec6ca72303da2b2
   react-native-progress-bar-android: ce95a69f11ac580799021633071368d08aaf9ad8
