@@ -96,7 +96,6 @@ const styles = StyleSheet.create({
     width: deviceWidth,
   },
   lightGray: {
-    fontFamily: 'roboto-700',
     color: '#121212',
     marginTop: 4,
   },
@@ -132,14 +131,12 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     position: 'absolute',
-    fontFamily: 'roboto-700',
     color: '#121212',
   },
   rgb: {
     top: 16,
     left: 34,
     position: 'absolute',
-    fontFamily: 'roboto-regular',
     color: '#121212',
   },
   loremIpsumStack: {
