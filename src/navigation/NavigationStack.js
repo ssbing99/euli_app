@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Root } from 'native-base';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
@@ -33,6 +34,7 @@ function Main(props) {
   // <Stack.Navigator initialRouteName={ROUTES.WalkThroughScreen}>
   // <Stack.Navigator initialRouteName={ROUTES.MainDrawer}>
   return (
+      <Root>
     <NavigationContainer ref={navigationRef} theme={theme}>
       <Stack.Navigator initialRouteName={ROUTES.SplashScreen}>
         <Stack.Screen
@@ -72,6 +74,7 @@ function Main(props) {
         />
       </Stack.Navigator>
     </NavigationContainer>
+      </Root>
   );
 }
 

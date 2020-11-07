@@ -4,6 +4,10 @@
 <dict>
 	<key>NSCameraUsageDescription</key>
 	<string>To take camera and getting color information from photo</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Give $(PRODUCT_NAME) permission to read photos</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>To take photo and getting color information from photo</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>

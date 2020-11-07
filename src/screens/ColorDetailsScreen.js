@@ -2,18 +2,27 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import CommonStyles from '../styles/CommonStyles';
 import { StyleSheet, View, TouchableOpacity, Image } from 'react-native';
-
+import color from 'hex-to-color-name';
 import Text from '../elements/Text';
+import Clipboard from '@react-native-community/clipboard';
+import { Toast } from 'native-base';
 import {
   colors,
   deviceWidth,
   NAV_HEIGHT,
   STATUSBAR_HEIGHT,
 } from '../styles/variables';
+import {removeColor} from "../store/actionStore";
 
 export default class ColorDetailsScreen extends Component {
   constructor(props) {
     super(props);
+
+    console.log(this.props.route.params);
+    const { color } = this.props.route.params;
+
+    this.color = color;
+    console.log(color);
   }
 
   render() {
@@ -30,19 +39,30 @@ export default class ColorDetailsScreen extends Component {
         <View style={styles.containerElement}>
           <View style={styles.rect}>
             <View style={styles.lightGrayRow}>
-              <Text style={styles.lightGray}>Light Gray</Text>
+              <Text style={[styles.colorText]}>{color(this.color.hex)}</Text>
               <Image
                 source={require('../../img/icons/fullscreen.png')}
                 style={styles.icon2}
               />
             </View>
             <View style={styles.rect2}>
+              <TouchableOpacity onPress={() =>{
+                Clipboard.setString(this.color.rgb);
+                Toast.show({
+                  text: 'Copied!',
+                  buttonText: 'Okay',
+                  style: {backgroundColor: colors.lightGray},
+                  textStyle: {color: colors.black},
+                  buttonTextStyle: {color: colors.black}
+                })
+              }}>
               <Image
                 source={require('../../img/icons/content-copy.png')}
                 style={styles.icon3}
               />
+              </TouchableOpacity>
               <View style={styles.loremIpsumStack}>
-                <Text style={styles.loremIpsum}>255, 255, 255</Text>
+                <Text style={styles.loremIpsum}>{this.color.rgb.replace(/[^0-9,]/g,'').split(',').join(', ')}</Text>
                 <Text style={styles.rgb}>RGB</Text>
               </View>
             </View>
@@ -53,10 +73,26 @@ export default class ColorDetailsScreen extends Component {
             source={require('../../img/icons/export-variant.png')}
             style={styles.icon4}
           />
+          <TouchableOpacity onPress={() => {
+            removeColor(this.color).then(res =>{
+              if(res) {
+                Toast.show({
+                  text: 'Color Deleted !',
+                  buttonText: 'Okay',
+                  type:'warning',
+                  style: {backgroundColor: colors.lightGray},
+                  textStyle: {color: colors.black},
+                  buttonTextStyle: {color: colors.black}
+                })
+                this.props.navigation.goBack();
+              }
+            });
+          }}>
           <Image
             source={require('../../img/icons/delete.png')}
             style={styles.icon6}
           />
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -99,6 +135,9 @@ const styles = StyleSheet.create({
     color: '#121212',
     marginTop: 4,
   },
+  colorText: {
+    textTransform: 'capitalize',
+  },
   icon2: {
     height: 20,
     width: 20,
@@ -129,9 +168,10 @@ const styles = StyleSheet.create({
   },
   loremIpsum: {
     top: 0,
-    left: 0,
+    // left: 0,
     position: 'absolute',
     color: '#121212',
+    alignSelf: 'center',
   },
   rgb: {
     top: 16,
@@ -143,6 +183,8 @@ const styles = StyleSheet.create({
     width: 86,
     height: 35,
     marginLeft: 91,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   icon4: {
     width: 30,

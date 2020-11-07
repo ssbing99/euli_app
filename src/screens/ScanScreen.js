@@ -20,6 +20,7 @@ import Draggable from "react-native-draggable";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
 import ImagePicker from 'react-native-image-crop-picker';
+import {storeColor, getColor} from "../store/actionStore";
 
 /*
 * https://github.com/herbert84/react-native-pixel-color-picker/blob/master/src/ColorPicker.android.js
@@ -37,11 +38,24 @@ export default class ScanScreen extends Component {
     super(props);
 
     this.resetState();
+    this.getUpdateColor();
+    const { navigation } = this.props;
+    this.focusListener = navigation.addListener("focus", () => {
+      // console.log("focus")
+      this.getUpdateColor();
+    });
   }
 
   componentWillUnmount() {
-    console.log("reset")
+    // console.log("reset")
     this.resetState();
+
+    try{
+      console.log(this.focusListener);
+      if(this.focusListener)
+        this.focusListener.remove();
+    }catch (e) {}
+
   }
 
   resetState = () => {
@@ -70,8 +84,24 @@ export default class ScanScreen extends Component {
       capColor : colors.transparent,
       capImage: {},
       liveImg: {},
-      origin: {}
+      origin: {},
+      storeColor: []
     };
+  }
+
+  getUpdateColor = () => {
+    getColor().then(res => {
+      let getColor = res['colors'] || [];
+
+      if(getColor.length > 0) {
+        getColor = getColor.sort((a, b) => {
+          return new Date(b.datetime) - new Date(a.datetime);
+        });
+        console.log(getColor);
+
+      }
+      this.setState({storeColor: getColor});
+    });
   }
 
   getFlashMode = () => {
@@ -96,24 +126,32 @@ export default class ScanScreen extends Component {
   getPixel(imageData, x, y){
     console.log(`getPixel: X = ${x}, Y = ${y}`);
     //
-    GetPixelColor.setImage((isIOS ? imageData.uri : imageData.base64))
-        .catch(err => {
-          // Handle errors
-          console.error(err);
-        });
+    try{
+      GetPixelColor.setImage((isIOS ? imageData.uri : imageData.base64))
+          .catch(err => {
+            // Handle errors
+            console.error(err);
+          });
 
-    GetPixelColor.pickColorAt(x, y)
-        .then((color) => {
-          console.log("COLOR", color);
-          console.log("COLOR RGB", this.hex2rgb(color));
-          this.setState({ capColor: color });
+      GetPixelColor.pickColorAt(x, y)
+          .then((color) => {
+            // console.log("COLOR", color);
+            // console.log("COLOR RGB", this.hex2rgb(color));
+            const colorObj = { hex: color, rgb: this.hex2rgb(color), datetime: new Date().getTime()};
+            this.setState({ capColor: color });
 
-        })
-        .catch(err => {
-          // Handle errors
-          console.error(err);
-        });
+            storeColor(colorObj).then( () => {
+              this.getUpdateColor();
+            });
+          })
+          .catch(err => {
+            // Handle errors
+            console.error(err);
+          });
 
+    }catch (e) {
+
+    }
   }
 
   onDragEvt = (event, gestureState, bounds) => {
@@ -185,8 +223,8 @@ export default class ScanScreen extends Component {
         let getPiX = this.getPixelByPercentage(50, liveImg.width);
         let getPiY = this.getPixelByPercentage(50, liveImg.height);
 
-        console.log("LIVE getPiX", getPiX);
-        console.log("LIVE getPiY", getPiY);
+        // console.log("LIVE getPiX", getPiX);
+        // console.log("LIVE getPiY", getPiY);
         this.getPixel(liveImg.data, getPiX, getPiY);
       }
 
@@ -219,6 +257,39 @@ export default class ScanScreen extends Component {
 
   }
 
+  openGallery = () =>{
+    ImagePicker.openPicker({
+      width: 480,
+      height: 640,
+      cropping: true,
+      mediaType: "photo",
+      includeBase64: true,
+      avoidEmptySpaceAroundImage: true,
+      compressImageMaxWidth: 480,
+      compressImageMaxHeight: 640,
+      forceJpg: true,
+    }).then(async (response) => {
+      // console.log(response);
+      const { width , height } = response;
+      // console.log("SELECTED W", width);
+      // console.log("SELECTED h", height);
+      const data = {
+        uri: response.path,
+        base64: response.data,
+      }
+
+      this.setState({liveImg: {data: data, imageBase64: data.base64, width: width, height: height}},
+          ()=>{
+            this.setState({
+              isEnabled: true,
+              camera : {...this.state.camera, exposureOn: false, exposure: -1 }
+            });
+          });
+
+    }).catch(err => console.warn(err));
+
+  }
+
   switchChange = async () => {
     if(this.state.isEnabled){
       this.setState({
@@ -248,10 +319,10 @@ export default class ScanScreen extends Component {
         // const size = await this.camera.getAvailablePictureSizes();
         //
         // console.log(size);
-        console.log(data);
+        // console.log(data);
         await Image.getSize(data.uri, (width, height) => {
-          console.log("W: ", (width));
-          console.log("H: ", (height));
+          // console.log("W: ", (width));
+          // console.log("H: ", (height));
           this.setState({
             liveImg: {data: data, imageBase64: data.base64, width: width, height: height},
             isEnabled: !this.state.isEnabled,
@@ -370,6 +441,17 @@ export default class ScanScreen extends Component {
 
   }
 
+  renderGallery = () => {
+    return <TouchableOpacity
+              onPress={this.openGallery}
+              style={styles.capture}>
+            <Image
+                source={require('../../img/icons/image-album.png')}
+                style={{ width: 12.5, height: 25 }}
+            />
+          </TouchableOpacity>
+  }
+
   renderSlider = () => {
     if(this.state.camera.exposureOn) {
       return (
@@ -411,37 +493,58 @@ export default class ScanScreen extends Component {
     }
   }
 
-  openGallery = () =>{
-    ImagePicker.openPicker({
-      width: 480,
-      height: 640,
-      cropping: true,
-      mediaType: "photo",
-      includeBase64: true,
-      avoidEmptySpaceAroundImage: true,
-      compressImageMaxWidth: 480,
-      compressImageMaxHeight: 640,
-      forceJpg: true,
-    }).then(async (response) => {
-      console.log(response);
-      const { width , height } = response;
-      console.log("SELECTED W", width);
-      console.log("SELECTED h", height);
-      const data = {
-        uri: response.path,
-        base64: response.data,
+  renderColorViewList = () => {
+
+    const { storeColor } = this.state;
+
+    if(storeColor && storeColor.length > 0){
+      let colorView = [];
+
+      for(let i=0; i<storeColor.length && i < 4; i++){
+        colorView.push(
+            <ColorViewer
+                key={storeColor[i].datetime}
+                color={storeColor[i].hex}
+                onPressItem={() =>
+                    this.props.navigation.navigate('ColorDetailsScreen',{
+                      color: storeColor[i]
+                    })
+                }
+            />
+        );
       }
 
-      this.setState({liveImg: {data: data, imageBase64: data.base64, width: width, height: height}},
-          ()=>{
-            this.setState({
-              isEnabled: !this.state.isEnabled,
-              camera : {...this.state.camera, exposureOn: false, exposure: -1 }
-            });
-          });
+      return (
+          <View style={styles.capturedContainer}>
+            {colorView}
+          </View>
+      );
+    }
 
-    }).catch(err => console.warn(err));
-
+    // return (
+    //     <View style={styles.capturedContainer}>
+    //       <ColorViewer
+    //           color={colors.red}
+    //           onPressItem={() =>
+    //               this.props.navigation.navigate('ColorDetailsScreen')
+    //           }
+    //       />
+    //       <ColorViewer
+    //           color={colors.green}
+    //           onPressItem={() =>
+    //               this.props.navigation.navigate('ColorDetailsScreen')
+    //           }
+    //       />
+    //       <ColorViewer
+    //           color={colors.white}
+    //           imgWidth={60}
+    //           imgHeight={60}
+    //           onPressItem={() =>
+    //               this.props.navigation.navigate('ColorDetailsScreen')
+    //           }
+    //       />
+    //     </View>
+    // );
   }
 
   render() {
@@ -452,7 +555,7 @@ export default class ScanScreen extends Component {
       <View ref={(ref) => {this.mainView = ref}} style={CommonStyles.container}
       onLayout={event =>{
         const layout = event.nativeEvent.layout;
-        console.log('layout', layout);
+        // console.log('layout', layout);
         this.setState({ mainView: {height: layout.height, width: layout.width} });
         // this.setState({ dragView: {y: layout.height, x: layout.width, xperc: 50, yperc: 50} });
         // this.setState({ origin: {y: layout.height, x: layout.width, xperc: 50, yperc: 50} });
@@ -500,37 +603,10 @@ export default class ScanScreen extends Component {
           {this.renderFlash()}
           {this.renderExposure()}
 
-          <TouchableOpacity
-            onPress={this.openGallery}
-            style={styles.capture}>
-            <Image
-              source={require('../../img/icons/image-album.png')}
-              style={{ width: 12.5, height: 25 }}
-            />
-          </TouchableOpacity>
+          {this.renderGallery()}
         </View>
-        <View style={styles.capturedContainer}>
-          <ColorViewer
-            color={colors.red}
-            onPressItem={() =>
-              this.props.navigation.navigate('ColorDetailsScreen')
-            }
-          />
-          <ColorViewer
-            color={colors.green}
-            onPressItem={() =>
-              this.props.navigation.navigate('ColorDetailsScreen')
-            }
-          />
-          <ColorViewer
-            color={colors.white}
-            imgWidth={60}
-            imgHeight={60}
-            onPressItem={() =>
-              this.props.navigation.navigate('ColorDetailsScreen')
-            }
-          />
-        </View>
+
+        {this.renderColorViewList()}
       </View>
     );
   }
