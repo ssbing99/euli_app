@@ -7,7 +7,12 @@ import NavigationBar from '../elements/NavigationBar';
 import Text from '../elements/Text';
 import { RNCamera } from 'react-native-camera';
 import {
-  isIOS, colors, deviceWidth, deviceHeight, responsiveHeight, responsiveWidth,
+  isIOS,
+  colors,
+  deviceWidth,
+  deviceHeight,
+  responsiveHeight,
+  responsiveWidth,
 } from '../styles/variables';
 import { Switch } from 'react-native-switch';
 import ColorViewer from '@components/ColorViewer';
@@ -23,11 +28,15 @@ import { storeColor, getColor } from '../store/actionStore';
  * https://github.com/dudyn5ky1/react-native-get-pixel-color
  * */
 const CAM_OPTIONS = {
-  quality: 1, base64: true, orientation: RNCamera.Constants.Orientation.portrait, fixOrientation: true, forceUpOrientation: true,
+  quality: 1,
+  base64: true,
+  orientation: RNCamera.Constants.Orientation.portrait,
+  fixOrientation: true,
+  forceUpOrientation: true,
 };
 
 export default class ScanScreen extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
 
     this.resetState();
@@ -39,7 +48,7 @@ export default class ScanScreen extends Component {
     });
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     // console.log("reset")
     this.resetState();
 
@@ -54,10 +63,17 @@ export default class ScanScreen extends Component {
   resetState = () => {
     this.state = {
       camera: {
-        exposure: -1, exposureOn: false, flashOn: false, flashMode: RNCamera.Constants.FlashMode.off, ON: {
-          flashMode: RNCamera.Constants.FlashMode.torch, flashIcon: 'flash-on',
-        }, OFF: {
-          flashMode: RNCamera.Constants.FlashMode.off, flashIcon: 'flash-off',
+        exposure: -1,
+        exposureOn: false,
+        flashOn: false,
+        flashMode: RNCamera.Constants.FlashMode.off,
+        ON: {
+          flashMode: RNCamera.Constants.FlashMode.torch,
+          flashIcon: 'flash-on',
+        },
+        OFF: {
+          flashMode: RNCamera.Constants.FlashMode.off,
+          flashIcon: 'flash-off',
         },
       },
       mainView: { height: deviceHeight, width: deviceWidth },
@@ -94,43 +110,53 @@ export default class ScanScreen extends Component {
     return flashOps.flashMode;
   };
 
-  getPercentageByPixel (pixel, widthOrHeight) {
+  getPercentageByPixel(pixel, widthOrHeight) {
     return (pixel / widthOrHeight) * 100;
   }
 
-  getPixelByPercentage (percentage, widthOrHeight) {
+  getPixelByPercentage(percentage, widthOrHeight) {
     return (percentage / 100) * widthOrHeight;
   }
 
-  hex2rgb (hex) {
-    let rgb = [('0x' + hex[1] + hex[2]) | 0, ('0x' + hex[3] + hex[4]) | 0, ('0x' + hex[5] + hex[6]) | 0,];
-    return `rgb(${ rgb.join(',') })`;
+  hex2rgb(hex) {
+    let rgb = [
+      ('0x' + hex[1] + hex[2]) | 0,
+      ('0x' + hex[3] + hex[4]) | 0,
+      ('0x' + hex[5] + hex[6]) | 0,
+    ];
+    return `rgb(${rgb.join(',')})`;
   }
 
-  getPixel (imageData, x, y) {
-    console.log(`getPixel: X = ${ x }, Y = ${ y }`);
+  getPixel(imageData, x, y) {
+    console.log(`getPixel: X = ${x}, Y = ${y}`);
     //
     try {
-      GetPixelColor.setImage(isIOS ? imageData.uri : imageData.base64).catch((err) => {
-        // Handle errors
-        console.error(err);
-      },);
+      GetPixelColor.setImage(isIOS ? imageData.uri : imageData.base64).catch(
+        (err) => {
+          // Handle errors
+          console.error(err);
+        },
+      );
 
-      GetPixelColor.pickColorAt(x, y).then((color) => {
-        // console.log("COLOR", color);
-        // console.log("COLOR RGB", this.hex2rgb(color));
-        const colorObj = {
-          hex: color, rgb: this.hex2rgb(color), datetime: new Date().getTime(),
-        };
-        this.setState({ capColor: color });
+      GetPixelColor.pickColorAt(x, y)
+        .then((color) => {
+          // console.log("COLOR", color);
+          // console.log("COLOR RGB", this.hex2rgb(color));
+          const colorObj = {
+            hex: color,
+            rgb: this.hex2rgb(color),
+            datetime: new Date().getTime(),
+          };
+          this.setState({ capColor: color });
 
-        storeColor(colorObj).then(() => {
-          this.getUpdateColor();
+          storeColor(colorObj).then(() => {
+            this.getUpdateColor();
+          });
+        })
+        .catch((err) => {
+          // Handle errors
+          console.error(err);
         });
-      }).catch((err) => {
-        // Handle errors
-        console.error(err);
-      });
     } catch (e) {}
   }
 
@@ -221,7 +247,10 @@ export default class ScanScreen extends Component {
           console.log('H: ', height);
           this.setState({
             capImage: {
-              data: data, imageBase64: data.base64, width: width, height: height,
+              data: data,
+              imageBase64: data.base64,
+              width: width,
+              height: height,
             },
           });
         }).then((res) => {
@@ -238,38 +267,66 @@ export default class ScanScreen extends Component {
 
   openGallery = () => {
     ImagePicker.openPicker({
-      width: 480, height: 640, cropping: true, mediaType: 'photo', includeBase64: true, avoidEmptySpaceAroundImage: true, compressImageMaxWidth: 480, compressImageMaxHeight: 640, forceJpg: true,
-    }).then(async (response) => {
-      // console.log(response);
-      const { width, height } = response;
-      // console.log("SELECTED W", width);
-      // console.log("SELECTED h", height);
-      const data = {
-        uri: response.path, base64: response.data,
-      };
+      width: 480,
+      height: 640,
+      cropping: true,
+      mediaType: 'photo',
+      includeBase64: true,
+      avoidEmptySpaceAroundImage: true,
+      compressImageMaxWidth: 480,
+      compressImageMaxHeight: 640,
+      forceJpg: true,
+    })
+      .then(async (response) => {
+        // console.log(response);
+        const { width, height } = response;
+        // console.log("SELECTED W", width);
+        // console.log("SELECTED h", height);
+        const data = {
+          uri: response.path,
+          base64: response.data,
+        };
 
-      this.setState({
-        liveImg: {
-          data: data, imageBase64: data.base64, width: width, height: height,
-        },
-      }, () => {
-        this.setState({
-          isEnabled: true, camera: { ...this.state.camera, exposureOn: false, exposure: -1 },
-        });
-      },);
-    }).catch((err) => console.warn(err));
+        this.setState(
+          {
+            liveImg: {
+              data: data,
+              imageBase64: data.base64,
+              width: width,
+              height: height,
+            },
+          },
+          () => {
+            this.setState({
+              isEnabled: true,
+              camera: { ...this.state.camera, exposureOn: false, exposure: -1 },
+            });
+          },
+        );
+      })
+      .catch((err) => console.warn(err));
   };
 
   switchChange = async () => {
     if (this.state.isEnabled) {
       this.setState({
         camera: {
-          exposure: -1, exposureOn: false, flashOn: false, flashMode: RNCamera.Constants.FlashMode.off, ON: {
-            flashMode: RNCamera.Constants.FlashMode.torch, flashIcon: 'flash-on',
-          }, OFF: {
-            flashMode: RNCamera.Constants.FlashMode.off, flashIcon: 'flash-off',
+          exposure: -1,
+          exposureOn: false,
+          flashOn: false,
+          flashMode: RNCamera.Constants.FlashMode.off,
+          ON: {
+            flashMode: RNCamera.Constants.FlashMode.torch,
+            flashIcon: 'flash-on',
           },
-        }, liveImg: {}, dragView: {}, isEnabled: !this.state.isEnabled,
+          OFF: {
+            flashMode: RNCamera.Constants.FlashMode.off,
+            flashIcon: 'flash-off',
+          },
+        },
+        liveImg: {},
+        dragView: {},
+        isEnabled: !this.state.isEnabled,
       });
     } else {
       if (this.camera) {
@@ -284,11 +341,15 @@ export default class ScanScreen extends Component {
           // console.log("H: ", (height));
           this.setState({
             liveImg: {
-              data: data, imageBase64: data.base64, width: width, height: height,
-            }, isEnabled: !this.state.isEnabled, camera: { ...this.state.camera, exposureOn: false, exposure: -1 },
+              data: data,
+              imageBase64: data.base64,
+              width: width,
+              height: height,
+            },
+            isEnabled: !this.state.isEnabled,
+            camera: { ...this.state.camera, exposureOn: false, exposure: -1 },
           });
-        }).then((res) => {
-        });
+        }).then((res) => {});
       }
     }
   };
@@ -313,27 +374,34 @@ export default class ScanScreen extends Component {
 
   renderCamView = () => {
     if (this.state.isEnabled) {
-      return (<Image
-        // source={{ uri: `data:image/png;base64,${this.state.liveImg.imageBase64}`}}
-        source={ { uri: this.state.liveImg.data.uri } }
-        style={ styles.imgPreview }
-      />);
+      return (
+        <Image
+          // source={{ uri: `data:image/png;base64,${this.state.liveImg.imageBase64}`}}
+          source={{ uri: this.state.liveImg.data.uri }}
+          style={styles.imgPreview}
+        />
+      );
     } else {
-      return (<RNCamera
-        ref={ (ref) => {
-          this.camera = ref;
-        } }
-        style={ styles.preview }
-        type={ RNCamera.Constants.Type.back }
-        flashMode={ this.getFlashMode() }
-        exposure={ this.state.camera.exposure }
-        ratio={ '3:2' }
-        pictureSize={ '640x480' }
-        captureAudio={ false }
-        androidCameraPermissionOptions={ {
-          title: 'Permission to use camera', message: 'We need your permission to use your camera', buttonPositive: 'Ok', buttonNegative: 'Cancel',
-        } }
-      />);
+      return (
+        <RNCamera
+          ref={(ref) => {
+            this.camera = ref;
+          }}
+          style={styles.preview}
+          type={RNCamera.Constants.Type.back}
+          flashMode={this.getFlashMode()}
+          exposure={this.state.camera.exposure}
+          ratio={'3:2'}
+          pictureSize={'640x480'}
+          captureAudio={false}
+          androidCameraPermissionOptions={{
+            title: 'Permission to use camera',
+            message: 'We need your permission to use your camera',
+            buttonPositive: 'Ok',
+            buttonNegative: 'Cancel',
+          }}
+        />
+      );
     }
   };
 
@@ -342,28 +410,41 @@ export default class ScanScreen extends Component {
       const { liveImg, mainView } = this.state;
       //TO-DO: control the draggleble maximum x and y
 
-      return (<Draggable
-        x={ this.state.mainView.width / 2 - 20 }
-        y={ this.state.mainView.height / 2 - 20 }
-        isCircle
-        onShortPressRelease={ this.captureColor }
-        onDragRelease={ this.onDragEvt }
-        minX={ 0 }
-        minY={ 0 }
-        maxX={ this.state.mainView.width }
-        maxY={ this.state.mainView.height }>
-        <View
-          style={ {
-            width: 50, height: 50, borderWidth: 15, borderRadius: 50, borderColor: '#d1c1b6', opacity: 0.8,
-          } }></View>
-      </Draggable>);
+      return (
+        <Draggable
+          x={this.state.mainView.width / 2 - 20}
+          y={this.state.mainView.height / 2 - 20}
+          isCircle
+          onShortPressRelease={this.captureColor}
+          onDragRelease={this.onDragEvt}
+          minX={0}
+          minY={0}
+          maxX={this.state.mainView.width}
+          maxY={this.state.mainView.height}>
+          <View
+            style={{
+              width: 50,
+              height: 50,
+              borderWidth: 15,
+              borderRadius: 50,
+              borderColor: '#d1c1b6',
+              opacity: 0.8,
+            }}></View>
+        </Draggable>
+      );
     } else {
-      return (<TouchableOpacity
-        onPress={ this.captureColor }
-        style={ [styles.middlePoint, {
-          top: this.state.mainView.height / 2 - 20, left: this.state.mainView.width / 2 - 20,
-        },] }
-      />);
+      return (
+        <TouchableOpacity
+          onPress={this.captureColor}
+          style={[
+            styles.middlePoint,
+            {
+              top: this.state.mainView.height / 2 - 20,
+              left: this.state.mainView.width / 2 - 20,
+            },
+          ]}
+        />
+      );
     }
   };
 
@@ -371,70 +452,85 @@ export default class ScanScreen extends Component {
     const { camera } = this.state;
     const flashOps = camera.flashOn ? camera.ON : camera.OFF;
 
-    return (<TouchableOpacity onPress={ this.switchFlash } style={ styles.capture }>
-      <Icon name={ flashOps.flashIcon } size={ 20 } color={ 'white' }/>
-    </TouchableOpacity>);
+    return (
+      <TouchableOpacity onPress={this.switchFlash} style={styles.capture}>
+        <Icon name={flashOps.flashIcon} size={20} color={'white'} />
+      </TouchableOpacity>
+    );
   };
 
   renderExposure = () => {
     const { camera } = this.state;
     const exposureOn = !camera.exposureOn;
 
-    return (<TouchableOpacity
-      onPress={ () => {
-        this.setState({
-          camera: {
-            ...camera, exposureOn: exposureOn, exposure: exposureOn ? 0 : -1,
-          },
-        });
-      } }
-      style={ styles.capture }>
-      <Icon name={ 'exposure' } size={ 20 } color={ 'white' }/>
-    </TouchableOpacity>);
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          this.setState({
+            camera: {
+              ...camera,
+              exposureOn: exposureOn,
+              exposure: exposureOn ? 0 : -1,
+            },
+          });
+        }}
+        style={styles.capture}>
+        <Icon name={'exposure'} size={20} color={'white'} />
+      </TouchableOpacity>
+    );
   };
 
   renderGallery = () => {
-    return (<TouchableOpacity onPress={ this.openGallery } style={ styles.capture }>
-      <Image
-        source={ require('../../img/icons/image-album.png') }
-        style={ { width: 12.5, height: 25 } }
-      />
-    </TouchableOpacity>);
+    return (
+      <TouchableOpacity onPress={this.openGallery} style={styles.capture}>
+        <Image
+          source={require('../../img/icons/image-album.png')}
+          style={{ width: 12.5, height: 25 }}
+        />
+      </TouchableOpacity>
+    );
   };
 
   renderSlider = () => {
     if (this.state.camera.exposureOn) {
-      return (<View style={ styles.sliderContainer }>
-        <View style={ styles.sliderText }>
-          <Text white normal regular>
-            { this.state.camera.exposure }
-          </Text>
+      return (
+        <View style={styles.sliderContainer}>
+          <View style={styles.sliderText}>
+            <Text white normal regular>
+              {this.state.camera.exposure}
+            </Text>
+          </View>
+          <MultiSlider
+            values={[0]}
+            sliderLength={responsiveWidth(80)}
+            onValuesChange={this.multiSliderValuesChange}
+            min={-1}
+            max={1}
+            step={0.1}
+            allowOverlap
+            containerStyle={{
+              height: 40,
+              paddingTop: 20,
+            }}
+            selectedStyle={{
+              backgroundColor: colors.white,
+            }}
+            unselectedStyle={{
+              backgroundColor: 'rgb(232,232,232)',
+            }}
+            pressedMarkerStyle={{
+              width: 9,
+              height: 9,
+            }}
+            markerStyle={{
+              height: 12,
+              width: 12,
+              backgroundColor: colors.white,
+              borderColor: 'transparent',
+            }}
+          />
         </View>
-        <MultiSlider
-          values={ [0] }
-          sliderLength={ responsiveWidth(80) }
-          onValuesChange={ this.multiSliderValuesChange }
-          min={ -1 }
-          max={ 1 }
-          step={ 0.1 }
-          allowOverlap
-          containerStyle={ {
-            height: 40, paddingTop: 20,
-          } }
-          selectedStyle={ {
-            backgroundColor: colors.white,
-          } }
-          unselectedStyle={ {
-            backgroundColor: 'rgb(232,232,232)',
-          } }
-          pressedMarkerStyle={ {
-            width: 9, height: 9,
-          } }
-          markerStyle={ {
-            height: 12, width: 12, backgroundColor: colors.white, borderColor: 'transparent',
-          } }
-        />
-      </View>);
+      );
     }
   };
 
@@ -444,17 +540,34 @@ export default class ScanScreen extends Component {
     if (storeColor && storeColor.length > 0) {
       let colorView = [];
 
-      for (let i = 0; i < storeColor.length && i < 4; i++) {
-        colorView.push(<ColorViewer
-          key={ storeColor[i].datetime }
-          color={ storeColor[i].hex }
-          onPressItem={ () => this.props.navigation.navigate('ColorDetailsScreen', {
-            color: storeColor[i],
-          }) }
-        />,);
+      colorView.push(
+        <ColorViewer
+          key={storeColor[0].datetime}
+          color={storeColor[0].hex}
+          imgWidth={60}
+          imgHeight={60}
+          onPressItem={() =>
+            this.props.navigation.navigate('ColorDetailsScreen', {
+              color: storeColor[0],
+            })
+          }
+        />,
+      );
+      for (let i = 1; i < storeColor.length && i < 6; i++) {
+        colorView.unshift(
+          <ColorViewer
+            key={storeColor[i].datetime}
+            color={storeColor[i].hex}
+            onPressItem={() =>
+              this.props.navigation.navigate('ColorDetailsScreen', {
+                color: storeColor[i],
+              })
+            }
+          />,
+        );
       }
 
-      return <View style={ styles.capturedContainer }>{ colorView }</View>;
+      return <View style={styles.capturedContainer}>{colorView}</View>;
     }
 
     // return (
@@ -483,71 +596,79 @@ export default class ScanScreen extends Component {
     // );
   };
 
-  render () {
+  render() {
     const { isEnabled } = this.state;
 
-    return (<View
-      ref={ (ref) => {
-        this.mainView = ref;
-      } }
-      style={ CommonStyles.container }
-      onLayout={ (event) => {
-        const layout = event.nativeEvent.layout;
-        // console.log('layout', layout);
-        this.setState({
-          mainView: { height: layout.height, width: layout.width },
-        });
-        // this.setState({ dragView: {y: layout.height, x: layout.width, xperc: 50, yperc: 50} });
-        // this.setState({ origin: {y: layout.height, x: layout.width, xperc: 50, yperc: 50} });
-      } }>
-      {/* <NavigationBar navigation={this.props.navigation} /> */ }
-
-      { this.renderCamView() }
-      { this.renderCenterView() }
-
+    return (
       <View
-        key={ 'origin' }
-        style={ [styles.upperPoint, {
-          borderColor: this.state.capColor, backgroundColor: this.state.capColor,
-        },] }></View>
+        ref={(ref) => {
+          this.mainView = ref;
+        }}
+        style={CommonStyles.container}
+        onLayout={(event) => {
+          const layout = event.nativeEvent.layout;
+          // console.log('layout', layout);
+          this.setState({
+            mainView: { height: layout.height, width: layout.width },
+          });
+          // this.setState({ dragView: {y: layout.height, x: layout.width, xperc: 50, yperc: 50} });
+          // this.setState({ origin: {y: layout.height, x: layout.width, xperc: 50, yperc: 50} });
+        }}>
+        {/* <NavigationBar navigation={this.props.navigation} /> */}
 
-      {/*<Image*/ }
-      {/*    source={{ uri: `data:image/png;base64,${this.state.capImage.imageBase64}`}}*/ }
-      {/*    style={{ top:(deviceHeight/5)-20, left:(deviceWidth/5)-20, height: '20%', width: '20%', position:'absolute' }}*/ }
-      {/*/>*/ }
+        {this.renderCamView()}
+        {this.renderCenterView()}
 
-      { this.renderSlider() }
+        <View
+          key={'origin'}
+          style={[
+            styles.upperPoint,
+            {
+              borderColor: this.state.capColor,
+              backgroundColor: this.state.capColor,
+            },
+          ]}></View>
 
-      <View style={ styles.componentContainer }>
-        <Switch
-          trackColor={ { false: colors.darkGray, true: colors.green } }
-          backgroundActive={ colors.transparent }
-          backgroundInactive={ colors.transparent }
-          activeText={ 'Still' }
-          inActiveText={ 'Live' }
-          circleSize={ 35 }
-          // eslint-disable-next-line react-native/no-inline-styles
-          containerStyle={ {
-            borderWidth: 1, borderRadius: 35, borderColor: colors.white,
-          } }
-          innerCircleStyle={ {
-            borderColor: colors.white,
-          } }
-          switchLeftPx={ 2 } // denominator for logic when sliding to TRUE position. Higher number = more space from RIGHT of the circle to END of the slider
-          switchRightPx={ 2 } // denominator for logic when sliding to FALSE position. Higher number = more space from LEFT of the circle to BEGINNING of the slider
-          switchWidthMultiplier={ 2 } // multipled by the `circleSize` prop to calculate total width of the Switch
-          switchBorderRadius={ 30 }
-          onValueChange={ this.switchChange }
-          value={ isEnabled }
-        />
-        { this.renderFlash() }
-        { this.renderExposure() }
+        {/*<Image*/}
+        {/*    source={{ uri: `data:image/png;base64,${this.state.capImage.imageBase64}`}}*/}
+        {/*    style={{ top:(deviceHeight/5)-20, left:(deviceWidth/5)-20, height: '20%', width: '20%', position:'absolute' }}*/}
+        {/*/>*/}
 
-        { this.renderGallery() }
+        {this.renderSlider()}
+
+        <View style={styles.componentContainer}>
+          <Switch
+            trackColor={{ false: colors.darkGray, true: colors.green }}
+            backgroundActive={colors.transparent}
+            backgroundInactive={colors.transparent}
+            activeText={'Still'}
+            inActiveText={'Live'}
+            circleSize={35}
+            // eslint-disable-next-line react-native/no-inline-styles
+            containerStyle={{
+              borderWidth: 1,
+              borderRadius: 35,
+              borderColor: colors.white,
+            }}
+            innerCircleStyle={{
+              borderColor: colors.white,
+            }}
+            switchLeftPx={2} // denominator for logic when sliding to TRUE position. Higher number = more space from RIGHT of the circle to END of the slider
+            switchRightPx={2} // denominator for logic when sliding to FALSE position. Higher number = more space from LEFT of the circle to BEGINNING of the slider
+            switchWidthMultiplier={2} // multipled by the `circleSize` prop to calculate total width of the Switch
+            switchBorderRadius={30}
+            onValueChange={this.switchChange}
+            value={isEnabled}
+          />
+          {this.renderFlash()}
+          {this.renderExposure()}
+
+          {this.renderGallery()}
+        </View>
+
+        {this.renderColorViewList()}
       </View>
-
-      { this.renderColorViewList() }
-    </View>);
+    );
   }
 }
 
