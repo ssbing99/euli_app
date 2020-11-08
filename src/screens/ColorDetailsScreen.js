@@ -7,95 +7,168 @@ import Text from '../elements/Text';
 import Clipboard from '@react-native-community/clipboard';
 import { Toast } from 'native-base';
 import {
-  colors,
-  deviceWidth,
-  NAV_HEIGHT,
-  STATUSBAR_HEIGHT,
+  colors, deviceHeight, deviceWidth, NAV_HEIGHT, STATUSBAR_HEIGHT,
 } from '../styles/variables';
-import {removeColor} from "../store/actionStore";
+import { removeColor } from '../store/actionStore';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import Share from 'react-native-share';
 
 export default class ColorDetailsScreen extends Component {
-  constructor(props) {
+  constructor (props) {
     super(props);
 
-    console.log(this.props.route.params);
-    const { color } = this.props.route.params;
+    this.state = {
+      enlarge: false,
+      enlargeIcon: 'fullscreen'
+    };
 
+    const { color } = this.props.route.params;
     this.color = color;
-    console.log(color);
+
+    this.useColor = colors.black;
+    this.textColor = { color: colors.black };
+    this.borderColor = { borderColor: colors.black };
+
+    this.getContrastColor(this.color.rgb);
+
+    this.SHARE_OPTION = {
+      title: 'EULI Color',
+      subject: 'EULI Color',
+      message: `Euli wanted to send color ${ this.color.rgb }`
+    };
   }
 
-  render() {
-    return (
-      <View style={[CommonStyles.container, { backgroundColor: colors.black }]}>
-        <TouchableOpacity
-          style={styles.icon}
-          onPress={() => this.props.navigation.goBack()}>
-          <Image
-            style={styles.iconClose}
-            source={require('../../img/icons/chevron-down.png')}
-          />
-        </TouchableOpacity>
-        <View style={styles.containerElement}>
-          <View style={styles.rect}>
-            <View style={styles.lightGrayRow}>
-              <Text style={[styles.colorText]}>{color(this.color.hex)}</Text>
-              <Image
-                source={require('../../img/icons/fullscreen.png')}
-                style={styles.icon2}
-              />
-            </View>
-            <View style={styles.rect2}>
-              <TouchableOpacity onPress={() =>{
+  getContrastColor = (colorRgb) => {
+    let colorSplit = colorRgb.replace(/[^0-9,]/g, '').split(',');
+    let isGreater = (colorSplit[0] * 0.299) + (colorSplit[1] * 0.587) + (colorSplit[2] * 0.114);
+    if (isGreater > 186) {
+      this.useColor = colors.black;
+      this.textColor = { color: colors.black };
+      this.borderColor = { borderColor: colors.black };
+    } else {
+      this.useColor = colors.white;
+      this.textColor = { color: colors.white };
+      this.borderColor = { borderColor: colors.white };
+    }
+  };
+
+  getTextColor = () => {
+    return this.textColor;
+  };
+
+  getBorderColor = () => {
+    return this.borderColor;
+  };
+
+  getBoxMargin = () => {
+    if (this.state.enlarge) {
+      return { position: 'absolute', marginTop: deviceHeight / 2 };
+    }
+  };
+
+  getBoxMarginTop = () => {
+    if (this.state.enlarge) {
+      return { marginTop: deviceHeight / 5 };
+    }
+  };
+
+  getEnlargeSize = () => {
+    if (this.state.enlarge) {
+      return { width: deviceWidth, height: deviceHeight, marginTop: 50 };
+    }
+  };
+
+  renderIcon = () => {
+    return <TouchableOpacity onPress={ () => this.onClickIcon() } style={ { flex: 0 } }>
+      <Icon name={ this.state.enlargeIcon } style={ [styles.icon2] } color={ this.useColor } size={ 20 }/>
+    </TouchableOpacity>;
+  };
+
+  onClickIcon = () => {
+    if (this.state.enlargeIcon.indexOf('exit') <= -1) {
+      this.setState({ enlarge: true, enlargeIcon: 'fullscreen-exit' });
+    } else {
+      this.setState({ enlarge: false, enlargeIcon: 'fullscreen' });
+    }
+
+  };
+
+  render () {
+    return (<View style={ [CommonStyles.container, { backgroundColor: colors.black, opacity: 0.9 }] }>
+
+      <View style={ styles.containerElement }>
+        <View style={ [styles.rect, this.getEnlargeSize(), { backgroundColor: this.color.hex }] }>
+          <View style={ [styles.lightGrayRow, this.getBoxMarginTop()] }>
+            <Text style={ [{ flex: 0 }, styles.colorText, this.getTextColor()] }>{ color(this.color.hex) }</Text>
+            { this.renderIcon() }
+          </View>
+          <View style={ [styles.rect2, this.getBoxMargin()] }>
+            <TouchableOpacity
+              onPress={ () => {
                 Clipboard.setString(this.color.rgb);
                 Toast.show({
                   text: 'Copied!',
                   buttonText: 'Okay',
-                  style: {backgroundColor: colors.lightGray},
-                  textStyle: {color: colors.black},
-                  buttonTextStyle: {color: colors.black}
-                })
-              }}>
+                  style: { backgroundColor: colors.lightGray },
+                  textStyle: { color: colors.black },
+                  buttonTextStyle: { color: colors.black },
+                });
+              } }>
               <Image
-                source={require('../../img/icons/content-copy.png')}
-                style={styles.icon3}
+                source={ require('../../img/icons/content-copy.png') }
+                style={ styles.icon3 }
               />
-              </TouchableOpacity>
-              <View style={styles.loremIpsumStack}>
-                <Text style={styles.loremIpsum}>{this.color.rgb.replace(/[^0-9,]/g,'').split(',').join(', ')}</Text>
-                <Text style={styles.rgb}>RGB</Text>
-              </View>
+            </TouchableOpacity>
+            <View style={ styles.loremIpsumStack }>
+              <Text style={ [styles.loremIpsum] }>
+                { this.color.rgb.replace(/[^0-9,]/g, '').split(',').join(', ') }
+              </Text>
+              <Text style={ [styles.rgb] }>RGB</Text>
             </View>
           </View>
         </View>
-        <View style={styles.icon4Row}>
+      </View>
+      <TouchableOpacity
+        style={ styles.icon }
+        onPress={ () => this.props.navigation.goBack() }>
+        <Image
+          style={ styles.iconClose }
+          source={ require('../../img/icons/chevron-down.png') }
+        />
+      </TouchableOpacity>
+      <View style={ styles.icon4Row }>
+        <TouchableOpacity
+          onPress={ () => {
+            Share.open(this.SHARE_OPTION).then((res) => {
+              console.log(res);
+            }).catch((err) => {
+              err && console.log(err);
+            });
+          } }>
           <Image
-            source={require('../../img/icons/export-variant.png')}
-            style={styles.icon4}
+            source={ require('../../img/icons/export-variant.png') }
+            style={ styles.icon4 }
           />
-          <TouchableOpacity onPress={() => {
-            removeColor(this.color).then(res =>{
-              if(res) {
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={ () => {
+            removeColor(this.color).then((res) => {
+              if (res) {
                 Toast.show({
-                  text: 'Color Deleted !',
-                  buttonText: 'Okay',
-                  type:'warning',
-                  style: {backgroundColor: colors.lightGray},
-                  textStyle: {color: colors.black},
-                  buttonTextStyle: {color: colors.black}
-                })
+                  text: 'Color Deleted !', buttonText: 'Okay', type: 'warning', style: { backgroundColor: colors.lightGray }, textStyle: { color: colors.black },
+                  buttonTextStyle: { color: colors.black },
+                });
                 this.props.navigation.goBack();
               }
             });
-          }}>
+          } }>
           <Image
-            source={require('../../img/icons/delete.png')}
-            style={styles.icon6}
+            source={ require('../../img/icons/delete.png') }
+            style={ styles.icon6 }
           />
-          </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
       </View>
-    );
+    </View>);
   }
 
   takePicture = async () => {
@@ -123,6 +196,8 @@ const styles = StyleSheet.create({
     height: 336,
     backgroundColor: '#E6E6E6',
     borderRadius: 5,
+    borderWidth: 1,
+    alignItems: 'center'
   },
   containerElement: {
     flex: 1,
@@ -141,14 +216,15 @@ const styles = StyleSheet.create({
   icon2: {
     height: 20,
     width: 20,
-    marginLeft: 194,
   },
   lightGrayRow: {
     height: 23,
     flexDirection: 'row',
     marginTop: 28,
-    marginLeft: 18,
-    marginRight: 13,
+    width: (310 * .8),
+    alignSelf: 'center',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   rect2: {
     width: 269,
@@ -157,8 +233,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000000',
     marginTop: 165,
-    marginLeft: 18,
+    // marginLeft: 18,
     borderRadius: 5,
+    alignSelf: 'center',
   },
   icon3: {
     height: 20,
@@ -167,24 +244,25 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   loremIpsum: {
-    top: 0,
-    // left: 0,
+    top: 0, // left: 0,
     position: 'absolute',
     color: '#121212',
     alignSelf: 'center',
   },
   rgb: {
     top: 16,
-    left: 34,
+    // left: 34,
+    alignSelf: 'center',
     position: 'absolute',
     color: '#121212',
   },
   loremIpsumStack: {
-    width: 86,
+    width: 120,
     height: 35,
-    marginLeft: 91,
+    // marginLeft: 91,
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center'
   },
   icon4: {
     width: 30,

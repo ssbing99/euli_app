@@ -56,6 +56,7 @@
     "react-native-safe-area-context": "^0.7.3",
     "react-native-screens": "^2.7.0",
     "react-native-scrollable-tab-view": "^1.0.0",
+    "react-native-share": "^4.1.0",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-svg": "^12.1.0",
     "react-native-switch": "^2.0.0",

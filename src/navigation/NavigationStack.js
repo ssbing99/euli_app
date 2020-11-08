@@ -34,47 +34,47 @@ function Main(props) {
   // <Stack.Navigator initialRouteName={ROUTES.WalkThroughScreen}>
   // <Stack.Navigator initialRouteName={ROUTES.MainDrawer}>
   return (
-      <Root>
-    <NavigationContainer ref={navigationRef} theme={theme}>
-      <Stack.Navigator initialRouteName={ROUTES.SplashScreen}>
-        <Stack.Screen
-          name={ROUTES.SplashScreen}
-          component={SplashScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name={ROUTES.WalkthroughScreen}
-          component={WalkthroughScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name={ROUTES.NewsletterScreen}
-          component={NewsletterScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name={ROUTES.LoginScreen}
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name={ROUTES.ForgotPasswordScreen}
-          component={ForgotPasswordScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name={ROUTES.ContactUsScreen}
-          component={ContactUsScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name={ROUTES.MainDrawer}
-          component={MainDrawer}
-          options={{ headerShown: false }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
-      </Root>
+    <Root>
+      <NavigationContainer ref={navigationRef} theme={theme}>
+        <Stack.Navigator initialRouteName={ROUTES.SplashScreen}>
+          <Stack.Screen
+            name={ROUTES.SplashScreen}
+            component={SplashScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name={ROUTES.WalkthroughScreen}
+            component={WalkthroughScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name={ROUTES.NewsletterScreen}
+            component={NewsletterScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name={ROUTES.LoginScreen}
+            component={LoginScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name={ROUTES.ForgotPasswordScreen}
+            component={ForgotPasswordScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name={ROUTES.ContactUsScreen}
+            component={ContactUsScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name={ROUTES.MainDrawer}
+            component={MainDrawer}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Root>
   );
 }
 
