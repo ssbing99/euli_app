@@ -9,6 +9,7 @@ const initialState = {
   id: 0,
   username: '',
   password: '',
+  bearerToken: '',
 };
 
 export const loginReducer = createReducer(initialState, {
@@ -25,7 +26,7 @@ export const loginReducer = createReducer(initialState, {
   [types.LOGIN_RESPONSE](state, action) {
     return {
       ...state,
-      id: action.response.id,
+      bearerToken: action.ReturnString,
       isLoggedIn: true,
     };
   },
@@ -39,6 +40,10 @@ export const loginReducer = createReducer(initialState, {
     return {
       ...state,
       isLoggedIn: false,
+      id: 0,
+      username: '',
+      password: '',
+      bearerToken: '',
     };
   },
 });

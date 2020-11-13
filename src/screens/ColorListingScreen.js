@@ -21,13 +21,77 @@ import { searchIc } from '../styles/icon-variables';
 import { CATEGORIES } from '../static/data';
 import CategoryCard from '../components/CategoryCard';
 import ColorCard from '@components/ColorCard';
+import { getColorList } from '../api/methods/colors';
+import { connect } from 'react-redux';
 
 const imgWidth = responsiveWidth(87.19) / 2;
 const imgHeight = imgWidth * 1.19;
 
-export default class ColorListingScreen extends Component {
+class ColorListingScreen extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      colors: [],
+    }
+
+    this.getColorList();
+
+    const { navigation } = this.props;
+    this.focusListener = navigation.addListener('focus', () => {
+      console.log("focus")
+      this.getColorList();
+    });
+
+  }
+
+  componentWillUnmount() {
+
+    try {
+      console.log(this.focusListener);
+      if (this.focusListener) {
+        this.focusListener.remove();
+      }
+    } catch (e) {}
+  }
+
+  getColorList = () => {
+    getColorList(this.props.username).then(res => {
+      if(res.length > 0){
+        this.setState({ colors: res });
+      }
+    });
+  }
+
+  renderColorCard = () => {
+    const { colors } = this.state;
+    if(this.state.colors.length > 0){
+      let rows = [];
+
+      colors.forEach(c => {
+        rows.push(
+          <ColorCard
+            isTile
+            cardStyles={{ margin: marginHorizontal.small / 2 }}
+            colorInfo={{
+              colorCode: `(${c.colorRGB})`,
+              itemId: c.Id,
+            }}
+            imgWidth={imgWidth}
+            imgHeight={imgHeight}
+            color={`rgb(${c.colorRGB})`}
+            // eslint-disable-next-line react-native/no-inline-styles
+            imgStyles={{
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          />
+        );
+      });
+
+      return rows;
+    }
+    return <View style={{ justifyContent: 'center', alignItems: 'center', flex:1}}><Text>No Color Info.</Text></View>
   }
 
   render() {
@@ -50,54 +114,55 @@ export default class ColorListingScreen extends Component {
 
         <ScrollView>
           <View style={styles.categories}>
-            <ColorCard
-              isTile
-              cardStyles={{ margin: marginHorizontal.small / 2 }}
-              colorInfo={{
-                colorCode: '(213,222,234)',
-                itemId: 'V160-1011',
-              }}
-              imgWidth={imgWidth}
-              imgHeight={imgHeight}
-              color={colors.red}
-              // eslint-disable-next-line react-native/no-inline-styles
-              imgStyles={{
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            />
-            <ColorCard
-              isTile
-              cardStyles={{ margin: marginHorizontal.small / 2 }}
-              colorInfo={{
-                colorCode: '(213,222,234)',
-                itemId: 'V160-1011',
-              }}
-              imgWidth={imgWidth}
-              imgHeight={imgHeight}
-              color={colors.green}
-              // eslint-disable-next-line react-native/no-inline-styles
-              imgStyles={{
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            />
-            <ColorCard
-              isTile
-              cardStyles={{ margin: marginHorizontal.small / 2 }}
-              colorInfo={{
-                colorCode: '(213,222,234)',
-                itemId: 'V160-1011',
-              }}
-              imgWidth={imgWidth}
-              imgHeight={imgHeight}
-              color={colors.black}
-              // eslint-disable-next-line react-native/no-inline-styles
-              imgStyles={{
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            />
+            {this.renderColorCard()}
+            {/*<ColorCard*/}
+            {/*  isTile*/}
+            {/*  cardStyles={{ margin: marginHorizontal.small / 2 }}*/}
+            {/*  colorInfo={{*/}
+            {/*    colorCode: '(213,222,234)',*/}
+            {/*    itemId: 'V160-1011',*/}
+            {/*  }}*/}
+            {/*  imgWidth={imgWidth}*/}
+            {/*  imgHeight={imgHeight}*/}
+            {/*  color={colors.red}*/}
+            {/*  // eslint-disable-next-line react-native/no-inline-styles*/}
+            {/*  imgStyles={{*/}
+            {/*    justifyContent: 'center',*/}
+            {/*    alignItems: 'center',*/}
+            {/*  }}*/}
+            {/*/>*/}
+            {/*<ColorCard*/}
+            {/*  isTile*/}
+            {/*  cardStyles={{ margin: marginHorizontal.small / 2 }}*/}
+            {/*  colorInfo={{*/}
+            {/*    colorCode: '(213,222,234)',*/}
+            {/*    itemId: 'V160-1011',*/}
+            {/*  }}*/}
+            {/*  imgWidth={imgWidth}*/}
+            {/*  imgHeight={imgHeight}*/}
+            {/*  color={colors.green}*/}
+            {/*  // eslint-disable-next-line react-native/no-inline-styles*/}
+            {/*  imgStyles={{*/}
+            {/*    justifyContent: 'center',*/}
+            {/*    alignItems: 'center',*/}
+            {/*  }}*/}
+            {/*/>*/}
+            {/*<ColorCard*/}
+            {/*  isTile*/}
+            {/*  cardStyles={{ margin: marginHorizontal.small / 2 }}*/}
+            {/*  colorInfo={{*/}
+            {/*    colorCode: '(213,222,234)',*/}
+            {/*    itemId: 'V160-1011',*/}
+            {/*  }}*/}
+            {/*  imgWidth={imgWidth}*/}
+            {/*  imgHeight={imgHeight}*/}
+            {/*  color={colors.black}*/}
+            {/*  // eslint-disable-next-line react-native/no-inline-styles*/}
+            {/*  imgStyles={{*/}
+            {/*    justifyContent: 'center',*/}
+            {/*    alignItems: 'center',*/}
+            {/*  }}*/}
+            {/*/>*/}
           </View>
         </ScrollView>
 
@@ -166,6 +231,14 @@ export default class ColorListingScreen extends Component {
     this.props.navigation.navigate('CartStack');
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    username: state.loginReducer.username,
+  }
+}
+
+export default connect(mapStateToProps)(ColorListingScreen);
 
 const styles = StyleSheet.create({
   categories: {

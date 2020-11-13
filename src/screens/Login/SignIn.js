@@ -20,8 +20,9 @@ import {
 } from '../../styles/variables';
 
 import { userIc, passIc } from '../../styles/icon-variables';
+import { connect } from 'react-redux';
 
-export default class SignIn extends Component {
+class SignIn extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -95,6 +96,13 @@ export default class SignIn extends Component {
             btnText="SIGN IN"
             onPressButton={this.handleOnPressSignIn.bind(this)}
           />
+          {/*<PrimeButton*/}
+          {/*  navigation={this.props.navigation}*/}
+          {/*  setting={signInBtnSetting}*/}
+          {/*  underlayColor={colors.red}*/}
+          {/*  btnText="SIGN UP"*/}
+          {/*  onPressButton={this.handleOnPressSignUp.bind(this)}*/}
+          {/*/>*/}
           {/* <PrimeButton
             navigation={this.props.navigation}
             setting={signUpBtnSetting}
@@ -135,7 +143,22 @@ export default class SignIn extends Component {
     }
     this.props.onPressSignIn(email, password);
   }
+
+  /**
+   * Handle when click sign in button
+   */
+  handleOnPressSignUp() {
+    this.props.onPressSignUp();
+  }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    isLoading: state.loadingReducer.isLoginLoading
+  }
+}
+
+export default connect(mapStateToProps)(SignIn);
 
 const styles = StyleSheet.create({
   container: {

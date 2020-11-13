@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { StyleSheet, View, ScrollView, Image } from 'react-native';
 import { ScrollableTabBar } from 'react-native-scrollable-tab-view';
 import { Tabs, Toast } from 'native-base';
+import { connect } from 'react-redux';
 
 import Text from '../elements/Text';
 
@@ -26,14 +27,16 @@ import {
   fontSize,
   bottomTxtHeight,
 } from '../styles/variables';
+import * as loginActions from '../actions/loginActions';
 
 const logoWidth = responsiveWidth(22.67);
 const logoHeight = logoWidth * 1;
 
-export default class LoginScreen extends Component {
+class LoginScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isRedirecting: false,
       signinLayout: {
         width: null,
         height: null,
@@ -47,7 +50,26 @@ export default class LoginScreen extends Component {
         height: null,
       },
     };
+
   }
+
+
+  componentDidUpdate (prevProps, prevState, snapshot) {
+    // console.log("prevProps",prevProps);
+    // console.log("prevState",prevState);
+
+    this.callRedirect(prevProps);
+  }
+
+  callRedirect = (prevProps) =>{
+    if(!prevProps.isLoading && prevProps.isLoggedIn){
+      if(!!this.props.isLoggedIn) {
+        console.log("isLoggedIn",this.props.isLoggedIn);
+        this.props.navigation.navigate('MainDrawer');
+      }
+    }
+  }
+
 
   render() {
     const logoContHeight = this.state.logoContLayout.height;
@@ -78,14 +100,15 @@ export default class LoginScreen extends Component {
             <SignIn
               isLoading={false}
               onPressSignIn={this.handleSignInWithEmailAndPassword.bind(this)}
+              onPressSignUp={this.handleSignUpWithEmailAndPassword.bind(this)}
               onPressFacebook={this.handleSignInFacebook.bind(this)}
               onPressGoogle={this.handleSignInGoogle.bind(this)}
               onPressNeedHelp={() =>
                 this.props.navigation.navigate('ContactUsScreen')
               }
-              onPressSignUp={() => this.tabView.goToPage(1)}
             />
           </View>
+
           {/* <View
             style={[
               styles.bottomCont,
@@ -169,7 +192,7 @@ export default class LoginScreen extends Component {
    * @param {String} password
    */
   handleSignInWithEmailAndPassword(email, password) {
-    this.props.navigation.navigate('MainDrawer');
+    this.props.onPressSignIn(email,password);
   }
 
   /**
@@ -179,9 +202,24 @@ export default class LoginScreen extends Component {
    * @param {String} password
    */
   handleSignUpWithEmailAndPassword(email, password) {
-    this.props.navigation.navigate('MainDrawer');
+    this.props.navigation.navigate('SignUpScreen');
   }
 }
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onPressSignIn: (userid, password) => dispatch(loginActions.requestLogin(userid, password))
+  }
+}
+
+const mapStateToProps = (state) => {
+  return {
+    isLoading: state.loadingReducer.isLoginLoading,
+    isLoggedIn: state.loginReducer.isLoggedIn,
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen);
 
 const styles = StyleSheet.create({
   logo: {
@@ -206,4 +244,5 @@ const styles = StyleSheet.create({
 
 LoginScreen.propTypes = {
   navigation: PropTypes.any,
+  isLoggedIn: PropTypes.any,
 };

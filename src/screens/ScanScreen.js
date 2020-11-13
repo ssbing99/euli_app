@@ -21,6 +21,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import ImagePicker from 'react-native-image-crop-picker';
 import { storeColor, getColor } from '../store/actionStore';
+import { connect } from 'react-redux';
+import * as colorActions from '../actions/colorActions';
 
 /*
  * https://github.com/herbert84/react-native-pixel-color-picker/blob/master/src/ColorPicker.android.js
@@ -35,7 +37,7 @@ const CAM_OPTIONS = {
   forceUpOrientation: true,
 };
 
-export default class ScanScreen extends Component {
+class ScanScreen extends Component {
   constructor(props) {
     super(props);
 
@@ -46,6 +48,7 @@ export default class ScanScreen extends Component {
       // console.log("focus")
       this.getUpdateColor();
     });
+
   }
 
   componentWillUnmount() {
@@ -152,6 +155,8 @@ export default class ScanScreen extends Component {
           storeColor(colorObj).then(() => {
             this.getUpdateColor();
           });
+
+          this.props.onPressFindItem(this.props.username, colorObj.hex, colorObj.rgb);
         })
         .catch((err) => {
           // Handle errors
@@ -671,6 +676,20 @@ export default class ScanScreen extends Component {
     );
   }
 }
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onPressFindItem: (username, colorHex, colorRGB) => dispatch(colorActions.saveColor(username, colorHex, colorRGB))
+  }
+}
+
+const mapStateToProps = (state) => {
+  return {
+    username: state.loginReducer.username
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ScanScreen);
 
 const styles = StyleSheet.create({
   preview: {

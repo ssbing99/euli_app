@@ -5,6 +5,7 @@ import { View, StyleSheet, Image, Platform } from 'react-native';
 
 import Text from '../../elements/Text';
 import Border from '../../elements/Border';
+import { connect } from 'react-redux';
 
 import ListItem from '../../components/ListItem';
 import {
@@ -22,10 +23,20 @@ import {
   cameratabIc,
 } from '../../styles/icon-variables';
 import { avaImg } from '../../styles/image-variables';
+import * as loginActions from 'src/actions/loginActions';
 
-export default class NormalProfile extends Component {
+class NormalProfile extends Component {
   constructor(props) {
     super(props);
+  }
+
+  componentDidUpdate (prevProps, prevState, snapshot) {
+    // console.log(prevProps);
+  }
+
+  handleLogout = () => {
+    this.props.onPressLogout();
+    this.props.navigation.navigate('LoginScreen');
   }
 
   render() {
@@ -171,6 +182,7 @@ export default class NormalProfile extends Component {
             }}
             header="Log Out"
             borderWidth={responsiveWidth(91.47)}
+            onPressItem={this.handleLogout}
           />
         </View>
         {/* list item end here */}
@@ -178,6 +190,13 @@ export default class NormalProfile extends Component {
     );
   }
 }
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onPressLogout: () => dispatch(loginActions.logOut())
+  }
+}
+export default connect(null, mapDispatchToProps)(NormalProfile);
 
 const styles = StyleSheet.create({
   user: {

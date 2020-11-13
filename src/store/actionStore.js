@@ -2,6 +2,51 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 const COLOR_KEY = '@color_key';
 
+export const USER_KEY = 'member';
+export const USER_TOKEN = 'bearer';
+
+export const _storeData = async (key, item) => {
+  try {
+    const value = await AsyncStorage.setItem(key, JSON.stringify(item));
+    return value;
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+}
+
+export const _retrieveData = async (key) => {
+  try {
+    const value = await AsyncStorage.getItem(key);
+    if (value != null) {
+      return JSON.parse(value);
+    }
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+}
+
+export const _removeValue = async (key) => {
+  try {
+    await AsyncStorage.removeItem(key)
+  } catch(e) {
+    // remove error
+    console.log(e);
+  }
+
+}
+
+export const _removeAll = async () => {
+  try {
+    await AsyncStorage.clear();
+    return;
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+}
+
 export const storeColor = async (color) => {
   try {
     const storedColor = await getColor().then((res) => {
@@ -38,7 +83,6 @@ export const removeColor = async (color) => {
 
       return res;
     });
-    console.log('storedColor', storedColor);
 
     const jsonValue = JSON.stringify(storedColor);
     await AsyncStorage.setItem(COLOR_KEY, jsonValue);
@@ -54,7 +98,6 @@ export const removeColor = async (color) => {
 export const getColor = async () => {
   try {
     const value = await AsyncStorage.getItem(COLOR_KEY);
-    // console.log("getValue", value);
     if (value !== null) {
       return JSON.parse(value);
     } else {

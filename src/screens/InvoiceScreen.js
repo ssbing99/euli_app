@@ -5,7 +5,7 @@ import {
   View,
   ScrollView,
   TouchableHighlight,
-  Image,
+  Image, ActivityIndicator,
 } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -32,6 +32,9 @@ import { searchIc } from '../styles/icon-variables';
 import { CUSTOMERS } from '../static/data';
 import { DataTable } from 'react-native-paper';
 import RNPrint from 'react-native-print';
+import { getInvoice } from '../api/methods/invoice';
+
+const itemsPerPage = 10;
 
 export default class InvoiceScreen extends Component {
   constructor(props) {
@@ -41,15 +44,184 @@ export default class InvoiceScreen extends Component {
         width: null,
         height: null,
       },
+      isLoading: false,
       isChecked: false,
       modalVisible: false,
       selectedState: 'Customer',
       isSelectedState: false,
       showSearchModal: false,
+      historyList: [],
+      page: 0,
+      customersList: [],
+      filteredList: [],
     };
   }
 
+  componentDidMount () {
+    console.log('did mount');
+
+    this.getInvoiceHistory();
+
+  }
+
+  updateLoading = () => {
+    this.setState({
+      isLoading: !this.state.isLoading
+    });
+  }
+
+  getInvoiceHistory = () => {
+    try {
+      this.updateLoading();
+      getInvoice().then(res => {
+        if (res.data) {
+
+          let customers = [];
+          let c = 0;
+          res.data.map(data => {
+            let dt = new Date(data.CreatedAt);
+            data.DisplayInvoiceDate = `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`;
+
+            const added = customers.find(cust => cust.name == data.UserId);
+
+            if (!added) {
+              customers.push({id: c++, name: data.UserId});
+            }
+
+          });
+
+          const result = new Array(Math.ceil(res.data.length / itemsPerPage)).fill().map(_ => res.data.splice(0, itemsPerPage));
+
+          this.setState({historyList: result, filteredList: result, customersList: customers});
+          this.updateLoading();
+        }
+      });
+    } catch (e) {
+      console.log(e);
+      this.updateLoading();
+
+    }
+  };
+
+  filterSelectedList = () => {
+
+    const {historyList, selectedDate, selectedState} = this.state;
+
+    if (historyList && historyList.length > 0) {
+      let rows = [];
+      let result = [];
+
+      historyList.forEach(hist => {
+        hist.forEach((h) => {
+
+          let addable = true;
+
+          if (selectedDate) {
+            if (selectedDate !== h.DisplayInvoiceDate) {
+              addable = false;
+            }
+          }
+
+          if (addable && selectedState) {
+            if (selectedState !== h.UserId) {
+              addable = false;
+            }
+          }
+
+          if (addable) {
+            rows.push(h);
+          }
+        });
+      });
+
+      if(rows && rows.length > 0){
+        result = new Array(Math.ceil(rows.length / itemsPerPage)).fill().map(_ => rows.splice(0, itemsPerPage));
+      }
+
+      this.setState({
+        filteredList: result,
+        page: 0,
+      });
+
+    }
+
+    this.setState({
+      showSearchModal: !this.state.showSearchModal,
+    });
+
+  }
+
+  setCalendarDate = (date) => {
+    if (date) {
+      const newDate = new Date(date);
+      this.setState({selectedDate: `${newDate.getDate()}/${newDate.getMonth() + 1}/${newDate.getFullYear()}`});
+    } else {
+      this.setState({selectedDate: null});
+    }
+  };
+
+  renderRow = () => {
+
+    const {filteredList, page} = this.state;
+
+    let defaultRow = (<DataTable.Row style={{width: 600}}>
+      <DataTable.Cell style={{flex: 1}}>Data Not Found !</DataTable.Cell>
+    </DataTable.Row>);
+
+    if (filteredList && filteredList.length > 0) {
+      let rows = [];
+      let i = 0;
+
+      if (page < filteredList.length) {
+        let hist = filteredList[page];
+        hist.forEach((h) => {
+
+          rows.push(
+            <DataTable.Row style={{ width: 600 }} key={h.Id}>
+              <DataTable.Cell style={{ flex: 1 }}>
+                <Text
+                  style={{ color: colors.green }}
+                  onPress={() => this._onPrint()}>
+                  Print
+                </Text>
+              </DataTable.Cell>
+              <DataTable.Cell style={{ flex: 2 }}>{h.Id}</DataTable.Cell>
+              <DataTable.Cell style={{ flex: 2 }}>{h.DisplayInvoiceDate}</DataTable.Cell>
+              {/*<DataTable.Cell style={{ flex: 4 }}>*/}
+              {/*  UB APPPPARREL (M) SDN BHD*/}
+              {/*</DataTable.Cell>*/}
+              <DataTable.Cell numeric style={{ flex: 2 }}>
+                {((h.Amount * 100) / 100).toFixed(2)}
+              </DataTable.Cell>
+            </DataTable.Row>
+          );
+        });
+      }
+
+      if (rows && rows.length > 0) {
+        return rows;
+      } else {
+        return defaultRow;
+      }
+
+    } else {
+      return defaultRow;
+    }
+  };
+
   render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={[styles.loading]}>
+          <ActivityIndicator />
+        </View>
+      );
+    }
+
+    const {page, filteredList} = this.state;
+    const from = page * itemsPerPage;
+    const to = (page + 1) * itemsPerPage;
+
     return (
       <View style={CommonStyles.container}>
         <NavigationBar
@@ -79,58 +251,61 @@ export default class InvoiceScreen extends Component {
                 <DataTable.Title style={{ flex: 2 }}>
                   Invoice Date
                 </DataTable.Title>
-                <DataTable.Title style={{ flex: 4 }}>
-                  Shipping Name
-                </DataTable.Title>
+                {/*<DataTable.Title style={{ flex: 4 }}>*/}
+                {/*  Shipping Name*/}
+                {/*</DataTable.Title>*/}
                 <DataTable.Title numeric style={{ flex: 2 }}>
                   Net Total
                 </DataTable.Title>
               </DataTable.Header>
 
-              <DataTable.Row style={{ width: 600 }}>
-                <DataTable.Cell style={{ flex: 1 }}>
-                  <Text
-                    style={{ color: colors.green }}
-                    onPress={() => this._onPrint()}>
-                    Print
-                  </Text>
-                </DataTable.Cell>
-                <DataTable.Cell style={{ flex: 2 }}>INV001091</DataTable.Cell>
-                <DataTable.Cell style={{ flex: 2 }}>26/12/2017</DataTable.Cell>
-                <DataTable.Cell style={{ flex: 4 }}>
-                  UB APPPPARREL (M) SDN BHD
-                </DataTable.Cell>
-                <DataTable.Cell numeric style={{ flex: 2 }}>
-                  2,500.00
-                </DataTable.Cell>
-              </DataTable.Row>
+              {this.renderRow()}
 
-              <DataTable.Row style={{ width: 600 }}>
-                <DataTable.Cell style={{ flex: 1 }}>
-                  <Text
-                    style={{ color: colors.green }}
-                    onPress={() => this._onPrint()}>
-                    Print
-                  </Text>
-                </DataTable.Cell>
-                <DataTable.Cell style={{ flex: 2 }}>INV001091</DataTable.Cell>
-                <DataTable.Cell style={{ flex: 2 }}>26/12/2017</DataTable.Cell>
-                <DataTable.Cell style={{ flex: 4 }}>
-                  UB APPPPARREL (M) SDN BHD
-                </DataTable.Cell>
-                <DataTable.Cell numeric style={{ flex: 2 }}>
-                  2,500.00
-                </DataTable.Cell>
-              </DataTable.Row>
+              {/*<DataTable.Row style={{ width: 600 }}>*/}
+              {/*  <DataTable.Cell style={{ flex: 1 }}>*/}
+              {/*    <Text*/}
+              {/*      style={{ color: colors.green }}*/}
+              {/*      onPress={() => this._onPrint()}>*/}
+              {/*      Print*/}
+              {/*    </Text>*/}
+              {/*  </DataTable.Cell>*/}
+              {/*  <DataTable.Cell style={{ flex: 2 }}>INV001091</DataTable.Cell>*/}
+              {/*  <DataTable.Cell style={{ flex: 2 }}>26/12/2017</DataTable.Cell>*/}
+              {/*  <DataTable.Cell style={{ flex: 4 }}>*/}
+              {/*    UB APPPPARREL (M) SDN BHD*/}
+              {/*  </DataTable.Cell>*/}
+              {/*  <DataTable.Cell numeric style={{ flex: 2 }}>*/}
+              {/*    2,500.00*/}
+              {/*  </DataTable.Cell>*/}
+              {/*</DataTable.Row>*/}
+
+              {/*<DataTable.Row style={{ width: 600 }}>*/}
+              {/*  <DataTable.Cell style={{ flex: 1 }}>*/}
+              {/*    <Text*/}
+              {/*      style={{ color: colors.green }}*/}
+              {/*      onPress={() => this._onPrint()}>*/}
+              {/*      Print*/}
+              {/*    </Text>*/}
+              {/*  </DataTable.Cell>*/}
+              {/*  <DataTable.Cell style={{ flex: 2 }}>INV001091</DataTable.Cell>*/}
+              {/*  <DataTable.Cell style={{ flex: 2 }}>26/12/2017</DataTable.Cell>*/}
+              {/*  <DataTable.Cell style={{ flex: 4 }}>*/}
+              {/*    UB APPPPARREL (M) SDN BHD*/}
+              {/*  </DataTable.Cell>*/}
+              {/*  <DataTable.Cell numeric style={{ flex: 2 }}>*/}
+              {/*    2,500.00*/}
+              {/*  </DataTable.Cell>*/}
+              {/*</DataTable.Row>*/}
             </ScrollView>
 
             <DataTable.Pagination
-              page={1}
-              numberOfPages={3}
+              page={page}
+              numberOfPages={filteredList.length}
               onPageChange={(page) => {
-                console.log(page);
+                this.setState({page: page});
+                // console.log(page);
               }}
-              label="1-2 of 6"
+              label={`${from + 1}-${to} of ${filteredList.length}`}
             />
           </DataTable>
         </ScrollView>
@@ -194,7 +369,13 @@ export default class InvoiceScreen extends Component {
   _searchModal() {
     this.setState({
       showSearchModal: !this.state.showSearchModal,
+      selectedDate: null,
+      selectedState: null,
     });
+  }
+
+  _searchSubmit () {
+    this.filterSelectedList();
   }
 
   renderBody() {
@@ -208,22 +389,22 @@ export default class InvoiceScreen extends Component {
     return (
       <View style={CommonStyles.modal}>
         <ScrollView style={CommonStyles.modalBody}>
-          {CUSTOMERS.map((item) => (
+          {this.state.customersList.map((item) => (
             <TouchableHighlight
               key={item.id}
               underlayColor={colors.lightGray}
-              onPress={() => this.selectItem(item.id, item.state)}>
+              onPress={() => this.selectItem(item.id, item.name)}>
               <View style={styles.selectItem}>
                 <Text black normal regular>
-                  {item.state}
+                  {item.name}
                 </Text>
                 {this.state.isSelectedState == true &&
-                  item.state == this.state.selectedState && (
-                    <Icon
-                      name="ios-checkmark"
-                      style={{ fontSize: fontSize.large }}
-                    />
-                  )}
+                item.name == this.state.selectedState && (
+                  <Icon
+                    name="ios-checkmark"
+                    style={{fontSize: fontSize.large}}
+                  />
+                )}
               </View>
             </TouchableHighlight>
           ))}
@@ -286,7 +467,7 @@ export default class InvoiceScreen extends Component {
                   placeHolderText="Select date"
                   textStyle={{ color: colors.black }}
                   placeHolderTextStyle={{ color: colors.gray }}
-                  onDateChange={this.setDate}
+                  onDateChange={this.setCalendarDate}
                   disabled={false}
                 />
               </View>
@@ -299,7 +480,7 @@ export default class InvoiceScreen extends Component {
             setting={modalBtnSetting}
             btnText="Search"
             underlayColor={colors.red}
-            onPressButton={this._searchModal.bind(this)}
+            onPressButton={this._searchSubmit.bind(this)}
           />
         </View>
       </View>
@@ -327,6 +508,15 @@ export default class InvoiceScreen extends Component {
 }
 
 const styles = StyleSheet.create({
+  loading: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
   form: {
     paddingHorizontal: marginHorizontal.normal,
     paddingBottom: 20,
