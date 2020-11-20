@@ -54,6 +54,7 @@ export default class InvoiceScreen extends Component {
       page: 0,
       customersList: [],
       filteredList: [],
+      filteredDataCount: 0,
     };
   }
 
@@ -74,10 +75,11 @@ export default class InvoiceScreen extends Component {
     try {
       this.updateLoading();
       getInvoice().then(res => {
-        if (res.data) {
+        if (res.data && !res.data.Message) {
 
           let customers = [];
           let c = 0;
+          const dataLength = res.data.length;
           res.data.map(data => {
             let dt = new Date(data.CreatedAt);
             data.DisplayInvoiceDate = `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`;
@@ -92,7 +94,10 @@ export default class InvoiceScreen extends Component {
 
           const result = new Array(Math.ceil(res.data.length / itemsPerPage)).fill().map(_ => res.data.splice(0, itemsPerPage));
 
-          this.setState({historyList: result, filteredList: result, customersList: customers});
+          this.setState({historyList: result, filteredList: result, customersList: customers, filteredDataCount: dataLength});
+          this.updateLoading();
+        }else{
+          this.setState({historyList: [], filteredList: [], customersList: [], filteredDataCount: 0});
           this.updateLoading();
         }
       });
@@ -110,6 +115,7 @@ export default class InvoiceScreen extends Component {
     if (historyList && historyList.length > 0) {
       let rows = [];
       let result = [];
+      let filteredDataCount = 0;
 
       historyList.forEach(hist => {
         hist.forEach((h) => {
@@ -135,12 +141,14 @@ export default class InvoiceScreen extends Component {
       });
 
       if(rows && rows.length > 0){
+        filteredDataCount = rows.length;
         result = new Array(Math.ceil(rows.length / itemsPerPage)).fill().map(_ => rows.splice(0, itemsPerPage));
       }
 
       this.setState({
         filteredList: result,
         page: 0,
+        filteredDataCount: filteredDataCount
       });
 
     }
@@ -213,12 +221,12 @@ export default class InvoiceScreen extends Component {
     if (this.state.isLoading) {
       return (
         <View style={[styles.loading]}>
-          <ActivityIndicator />
+          <ActivityIndicator size={"large"}/>
         </View>
       );
     }
 
-    const {page, filteredList} = this.state;
+    const {page, filteredList, filteredDataCount} = this.state;
     const from = page * itemsPerPage;
     const to = (page + 1) * itemsPerPage;
 
@@ -298,6 +306,7 @@ export default class InvoiceScreen extends Component {
               {/*</DataTable.Row>*/}
             </ScrollView>
 
+            {filteredList.length > 0 &&
             <DataTable.Pagination
               page={page}
               numberOfPages={filteredList.length}
@@ -305,8 +314,9 @@ export default class InvoiceScreen extends Component {
                 this.setState({page: page});
                 // console.log(page);
               }}
-              label={`${from + 1}-${to} of ${filteredList.length}`}
+              label={`${from + 1}-${to} of ${filteredDataCount}`}
             />
+            }
           </DataTable>
         </ScrollView>
 

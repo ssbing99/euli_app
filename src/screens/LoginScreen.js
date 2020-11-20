@@ -62,11 +62,19 @@ class LoginScreen extends Component {
   }
 
   callRedirect = (prevProps) =>{
-    if(!prevProps.isLoading && prevProps.isLoggedIn){
-      if(!!this.props.isLoggedIn) {
-        console.log("isLoggedIn",this.props.isLoggedIn);
-        this.props.navigation.navigate('MainDrawer');
-      }
+    // console.log("isLoading",prevProps.isLoading, this.props.isLoading);
+    // console.log("isLoggedIn",prevProps.isLoggedIn, this.props.isLoggedIn);
+
+    if(!!this.props.isLoading && !!this.props.isLoggedIn){
+      console.log("DISABLE LOADER");
+      this.props.disableLoader();
+    }
+
+    if(!prevProps.isLoading  && !!this.props.isLoggedIn) {
+
+      console.log("REDIRECT");
+      // this.props.disableLoader();
+      this.props.navigation.navigate('MainDrawer');
     }
   }
 
@@ -208,7 +216,8 @@ class LoginScreen extends Component {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onPressSignIn: (userid, password) => dispatch(loginActions.requestLogin(userid, password))
+    onPressSignIn: (userid, password) => dispatch(loginActions.requestLogin(userid, password)),
+    disableLoader: () => dispatch(loginActions.disableLoader())
   }
 }
 
@@ -245,4 +254,5 @@ const styles = StyleSheet.create({
 LoginScreen.propTypes = {
   navigation: PropTypes.any,
   isLoggedIn: PropTypes.any,
+  isLoading: PropTypes.any,
 };

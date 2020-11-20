@@ -54,7 +54,43 @@ export default class SingleProductScreen extends Component {
       showListSize: false,
       selectedColor: '#000',
       selectedSize: 'SIZE',
+      slideImage: [],
+      priceList: [],
     };
+  }
+
+  componentDidMount (){
+
+    const { route } = this.props;
+    const { proInfo } = route.params;
+    const { Options } = proInfo;
+
+    let slideImg = [];
+    let opt = [];
+
+    const imgSrc = proInfo.Photo && {uri: proInfo.Photo} ;
+
+    slideImg.push({image: imgSrc});
+
+    this.setState({ slideImage: slideImg});
+
+    if(Options && Options.length){
+      opt.push(...Options);
+      this.setState({ priceList: opt });
+    }
+
+  }
+
+  loadFallBack = (i) => {
+    const { slideImage } = this.state;
+    slideImage.map((item, index) => {
+      if(index == i){
+        item.image = require('../../img/imba/img.png');
+      }
+    });
+
+    console.log("new slide", slideImage);
+    this.setState({ slideImage: slideImage });
   }
 
   render() {
@@ -108,13 +144,19 @@ export default class SingleProductScreen extends Component {
             autoplay
             loop={false}
             activeDotColor={colors.black}>
-            {proInfo.slides.map((item, index) => (
-              <Image
-                key={index}
-                source={item.image}
-                style={{ width: imgWidth, height: imgHeight }}
+            {proInfo.ColorCode &&
+              <View
+                style={{ width: imgWidth, height: imgHeight, backgroundColor: `rgb(${proInfo.ColorCode})` }}
               />
-            ))}
+            }
+            {/*{this.state.slideImage.map((item, index) => (*/}
+            {/*  <Image*/}
+            {/*    key={index}*/}
+            {/*    source={item.image}*/}
+            {/*    style={{ width: imgWidth, height: imgHeight }}*/}
+            {/*    onError={() => this.loadFallBack(index)}*/}
+            {/*  />*/}
+            {/*))}*/}
           </CustomSwiper>
           {/* slider end here */}
 
@@ -161,49 +203,49 @@ export default class SingleProductScreen extends Component {
               {proInfo.name}
             </Text>
             <Text black normal bold>
-              ${proInfo.price}
+              ${proInfo.price || ((proInfo.SellingPrice * 100) / 100).toFixed(2) || "0.00"}
             </Text>
           </View>
           {/* product info end here */}
 
           {/* select size, color start here */}
           <Border bottom width={responsiveWidth(91.46)} alignSelf="center" />
-          <View style={styles.sizeColor}>
-            <TouchableOpacity
-              activeOpacity={0.6}
-              style={[
-                styles.sizeColorItem,
-                { paddingHorizontal: marginHorizontal.small },
-              ]}
-              onPress={() => this.setState({ showListColor: true })}>
-              <View
-                style={[
-                  styles.oval,
-                  { backgroundColor: this.state.selectedColor },
-                ]}
-              />
-              <Image
-                source={require('../../img/icons/ic_down.png')}
-                style={{ width: arrDownIc.width, height: arrDownIc.height }}
-              />
-            </TouchableOpacity>
-            {/* <Border right height={responsiveHeight(4.79)} />
-            <TouchableOpacity
-              activeOpacity={0.6}
-              style={[
-                styles.sizeColorItem,
-                { paddingHorizontal: marginHorizontal.small },
-              ]}
-              onPress={() => this.setState({ showListSize: true })}>
-              <Text grey normal mediumBold>
-                {this.state.selectedSize}
-              </Text>
-              <Image
-                source={require('../../img/icons/ic_down.png')}
-                style={{ width: arrDownIc.width, height: arrDownIc.height }}
-              />
-            </TouchableOpacity> */}
-          </View>
+          {/*<View style={styles.sizeColor}>*/}
+          {/*  <TouchableOpacity*/}
+          {/*    activeOpacity={0.6}*/}
+          {/*    style={[*/}
+          {/*      styles.sizeColorItem,*/}
+          {/*      { paddingHorizontal: marginHorizontal.small },*/}
+          {/*    ]}*/}
+          {/*    onPress={() => this.setState({ showListColor: true })}>*/}
+          {/*    <View*/}
+          {/*      style={[*/}
+          {/*        styles.oval,*/}
+          {/*        { backgroundColor: this.state.selectedColor },*/}
+          {/*      ]}*/}
+          {/*    />*/}
+          {/*    <Image*/}
+          {/*      source={require('../../img/icons/ic_down.png')}*/}
+          {/*      style={{ width: arrDownIc.width, height: arrDownIc.height }}*/}
+          {/*    />*/}
+          {/*  </TouchableOpacity>*/}
+          {/*  /!* <Border right height={responsiveHeight(4.79)} />*/}
+          {/*  <TouchableOpacity*/}
+          {/*    activeOpacity={0.6}*/}
+          {/*    style={[*/}
+          {/*      styles.sizeColorItem,*/}
+          {/*      { paddingHorizontal: marginHorizontal.small },*/}
+          {/*    ]}*/}
+          {/*    onPress={() => this.setState({ showListSize: true })}>*/}
+          {/*    <Text grey normal mediumBold>*/}
+          {/*      {this.state.selectedSize}*/}
+          {/*    </Text>*/}
+          {/*    <Image*/}
+          {/*      source={require('../../img/icons/ic_down.png')}*/}
+          {/*      style={{ width: arrDownIc.width, height: arrDownIc.height }}*/}
+          {/*    />*/}
+          {/*  </TouchableOpacity> *!/*/}
+          {/*</View>*/}
           <Border
             bottom
             width={responsiveWidth(91.46)}

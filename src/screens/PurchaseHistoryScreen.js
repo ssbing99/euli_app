@@ -54,6 +54,7 @@ export default class PurchaseHistoryScreen extends Component {
       page: 0,
       customersList: [],
       filteredList: [],
+      filteredDataCount: 0,
     };
   }
 
@@ -75,10 +76,11 @@ export default class PurchaseHistoryScreen extends Component {
       this.updateLoading();
       getPurchaseHistory().then(res => {
         console.log(res);
-        if (res.data) {
+        if (res.data && !res.data.Message) {
 
           let customers = [];
           let c = 0;
+          const dataLength = res.data.length;
           res.data.map(data => {
             let dt = new Date(data.InvoiceDate);
             data.DisplayInvoiceDate = `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`;
@@ -93,7 +95,10 @@ export default class PurchaseHistoryScreen extends Component {
 
           const result = new Array(Math.ceil(res.data.length / itemsPerPage)).fill().map(_ => res.data.splice(0, itemsPerPage));
 
-          this.setState({historyList: result, filteredList: result, customersList: customers});
+          this.setState({historyList: result, filteredList: result, customersList: customers, filteredDataCount: dataLength});
+          this.updateLoading();
+        }else{
+          this.setState({historyList: [], filteredList: [], customersList: [], filteredDataCount: 0});
           this.updateLoading();
         }
       });
@@ -111,6 +116,7 @@ export default class PurchaseHistoryScreen extends Component {
     if (historyList && historyList.length > 0) {
       let rows = [];
       let result = [];
+      let filteredDataCount = 0;
 
       historyList.forEach(hist => {
         hist.forEach((h) => {
@@ -136,12 +142,14 @@ export default class PurchaseHistoryScreen extends Component {
       });
 
       if(rows && rows.length > 0){
+        filteredDataCount = rows.length;
         result = new Array(Math.ceil(rows.length / itemsPerPage)).fill().map(_ => rows.splice(0, itemsPerPage));
       }
 
       this.setState({
         filteredList: result,
         page: 0,
+        filteredDataCount: filteredDataCount
       });
 
     }
@@ -163,7 +171,7 @@ export default class PurchaseHistoryScreen extends Component {
 
   renderRow = () => {
 
-    const {filteredList, page} = this.state;
+    const {filteredList, page, filteredDataCount} = this.state;
 
     let defaultRow = (<DataTable.Row style={{width: 500}}>
       <DataTable.Cell style={{flex: 1}}>Data Not Found !</DataTable.Cell>
@@ -210,7 +218,7 @@ export default class PurchaseHistoryScreen extends Component {
     if (this.state.isLoading) {
       return (
         <View style={[styles.loading]}>
-          <ActivityIndicator />
+          <ActivityIndicator size={"large"}/>
         </View>
       );
     }
@@ -279,6 +287,7 @@ export default class PurchaseHistoryScreen extends Component {
               {/*</DataTable.Row>*/}
             </ScrollView>
 
+            {filteredList.length > 0 &&
             <DataTable.Pagination
               page={page}
               numberOfPages={filteredList.length}
@@ -286,8 +295,9 @@ export default class PurchaseHistoryScreen extends Component {
                 this.setState({page: page});
                 // console.log(page);
               }}
-              label={`${from + 1}-${to} of ${filteredList.length}`}
+              label={`${from + 1}-${to} of ${filteredDataCount}`}
             />
+            }
           </DataTable>
         </ScrollView>
 

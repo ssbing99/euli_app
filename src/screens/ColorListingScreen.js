@@ -101,15 +101,15 @@ class ColorListingScreen extends Component {
           // menu
           navigation={this.props.navigation}
           title="COLOR LISTING"
-          rightButtons={[
-            {
-              key: 1,
-              buttonIcon: require('../../img/icons/ic_cart.png'),
-              buttonAction: this._handleClickSearchButton.bind(this),
-              buttonWidth: searchIc.width,
-              buttonHeight: searchIc.height,
-            },
-          ]}
+          // rightButtons={[
+          //   {
+          //     key: 1,
+          //     buttonIcon: require('../../img/icons/ic_cart.png'),
+          //     buttonAction: this._handleClickSearchButton.bind(this),
+          //     buttonWidth: searchIc.width,
+          //     buttonHeight: searchIc.height,
+          //   },
+          // ]}
         />
 
         <ScrollView>

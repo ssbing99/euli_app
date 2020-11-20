@@ -14,3 +14,7 @@ export const LOG_OUT = 'LOG_OUT';
 //color
 export const SAVE_COLOR = 'SAVE_COLOR';
 export const SAVE_COLOR_LIST = 'SAVE_COLOR_LIST';
+
+//inventory
+export const SAVE_ITEM_COLOR = 'SAVE_ITEM_COLOR';
+export const SAVE_ITEM_COLOR_LIST = 'SAVE_ITEM_COLOR_LIST';

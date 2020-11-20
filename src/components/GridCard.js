@@ -16,8 +16,24 @@ import {
   lineHeight,
   borderRadius,
 } from '../styles/variables';
+import { DataTable } from 'react-native-paper';
 
 export default class GridCard extends Component {
+
+  state = {
+    image: require('../../img/imba/img.png')
+  };
+
+  componentDidMount (){
+    const { proInfo } = this.props;
+    const imgSrc = (proInfo.Photo && {uri: proInfo.Photo}) ;
+    this.setState({ image: imgSrc});
+  }
+
+  loadFallBack = (event) => {
+    this.setState({ image: require('../../img/imba/img.png')});
+  }
+
   render() {
     const {
       isFavourite,
@@ -37,28 +53,45 @@ export default class GridCard extends Component {
           activeOpacity={0.6}
           style={[cardStyles, { width: imgWidth }]}
           onPress={onPressListItem}>
-          <Image
-            source={proInfo.image}
-            style={[
+          { proInfo.ColorCode &&
+          <View
+            style={ [
               imgStyles,
               styles.image,
-              { width: imgWidth, height: imgHeight },
-            ]}
+              { width: imgWidth, height: imgHeight, backgroundColor: `rgb(${proInfo.ColorCode})` },
+            ] }
           />
+          }
+          {/*{ this.state.image &&*/}
+          {/*<Image*/}
+          {/*  source={ this.state.image }*/}
+          {/*  style={ [*/}
+          {/*    imgStyles,*/}
+          {/*    styles.image,*/}
+          {/*    { width: imgWidth, height: imgHeight },*/}
+          {/*  ] }*/}
+          {/*  onError={ this.loadFallBack }*/}
+          {/*/>*/}
+          {/*}*/}
           <View style={styles.textCont}>
-            {proInfo.name != null && (
+            {(proInfo.name != null || proInfo.Name != null )&& (
               <Text
                 black
                 small
                 mediumBold
                 numberOfLines={textNumberOfLines}
                 style={styles.header}>
-                {proInfo.name}
+                {proInfo.name || proInfo.Name }
               </Text>
             )}
             {proInfo.price != null && (
               <Text black small bold>
                 ${proInfo.price}
+              </Text>
+            )}
+            {proInfo.SellingPrice != null && (
+              <Text black small bold>
+                {((proInfo.SellingPrice * 100) / 100).toFixed(2)}
               </Text>
             )}
           </View>

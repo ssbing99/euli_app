@@ -52,6 +52,7 @@ export default class InventoryScreen extends Component {
       historyList: [],
       page: 0,
       filteredList: [],
+      filteredDataCount: 0,
     };
   }
 
@@ -74,9 +75,13 @@ export default class InventoryScreen extends Component {
       getInventoryItem().then(res => {
         console.log(res);
         if (res.data) {
+          const dataLength = res.data.length;
           const result = new Array(Math.ceil(res.data.length / itemsPerPage)).fill().map(_ => res.data.splice(0, itemsPerPage));
 
-          this.setState({historyList: result, filteredList: result});
+          this.setState({historyList: result, filteredList: result, filteredDataCount: dataLength});
+          this.updateLoading();
+        }else{
+          this.setState({historyList: [], filteredList: [], filteredDataCount: 0});
           this.updateLoading();
         }
       });
@@ -89,7 +94,7 @@ export default class InventoryScreen extends Component {
 
   renderRow = () => {
 
-    const {filteredList, page} = this.state;
+    const {filteredList, page, filteredDataCount} = this.state;
 
     let defaultRow = (<DataTable.Row>
       <DataTable.Cell style={{flex: 1}}>Data Not Found !</DataTable.Cell>
@@ -132,12 +137,12 @@ export default class InventoryScreen extends Component {
     if (this.state.isLoading) {
       return (
         <View style={[styles.loading]}>
-          <ActivityIndicator />
+          <ActivityIndicator size={"large"}/>
         </View>
       );
     }
 
-    const {page, filteredList} = this.state;
+    const {page, filteredList, filteredDataCount} = this.state;
     const from = page * itemsPerPage;
     const to = (page + 1) * itemsPerPage;
 
@@ -174,6 +179,7 @@ export default class InventoryScreen extends Component {
             {/*  <DataTable.Cell numeric>4</DataTable.Cell>*/}
             {/*</DataTable.Row>*/}
 
+            {filteredList.length > 0 &&
             <DataTable.Pagination
               page={page}
               numberOfPages={filteredList.length}
@@ -181,8 +187,9 @@ export default class InventoryScreen extends Component {
                 this.setState({page: page});
                 // console.log(page);
               }}
-              label={`${from + 1}-${to} of ${filteredList.length}`}
+              label={`${from + 1}-${to} of ${filteredDataCount}`}
             />
+            }
           </DataTable>
         </ScrollView>
       </View>

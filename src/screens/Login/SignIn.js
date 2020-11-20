@@ -52,7 +52,7 @@ class SignIn extends Component {
     if (this.props.isLoading) {
       return (
         <View style={[styles.container, styles.loading]}>
-          <ActivityIndicator />
+          <ActivityIndicator size={"large"}/>
         </View>
       );
     }

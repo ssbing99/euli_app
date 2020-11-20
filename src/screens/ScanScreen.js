@@ -41,29 +41,6 @@ class ScanScreen extends Component {
   constructor(props) {
     super(props);
 
-    this.resetState();
-    this.getUpdateColor();
-    const { navigation } = this.props;
-    this.focusListener = navigation.addListener('focus', () => {
-      // console.log("focus")
-      this.getUpdateColor();
-    });
-
-  }
-
-  componentWillUnmount() {
-    // console.log("reset")
-    this.resetState();
-
-    try {
-      console.log(this.focusListener);
-      if (this.focusListener) {
-        this.focusListener.remove();
-      }
-    } catch (e) {}
-  }
-
-  resetState = () => {
     this.state = {
       camera: {
         exposure: -1,
@@ -91,6 +68,56 @@ class ScanScreen extends Component {
       origin: {},
       storeColor: [],
     };
+
+    this.getUpdateColor();
+    const { navigation } = this.props;
+    this.focusListener = navigation.addListener('focus', () => {
+      this.resetState();
+      // console.log("focus")
+      this.getUpdateColor();
+    });
+
+  }
+
+  componentWillUnmount() {
+    // console.log("reset")
+    this.resetState();
+
+    try {
+      if (this.focusListener) {
+        this.focusListener.remove();
+      }
+    } catch (e) {}
+  }
+
+  resetState = () => {
+    this.setState({
+      camera: {
+        exposure: -1,
+        exposureOn: false,
+        flashOn: false,
+        flashMode: RNCamera.Constants.FlashMode.off,
+        ON: {
+          flashMode: RNCamera.Constants.FlashMode.torch,
+          flashIcon: 'flash-on',
+        },
+        OFF: {
+          flashMode: RNCamera.Constants.FlashMode.off,
+          flashIcon: 'flash-off',
+        },
+      },
+      mainView: { height: deviceHeight, width: deviceWidth },
+      dragView: {},
+      width: deviceWidth,
+      height: deviceHeight,
+      isEnabled: false,
+      points: [],
+      capColor: colors.transparent,
+      capImage: {},
+      liveImg: {},
+      origin: {},
+      storeColor: [],
+    })
   };
 
   getUpdateColor = () => {

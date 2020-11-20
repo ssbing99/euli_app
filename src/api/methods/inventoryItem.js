@@ -1,9 +1,10 @@
 import Api from 'src/api';
 import ApiConstants from 'src/api/ApiConstants';
 import { _retrieveData, USER_TOKEN } from 'src/store/actionStore';
+import { useDispatch, useSelector } from 'react-redux';
+import * as inventoryActions from '../../actions/inventoryActions';
 
-
-export async function getInventoryItem() {
+export async function getInventoryItem () {
 
   const token = await _retrieveData(USER_TOKEN);
 
@@ -15,7 +16,7 @@ export async function getInventoryItem() {
   );
 }
 
-export async function getInventoryItemById(id) {
+export async function getInventoryItemById (id) {
 
   const token = await _retrieveData(USER_TOKEN);
 
@@ -27,7 +28,7 @@ export async function getInventoryItemById(id) {
   );
 }
 
-export async function getInventoryItemByKeyword(keyword) {
+export async function getInventoryItemByKeyword (keyword) {
 
   const token = await _retrieveData(USER_TOKEN);
 
@@ -39,7 +40,7 @@ export async function getInventoryItemByKeyword(keyword) {
   );
 }
 
-export async function getInventoryItemByColor(rgbCode) {
+export async function getInventoryItemByColor (rgbCode) {
 
   const token = await _retrieveData(USER_TOKEN);
 

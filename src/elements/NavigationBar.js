@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   innerCont: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: STATUSBAR_HEIGHT,
+    paddingTop: STATUSBAR_HEIGHT
   },
   center: {
     flexDirection: 'row',

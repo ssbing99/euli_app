@@ -24,7 +24,7 @@ export default function* loginAsync(action) {
   // const response = { success: true, data: { id: 1 } };
   if (!!response.success) {
     yield put(loginActions.onLoginResponse(response.data));
-    yield put(loginActions.disableLoader({}));
+    // yield put(loginActions.disableLoader({}));
 
     _storeData(USER_KEY, {username: action.username});
     _storeData(USER_TOKEN, response.data.ReturnString);

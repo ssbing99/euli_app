@@ -21,15 +21,15 @@ export default class ProfileScreen extends Component {
       <View style={CommonStyles.container}>
         <NavigationBar
           navigation={this.props.navigation}
-          rightButtons={[
-            {
-              key: 1,
-              buttonIcon: require('../../img/icons/ic_cart.png'),
-              buttonAction: this._handleClickSettingButton.bind(this),
-              buttonWidth: settingIc.width,
-              buttonHeight: settingIc.height,
-            },
-          ]}
+          // rightButtons={[
+          //   {
+          //     key: 1,
+          //     buttonIcon: require('../../img/icons/ic_cart.png'),
+          //     buttonAction: this._handleClickSettingButton.bind(this),
+          //     buttonWidth: settingIc.width,
+          //     buttonHeight: settingIc.height,
+          //   },
+          // ]}
         />
 
         <ScrollView>
