@@ -5,6 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Image, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { CommonActions } from '@react-navigation/native';
 
 import { responsiveHeight, responsiveWidth, colors } from '../styles/variables';
 import {
@@ -41,6 +42,23 @@ TabIcon.propTypes = {
 const Tab = createBottomTabNavigator();
 
 export default function MainTab() {
+  const tabBarListeners = ({ navigation, route }) => ({
+    tabPress: e => {
+      // Prevent default action
+      // e.preventDefault();
+      // console.log("tab press", navigation, route);
+      // navigation.navigate(route.name);
+
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: route.name,
+          params: {},
+        })
+      );
+
+      },
+  });
+
   return (
     <Tab.Navigator
       initialRouteName="HomeStack"
@@ -62,6 +80,7 @@ export default function MainTab() {
               height: homeIc.height,
             }),
         }}
+        listeners={tabBarListeners}
       />
       <Tab.Screen
         name="StoreStack"
@@ -77,6 +96,7 @@ export default function MainTab() {
               height: categoryIc.height,
             }),
         }}
+        listeners={tabBarListeners}
       />
       <Tab.Screen
         name="CameraStack"
@@ -92,6 +112,7 @@ export default function MainTab() {
               height: cameratabIc.height,
             }),
         }}
+        listeners={tabBarListeners}
       />
       <Tab.Screen
         name="ColorStack"
@@ -107,6 +128,7 @@ export default function MainTab() {
               height: cartIc.height,
             }),
         }}
+        listeners={tabBarListeners}
       />
       <Tab.Screen
         name="ProfileStack"
@@ -122,6 +144,7 @@ export default function MainTab() {
               height: profileIc.height,
             }),
         }}
+        listeners={tabBarListeners}
       />
     </Tab.Navigator>
   );

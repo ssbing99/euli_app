@@ -21,6 +21,7 @@ export default class ColorCard extends Component {
       color,
       colorInfo,
       cardStyles,
+      textStyle,
       imgStyles,
       onPressItem,
       imgWidth,
@@ -39,12 +40,19 @@ export default class ColorCard extends Component {
               { width: imgWidth, height: imgHeight, backgroundColor: color },
             ]}>
             <View style={styles.tileTextCont}>
-              <Text white semibold style={styles.tileHeader}>
+              <Text white semibold style={[styles.tileHeader, textStyle]}>
                 {'Color Code: RGB ' + colorInfo.colorCode}
               </Text>
+              {colorInfo.itemId && (
               <Text white normal mediumbold style={styles.tileCount}>
                 {'Item ID: ' + colorInfo.itemId}
               </Text>
+              )}
+              {colorInfo.SellingPrice != null && (
+                <Text white normal mediumbold style={styles.tileCount}>
+                  {((colorInfo.SellingPrice * 100) / 100).toFixed(2)}
+                </Text>
+              )}
             </View>
           </View>
         </View>
@@ -126,5 +134,6 @@ ColorCard.propTypes = {
 
   // Styles
   cardStyles: ViewPropTypes.style,
+  textStyle: ViewPropTypes.style,
   imgStyles: ViewPropTypes.style,
 };

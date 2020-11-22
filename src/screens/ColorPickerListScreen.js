@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, ScrollView, Text, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ScrollView, Text } from 'react-native';
 
 import NavigationBar from '../elements/NavigationBar';
 
@@ -23,57 +23,57 @@ import CategoryCard from '../components/CategoryCard';
 import ColorCard from '@components/ColorCard';
 import { getColorList } from '../api/methods/colors';
 import { connect } from 'react-redux';
+import { getColor } from '../store/actionStore';
 
 const imgWidth = responsiveWidth(87.19) / 2;
 const imgHeight = imgWidth * 1.19;
 
-class ColorListingScreen extends Component {
+class ColorPickerListScreen extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       colors: [],
-      isLoading: false,
     }
-
-    const { color } = this.props.route.params;
-    this.color = color;
 
     this.getColorList();
 
     const { navigation } = this.props;
+
     this.focusListener = navigation.addListener('focus', () => {
       console.log("focus")
+      this._scrollToTop();
       this.getColorList();
     });
-
-    // this.blurListener = navigation.addListener('blur', e => {
-    //   // console.log("blur child", e);
-    //   this.props.navigation.goBack();
-    // });
 
   }
 
   componentWillUnmount() {
 
     try {
+      console.log(this.focusListener);
       if (this.focusListener) {
         this.focusListener.remove();
       }
     } catch (e) {}
   }
 
-  updateLoading = () => {
-    this.setState({
-      isLoading: !this.state.isLoading
-    });
+  _scrollToTop = () => {
+    if (!!this.list) {
+      this.list.scrollTo({x: 0, y: 0, animated: true});
+    }
   }
 
   getColorList = () => {
-    if(this.color) {
-      let colorItems = this.color.colorItems || [];
-      this.setState({colors: colorItems});
-    }
+    getColorList(this.props.username).then(res => {
+      let getColor = res || [];
+
+      getColor = getColor.sort((a, b) => {
+        return new Date(b.datetime) - new Date(a.datetime);
+      });
+      console.log(getColor);
+      this.setState({colors: getColor});
+    });
   }
 
   getContrastColor = (colorRgb) => {
@@ -88,52 +88,49 @@ class ColorListingScreen extends Component {
 
   renderColorCard = () => {
     const { colors } = this.state;
-    if(this.state.colors.length > 0){
+
+    if (colors && colors.length > 0) {
       let rows = [];
 
       colors.forEach(c => {
-        let textColor = this.getContrastColor(c.colorRGB);
-        rows.push(
+        let textColor = this.getContrastColor(c.rgb);
+        rows.unshift(
           <ColorCard
             isTile
-            cardStyles={{ margin: marginHorizontal.small / 2 }}
+            cardStyles={{margin: marginHorizontal.small / 2}}
             textStyle={{ color: textColor}}
             colorInfo={{
-              colorCode: `(${c.colorRGB})`,
-              itemId: c.Id,
-              SellingPrice: c.SellingPrice
+              colorCode: `(${c.rgb.replace(/[^0-9,]/g, '')})`,
             }}
             imgWidth={imgWidth}
             imgHeight={imgHeight}
-            color={`rgb(${c.colorRGB})`}
+            color={c.rgb}
             // eslint-disable-next-line react-native/no-inline-styles
             imgStyles={{
               justifyContent: 'center',
               alignItems: 'center',
             }}
+            onPressItem={() =>
+              this.props.navigation.navigate('ColorListingScreen', {
+                color: c,
+              })
+            }
           />
         );
       });
 
       return rows;
     }
-    return <View style={{ justifyContent: 'center', alignItems: 'center', flex:1}}><Text>No Item Matched.</Text></View>
-  }
+      return <View style={{ justifyContent: 'center', alignItems: 'center', flex:1}}><Text>No Color Info.</Text></View>
+
+
+  };
 
   render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={[styles.loading]}>
-          <ActivityIndicator size={"large"}/>
-        </View>
-      );
-    }
-
     return (
       <View style={CommonStyles.container}>
         <NavigationBar
           // menu
-          back
           navigation={this.props.navigation}
           title="COLOR LISTING"
           // rightButtons={[
@@ -147,7 +144,11 @@ class ColorListingScreen extends Component {
           // ]}
         />
 
-        <ScrollView>
+        <ScrollView
+          ref={(ref) => {
+            this.list = ref;
+          }}
+        >
           <View style={styles.categories}>
             {this.renderColorCard()}
             {/*<ColorCard*/}
@@ -273,18 +274,9 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps)(ColorListingScreen);
+export default connect(mapStateToProps)(ColorPickerListScreen);
 
 const styles = StyleSheet.create({
-  loading: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
   categories: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -292,6 +284,6 @@ const styles = StyleSheet.create({
   },
 });
 
-ColorListingScreen.propTypes = {
+ColorPickerListScreen.propTypes = {
   navigation: PropTypes.any,
 };

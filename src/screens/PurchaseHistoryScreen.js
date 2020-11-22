@@ -75,7 +75,6 @@ export default class PurchaseHistoryScreen extends Component {
     try {
       this.updateLoading();
       getPurchaseHistory().then(res => {
-        console.log(res);
         if (res.data && !res.data.Message) {
 
           let customers = [];

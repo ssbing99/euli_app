@@ -58,11 +58,24 @@ class HomeScreen extends Component {
       bestSeller: []
     };
 
+    const { navigation } = this.props;
+
+    this.focusListener = navigation.addListener('focus', () => {
+      console.log("focus")
+      this._scrollToTop();
+    });
+
   }
 
   componentDidMount (){
     console.log("DID MNT");
     this.loadInventoryItem();
+  }
+
+  _scrollToTop = () => {
+    if (!!this.list) {
+      this.list.scrollTo({x: 0, y: 0, animated: true});
+    }
   }
 
   loadInventoryItem = () => {
@@ -189,6 +202,9 @@ class HomeScreen extends Component {
         />
 
         <ScrollView
+          ref={(ref) => {
+            this.list = ref;
+          }}
           scrollEventThrottle={10}
           onScroll={({ nativeEvent }) => {
             if (isCloseToTop(nativeEvent)) {

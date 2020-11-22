@@ -12,8 +12,10 @@ import {
 import { removeColor } from '../store/actionStore';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Share from 'react-native-share';
+import { connect } from 'react-redux';
+import * as colorActions from '../actions/colorActions'
 
-export default class ColorDetailsScreen extends Component {
+class ColorDetailsScreen extends Component {
   constructor (props) {
     super(props);
 
@@ -22,8 +24,9 @@ export default class ColorDetailsScreen extends Component {
       enlargeIcon: 'fullscreen'
     };
 
-    const { color } = this.props.route.params;
+    const { color, username } = this.props.route.params;
     this.color = color;
+    this.username = username;
 
     this.useColor = colors.black;
     this.textColor = { color: colors.black };
@@ -93,6 +96,20 @@ export default class ColorDetailsScreen extends Component {
 
   };
 
+  removeColor = () => {
+    removeColor(this.color).then((res) => {
+      if (res) {
+        this.props.onPressDelete(this.props.username, this.color);
+
+        Toast.show({
+          text: 'Color Deleted !', buttonText: 'Okay', type: 'warning', style: { backgroundColor: colors.lightGray }, textStyle: { color: colors.black },
+          buttonTextStyle: { color: colors.black },
+        });
+        this.props.navigation.goBack();
+      }
+    });
+  }
+
   render () {
     return (<View style={ [CommonStyles.container, { backgroundColor: colors.black, opacity: 0.9 }] }>
 
@@ -151,17 +168,7 @@ export default class ColorDetailsScreen extends Component {
           />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={ () => {
-            removeColor(this.color).then((res) => {
-              if (res) {
-                Toast.show({
-                  text: 'Color Deleted !', buttonText: 'Okay', type: 'warning', style: { backgroundColor: colors.lightGray }, textStyle: { color: colors.black },
-                  buttonTextStyle: { color: colors.black },
-                });
-                this.props.navigation.goBack();
-              }
-            });
-          } }>
+          onPress={ this.removeColor }>
           <Image
             source={ require('../../img/icons/delete.png') }
             style={ styles.icon6 }
@@ -179,6 +186,20 @@ export default class ColorDetailsScreen extends Component {
     }
   };
 }
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onPressDelete: (username, color) => dispatch(colorActions.deleteColor(username, color))
+  }
+}
+
+const mapStateToProps = (state) => {
+  return {
+    username: state.loginReducer.username
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ColorDetailsScreen);
 
 const styles = StyleSheet.create({
   iconClose: {
@@ -287,4 +308,5 @@ const styles = StyleSheet.create({
 
 ColorDetailsScreen.propTypes = {
   navigation: PropTypes.any,
+  onPressDelete: PropTypes.any,
 };

@@ -32,6 +32,7 @@ export default class TextInput extends Component {
           />
         )}
         <Input
+          autoCapitalize="none"
           textAlignVertical={this.props.textAlignVertical}
           placeholder={this.props.label}
           placeholderTextColor={colors.gray}

@@ -20,7 +20,7 @@ export default function* loginAsync(action) {
   //how to call api
   const response = yield call(loginUser, action.username, action.password);
   //mock response
-  console.log("response",response);
+
   // const response = { success: true, data: { id: 1 } };
   if (!!response.success) {
     yield put(loginActions.onLoginResponse(response.data));

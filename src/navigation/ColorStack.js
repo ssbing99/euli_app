@@ -8,6 +8,7 @@ import ROUTES from '@ultis/routes';
 
 import CollectionScreen from '@screens/CollectionScreen';
 import ColorListingScreen from '@screens/ColorListingScreen';
+import ColorPickerListScreen from '../screens/ColorPickerListScreen';
 
 const Stack = createStackNavigator();
 
@@ -16,6 +17,11 @@ function Main(props) {
 
   return (
     <Stack.Navigator>
+      <Stack.Screen
+        name={ROUTES.ColorPickerListScreen}
+        component={ColorPickerListScreen}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name={ROUTES.ColorListingScreen}
         component={ColorListingScreen}

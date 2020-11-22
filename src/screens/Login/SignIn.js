@@ -22,7 +22,7 @@ import {
 import { userIc, passIc } from '../../styles/icon-variables';
 import { connect } from 'react-redux';
 
-class SignIn extends Component {
+export default class SignIn extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -142,6 +142,12 @@ class SignIn extends Component {
       return;
     }
     this.props.onPressSignIn(email, password);
+    this.setState({
+      email: '',
+      password: '',
+      errorEmail: false,
+      errorPassword: false,
+    });
   }
 
   /**
@@ -152,13 +158,13 @@ class SignIn extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    isLoading: state.loadingReducer.isLoginLoading
-  }
-}
-
-export default connect(mapStateToProps)(SignIn);
+// const mapStateToProps = (state) => {
+//   return {
+//     isLoading: state.loadingReducer.isLoginLoading
+//   }
+// }
+//
+// export default connect(mapStateToProps)(SignIn);
 
 const styles = StyleSheet.create({
   container: {

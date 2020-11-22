@@ -2,7 +2,7 @@
 /* global console */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, View, ScrollView, Image } from 'react-native';
+import { StyleSheet, View, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { ScrollableTabBar } from 'react-native-scrollable-tab-view';
 import { Tabs, Toast } from 'native-base';
 import { connect } from 'react-redux';
@@ -62,20 +62,23 @@ class LoginScreen extends Component {
   }
 
   callRedirect = (prevProps) =>{
-    // console.log("isLoading",prevProps.isLoading, this.props.isLoading);
-    // console.log("isLoggedIn",prevProps.isLoggedIn, this.props.isLoggedIn);
+    console.log("isLoading",prevProps.isLoading, this.props.isLoading);
+    console.log("isLoggedIn",prevProps.isLoggedIn, this.props.isLoggedIn);
 
     if(!!this.props.isLoading && !!this.props.isLoggedIn){
       console.log("DISABLE LOADER");
       this.props.disableLoader();
     }
 
-    if(!prevProps.isLoading  && !!this.props.isLoggedIn) {
+    setTimeout(() => {
+      if(!this.props.isLoading  && !!this.props.isLoggedIn) {
 
-      console.log("REDIRECT");
-      // this.props.disableLoader();
-      this.props.navigation.navigate('MainDrawer');
-    }
+        console.log("REDIRECT");
+        // this.props.disableLoader();
+        this.props.navigation.navigate('MainDrawer');
+      }
+    }, 100);
+
   }
 
 
@@ -105,6 +108,15 @@ class LoginScreen extends Component {
 
         <ScrollView heading="SIGN IN">
           <View onLayout={this.onSigninLayout.bind(this)}>
+            {
+              (this.props.isLoading || this.props.isLoggedIn) && (
+              <View style={[styles.container, styles.loading]}>
+              <ActivityIndicator size={"large"}/>
+              </View>
+              )
+            }
+            {
+              (!this.props.isLoading && !this.props.isLoggedIn) && (
             <SignIn
               isLoading={false}
               onPressSignIn={this.handleSignInWithEmailAndPassword.bind(this)}
@@ -115,6 +127,8 @@ class LoginScreen extends Component {
                 this.props.navigation.navigate('ContactUsScreen')
               }
             />
+              )
+            }
           </View>
 
           {/* <View

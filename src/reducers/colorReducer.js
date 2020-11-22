@@ -26,4 +26,20 @@ export const colorReducer = createReducer(initialState, {
       colors: newList
     };
   },
+  [types.DELETE_COLOR](state, action) {
+    let color = action.color;
+    let newColor = state.colors[action.username] || [];
+    console.log("ORI", newColor);
+
+    newColor = newColor.filter(c => !(c.datetime == color.datetime && c.hex == color.hex && c.rgb == color.rgb));
+    console.log("NEW", newColor)
+
+    let newItems = {};
+    newItems[`${action.username}`] = newColor;
+    const newList = Object.assign(state.colors, newItems);
+
+    return {
+      colors: newList
+    };
+  },
 });

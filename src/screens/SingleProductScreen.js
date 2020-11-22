@@ -57,6 +57,13 @@ export default class SingleProductScreen extends Component {
       slideImage: [],
       priceList: [],
     };
+
+    const { navigation } = this.props;
+
+    // this.blurListener = navigation.addListener('blur', e => {
+    //   // console.log("blur child", e);
+    //   this.props.navigation.goBack();
+    // });
   }
 
   componentDidMount (){
@@ -89,7 +96,6 @@ export default class SingleProductScreen extends Component {
       }
     });
 
-    console.log("new slide", slideImage);
     this.setState({ slideImage: slideImage });
   }
 
@@ -200,7 +206,7 @@ export default class SingleProductScreen extends Component {
               normal
               mediumBold
               style={{ width: responsiveWidth(51.31) }}>
-              {proInfo.name}
+              {proInfo.name || proInfo.Name}
             </Text>
             <Text black normal bold>
               ${proInfo.price || ((proInfo.SellingPrice * 100) / 100).toFixed(2) || "0.00"}
@@ -318,7 +324,7 @@ export default class SingleProductScreen extends Component {
           <PrimeButton
             navigation={this.props.navigation}
             setting={btnSetting}
-            btnText="ADD TO CART"
+            btnText="Purchase"
           />
         </ScrollView>
 

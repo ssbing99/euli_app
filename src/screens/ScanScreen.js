@@ -183,7 +183,7 @@ class ScanScreen extends Component {
             this.getUpdateColor();
           });
 
-          this.props.onPressFindItem(this.props.username, colorObj.hex, colorObj.rgb);
+          this.props.onPressFindItem(this.props.username, colorObj);
         })
         .catch((err) => {
           // Handle errors
@@ -706,7 +706,7 @@ class ScanScreen extends Component {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onPressFindItem: (username, colorHex, colorRGB) => dispatch(colorActions.saveColor(username, colorHex, colorRGB))
+    onPressFindItem: (username, color) => dispatch(colorActions.saveColor(username, color))
   }
 }
 

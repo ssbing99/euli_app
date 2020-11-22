@@ -68,7 +68,7 @@ function* calculateMatching (rgb, colorsList) {
 
 export default function* colorAsync (action) {
 
-  // let rgb = action.colorRGB.replace(/[^0-9,]/g, '').trim();
+  // let rgb = action.color.rgb.replace(/[^0-9,]/g, '').trim();
   let rgb = '255,87,51';
   // let rgb = '35,95,60';
 
@@ -78,10 +78,10 @@ export default function* colorAsync (action) {
 
   const matched = yield calculateMatching(rgb, colorsList);
 
-  if (matched != null) {
-    let newColors = [];
-    let newItems = [];
+  let newColors = [];
+  let newItems = [];
 
+  if (matched != null) {
 
     let existing = userColorList[action.username] || [];
 
@@ -98,35 +98,40 @@ export default function* colorAsync (action) {
       itemsList.forEach(item => {
         if (item['ColorCode'] && item['ColorCode'] === matched) {
 
-          let exist = existing.find(e => e.Id == item.Id);
-
-          if(!exist) {
-            item['colorRGB'] = item['ColorCode'];
-            newItems.push(item);
-          }
+          item['colorRGB'] = item['ColorCode'];
+          newItems.push(item);
         }
       });
 
-      // if have newItems
-      if(newItems.length > 0) {
-        let userColor = {
-          username: action.username,
-          data: newItems
-        };
-
-        Toast.show({
-          text: 'New Items Found!',
-          buttonText: 'Okay',
-          style: {backgroundColor: 'rgb(216,216,216)'},
-          textStyle: {color: '#121314'},
-          buttonTextStyle: {color: '#121314'},
-        });
-
-        yield put(colorActions.saveColorList(userColor));
-      }
     }
 
   }
+
+  let arrObj = [{
+    ...action.color,
+    colorItems: newItems
+  }];
+
+  let userColor = {
+    username: action.username,
+    data: arrObj
+  };
+
+  console.log(userColor);
+  // if have newItems
+  if(newItems.length > 0) {
+
+    Toast.show({
+      text: 'New Items Found!',
+      buttonText: 'Okay',
+      style: {backgroundColor: 'rgb(216,216,216)'},
+      textStyle: {color: '#121314'},
+      buttonTextStyle: {color: '#121314'},
+    });
+
+  }
+
+  yield put(colorActions.saveColorList(userColor));
 
   // //how to call api
   // const response = yield call(getInventoryItemByColor, rgb);
