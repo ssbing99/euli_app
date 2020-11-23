@@ -135,7 +135,7 @@ class ColorListingScreen extends Component {
           // menu
           back
           navigation={this.props.navigation}
-          title="COLOR LISTING"
+          title="ITEM LISTING"
           // rightButtons={[
           //   {
           //     key: 1,
