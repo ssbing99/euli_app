@@ -96,7 +96,7 @@ class NormalProfile extends Component {
             }}
             header="Latest News"
             borderWidth={responsiveWidth(91.47)}
-            onPressItem={() => this.props.navigation.navigate('HomeScreen')}
+            onPressItem={() => this.props.navigation.navigate('HomeStack',{ screen: 'HomeScreen' })}
           />
           <ListItem
             leftIcon={require('../../../img/icons/camera-enhance-outline.png')}
@@ -106,7 +106,7 @@ class NormalProfile extends Component {
             }}
             header="Colour Picker"
             borderWidth={responsiveWidth(91.47)}
-            onPressItem={() => this.props.navigation.navigate('ScanScreen')}
+            onPressItem={() => this.props.navigation.navigate('CameraStack',{ screen: 'ScanScreen' })}
           />
           <ListItem
             leftIcon={require('../../../img/icons/ic_order.png')}
