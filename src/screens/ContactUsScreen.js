@@ -1,7 +1,7 @@
 /* global require */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, View, ScrollView, Image } from 'react-native';
+import { StyleSheet, View, ScrollView, Image, Linking } from 'react-native';
 
 import NavigationBar from '../elements/NavigationBar';
 import Text from '../elements/Text';
@@ -85,11 +85,15 @@ export default class ContactUsScreen extends Component {
                 navigation={this.props.navigation}
                 setting={btnSetting}
                 btnText="CALL"
+                underlayColor={colors.red}
+                onPressButton={() => Linking.openURL('tel:+60389619225') }
               />
               <PrimeButton
                 navigation={this.props.navigation}
                 setting={btnEmail}
                 btnText="Email"
+                underlayColor={colors.lightGray}
+                onPressButton={() => Linking.openURL('mailto:eulitrading@gmail.com?subject=Order%20Enquiry') }
               />
             </View>
           </View>
