@@ -24,6 +24,7 @@ import {
   deviceWidth,
   colors,
   borderRadius,
+  isColorCode
 } from '../styles/variables';
 import { arrRightIc, searchIc, indicatorDot } from '../styles/icon-variables';
 
@@ -86,7 +87,7 @@ class HomeScreen extends Component {
       getInventoryItem().then(res => {
         if (res.data) {
           console.log("LOAD INV >>>> ", res.data);
-          this.processInventoryItemsColor(res.data);
+          // this.processInventoryItemsColor(res.data);
 
           let data = res.data;
           let arr = [];
@@ -100,11 +101,17 @@ class HomeScreen extends Component {
               data[i].SellingPrice = 0.00;
             }
 
-            // if((data[i].Photo != null && data[i].Photo != "")){
-            if (data[i].ColorCode != null && data[i].ColorCode != '' && cnt <= 10) {
+            if((isColorCode && (data[i].ColorCode != null && data[i].ColorCode != '' && cnt <= 10))
+              || (!isColorCode && (data[i].Photo != null && data[i].Photo != "" && cnt <= 10))){
               cnt++;
               arr.push(data[i]);
             }
+
+            // if((data[i].Photo != null && data[i].Photo != "")){
+            // if (data[i].ColorCode != null && data[i].ColorCode != '' && cnt <= 10) {
+            //   cnt++;
+            //   arr.push(data[i]);
+            // }
             // }
           }
 
@@ -121,31 +128,31 @@ class HomeScreen extends Component {
    *
    */
 
-  processInventoryItemsColor = async (data) => {
-
-    if (data) {
-      try{
-        let items = [];
-        let colors = [];
-
-        for (let i = 0; i < data.length; i++) {
-          items.push(data[i]);
-
-          if (data[i]['ColorCode'] && data[i]['ColorCode'] != null) {
-            let c = colors.find(e => e == data[i]['ColorCode']);
-            if (!c) {
-              colors.push(data[i]['ColorCode']);
-            }
-          }
-        }
-
-        this.props.storeItemsColor(items, colors);
-
-      }catch (e) {
-        console.log(e);
-      }
-    }
-  }
+  // processInventoryItemsColor = async (data) => {
+  //
+  //   if (data) {
+  //     try{
+  //       let items = [];
+  //       let colors = [];
+  //
+  //       for (let i = 0; i < data.length; i++) {
+  //         items.push(data[i]);
+  //
+  //         if (data[i]['ColorCode'] && data[i]['ColorCode'] != null) {
+  //           let c = colors.find(e => e == data[i]['ColorCode']);
+  //           if (!c) {
+  //             colors.push(data[i]['ColorCode']);
+  //           }
+  //         }
+  //       }
+  //
+  //       this.props.storeItemsColor(items, colors);
+  //
+  //     }catch (e) {
+  //       console.log(e);
+  //     }
+  //   }
+  // }
 
 
   render() {

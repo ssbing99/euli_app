@@ -32,10 +32,13 @@ import { searchIc } from '../styles/icon-variables';
 import { CUSTOMERS } from '../static/data';
 import { DataTable } from 'react-native-paper';
 import { getPurchaseHistory } from '../api/methods/purchaseHistory';
+import { connect } from 'react-redux';
+import { hasAccessRight } from '../store/accessRight';
+import { VIEW_ALL_CUSTOMER, VIEW_OWN_INVOICE } from '../config/access';
 
 const itemsPerPage = 10;
 
-export default class PurchaseHistoryScreen extends Component {
+class PurchaseHistoryScreen extends Component {
   constructor (props) {
     super(props);
     this.state = {
@@ -59,7 +62,7 @@ export default class PurchaseHistoryScreen extends Component {
   }
 
   componentDidMount () {
-    console.log('did mount');
+    console.log('did mount', this.props.role);
 
     this.getPurchaseHistory();
 
@@ -74,7 +77,10 @@ export default class PurchaseHistoryScreen extends Component {
   getPurchaseHistory = () => {
     try {
       this.updateLoading();
-      getPurchaseHistory().then(res => {
+
+      const custId = hasAccessRight(this.props.role, VIEW_ALL_CUSTOMER)? null : this.props.userId;;
+
+      getPurchaseHistory(custId).then(res => {
         if (res.data && !res.data.Message) {
 
           let customers = [];
@@ -95,6 +101,7 @@ export default class PurchaseHistoryScreen extends Component {
           const result = new Array(Math.ceil(res.data.length / itemsPerPage)).fill().map(_ => res.data.splice(0, itemsPerPage));
 
           this.setState({historyList: result, filteredList: result, customersList: customers, filteredDataCount: dataLength});
+          console.log(customers);
           this.updateLoading();
         }else{
           this.setState({historyList: [], filteredList: [], customersList: [], filteredDataCount: 0});
@@ -128,9 +135,11 @@ export default class PurchaseHistoryScreen extends Component {
             }
           }
 
-          if (addable && selectedState) {
-            if (selectedState !== h.CustomerName) {
-              addable = false;
+          if(selectedState !== 'Customer') {
+            if (addable && selectedState) {
+              if (selectedState !== h.CustomerName) {
+                addable = false;
+              }
             }
           }
 
@@ -187,7 +196,18 @@ export default class PurchaseHistoryScreen extends Component {
             rows.push(
               <DataTable.Row style={{width: 500}} key={i++}>
                 <DataTable.Cell style={{flex: 2}}>{h.DisplayInvoiceDate}</DataTable.Cell>
-                <DataTable.Cell style={{flex: 2}}>{h.InvoiceNumber}</DataTable.Cell>
+                <DataTable.Cell style={{flex: 2}}>
+                  <Text
+                  style={{color: colors.green}}
+                  onPress={() => this.props.navigation.navigate('InvoiceInfoScreen', { InvId: h.InvoiceNumber })}>
+                  {h.InvoiceNumber}
+                  </Text>
+                </DataTable.Cell>
+                {
+                  hasAccessRight(this.props.role, VIEW_ALL_CUSTOMER) && (
+                    <DataTable.Cell style={{flex: 2}}>{h.CustomerName}</DataTable.Cell>
+                  )
+                }
                 <DataTable.Cell style={{flex: 2}}>{h.ItemID}</DataTable.Cell>
                 <DataTable.Cell numeric style={{flex: 1}}>
                   {((h.ItemTotal * 100) / 100).toFixed(2)}
@@ -222,7 +242,7 @@ export default class PurchaseHistoryScreen extends Component {
       );
     }
 
-    const {page, filteredList} = this.state;
+    const {page, filteredList, filteredDataCount} = this.state;
     const from = page * itemsPerPage;
     const to = (page + 1) * itemsPerPage;
 
@@ -250,6 +270,11 @@ export default class PurchaseHistoryScreen extends Component {
               <DataTable.Header style={{width: 500}}>
                 <DataTable.Title style={{flex: 2}}>Date</DataTable.Title>
                 <DataTable.Title style={{flex: 2}}>Doc No.</DataTable.Title>
+                {
+                  hasAccessRight(this.props.role, VIEW_ALL_CUSTOMER) && (
+                    <DataTable.Title style={{flex: 2}}>Customer</DataTable.Title>
+                  )
+                }
                 <DataTable.Title style={{flex: 2}}>Item ID</DataTable.Title>
                 <DataTable.Title numeric style={{flex: 1}}>
                   Item Price
@@ -352,6 +377,7 @@ export default class PurchaseHistoryScreen extends Component {
    */
   toggleModal (visible) {
     this.setState({
+      showSearchModal: !this.state.showSearchModal,
       modalVisible: visible,
     });
   }
@@ -360,7 +386,7 @@ export default class PurchaseHistoryScreen extends Component {
     this.setState({
       showSearchModal: !this.state.showSearchModal,
       selectedDate: null,
-      selectedState: null,
+      selectedState: 'Customer',
     });
   }
 
@@ -425,17 +451,21 @@ export default class PurchaseHistoryScreen extends Component {
         <ScrollView style={CommonStyles.modalBody}>
           <View style={styles.form} onLayout={this.onLayout.bind(this)}>
             <Form>
-              <SelectBox
-                isRightIcon
-                // eslint-disable-next-line react-native/no-inline-styles
-                containerStyle={{
-                  ...SelectBox.defaultProps.containerStyle,
-                  flex: 1,
-                  marginTop: spaceVertical.small,
-                }}
-                label={this.state.selectedState}
-                onPressAction={() => this.toggleModal(true)}
-              />
+              {
+                hasAccessRight(this.props.role, VIEW_ALL_CUSTOMER) && (
+                  <SelectBox
+                    isRightIcon
+                    // eslint-disable-next-line react-native/no-inline-styles
+                    containerStyle={{
+                      ...SelectBox.defaultProps.containerStyle,
+                      flex: 1,
+                      marginTop: spaceVertical.small,
+                    }}
+                    label={this.state.selectedState}
+                    onPressAction={() => this.toggleModal(true)}
+                  />
+                )
+              }
               <View style={styles.calendarInput}>
                 <Image
                   source={require('../../img/icons/calendar.png')}
@@ -446,7 +476,7 @@ export default class PurchaseHistoryScreen extends Component {
                   }}
                 />
                 <DatePicker
-                  defaultDate={new Date()}
+                  defaultDate={new Date(2018, 1, 1)}
                   minimumDate={new Date(2018, 1, 1)}
                   maximumDate={new Date()}
                   locale={'en'}
@@ -490,6 +520,15 @@ export default class PurchaseHistoryScreen extends Component {
     });
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    role: state.loginReducer.role,
+    userId: state.loginReducer.username,
+  }
+}
+
+export default connect(mapStateToProps)(PurchaseHistoryScreen);
 
 const styles = StyleSheet.create({
   loading: {

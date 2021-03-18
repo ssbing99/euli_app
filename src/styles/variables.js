@@ -4,6 +4,9 @@ const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
 const isIOS = Platform.OS === 'ios';
 
+//for display item
+const isColorCode = false;
+
 // responsive
 const responsiveHeight = (h) => {
   return deviceHeight * (h / 100);
@@ -175,6 +178,7 @@ if (deviceWidth >= 768) {
 }
 
 export {
+  isColorCode,
   isIOS,
   responsiveHeight,
   responsiveWidth,

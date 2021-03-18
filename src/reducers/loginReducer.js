@@ -10,6 +10,7 @@ const initialState = {
   username: '',
   password: '',
   bearerToken: '',
+  role: 'company',
 };
 
 export const loginReducer = createReducer(initialState, {
@@ -24,10 +25,15 @@ export const loginReducer = createReducer(initialState, {
     return { ...state };
   },
   [types.LOGIN_RESPONSE](state, action) {
+    let thisRole = 'company';
+    if(action.role && action.role != 'User'){
+      thisRole = 'customer';
+    }
     return {
       ...state,
       bearerToken: action.ReturnString,
       isLoggedIn: true,
+      role: thisRole,
     };
   },
   [types.LOGIN_FAILED](state) {
@@ -44,6 +50,7 @@ export const loginReducer = createReducer(initialState, {
       username: '',
       password: '',
       bearerToken: '',
+      role: 'company',
     };
   },
 });

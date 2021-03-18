@@ -7,7 +7,6 @@
 import { put, call, select } from 'redux-saga/effects';
 import { delay } from 'redux-saga';
 
-import { getInventoryItemByColor } from '../api/methods/inventoryItem';
 import * as colorActions from '../actions/colorActions';
 import { Toast } from 'native-base';
 

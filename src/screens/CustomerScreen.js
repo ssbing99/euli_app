@@ -29,17 +29,14 @@ import {
   fontSize,
 } from '../styles/variables';
 import { searchIc } from '../styles/icon-variables';
-import { CUSTOMERS } from '../static/data';
 import { DataTable } from 'react-native-paper';
 import RNPrint from 'react-native-print';
-import { getInvoice, getInvoiceListById } from '../api/methods/invoice';
 import { connect } from 'react-redux';
-import { hasAccessRight } from '../store/accessRight';
-import { VIEW_ALL_CUSTOMER, VIEW_ALL_INVOICE, VIEW_OWN_INVOICE } from '../config/access';
+import { getCustomer } from '../api/methods/customer';
 
 const itemsPerPage = 10;
 
-class InvoiceScreen extends Component {
+class CustomerScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -64,7 +61,7 @@ class InvoiceScreen extends Component {
   componentDidMount () {
     console.log('did mount');
 
-    this.getInvoiceHistory();
+    this.getAllCustomer();
 
   }
 
@@ -74,31 +71,29 @@ class InvoiceScreen extends Component {
     });
   }
 
-  getInvoiceHistory = () => {
+  getAllCustomer = () => {
     try {
       this.updateLoading();
-
-      const custId = hasAccessRight(this.props.role, VIEW_ALL_INVOICE)? null : this.props.userId;;
-
-      getInvoiceListById(custId).then(res => {
-        if (res.data && !res.data.Message) {
+      getCustomer().then(res => {
+        if (res.data) {
 
           let customers = [];
           let c = 0;
-          const dataLength = res.data.length;
+          let dataLength = res.data.length;
           res.data.map(data => {
-            let dt = new Date(data.CreatedAt);
-            data.DisplayInvoiceDate = `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`;
+            if (!data.Customer.Id.includes('/')) {
+              const added = customers.find(cust => cust.name == data.Customer.CompanyName);
 
-            const added = customers.find(cust => cust.name == data.UserId);
-
-            if (!added) {
-              customers.push({id: c++, name: data.UserId});
+              if (!added) {
+                customers.push({id: c++, name: data.Customer.CompanyName});
+              }
             }
-
           });
 
-          const result = new Array(Math.ceil(res.data.length / itemsPerPage)).fill().map(_ => res.data.splice(0, itemsPerPage));
+          const newData = res.data.filter(data => !data.Customer.Id.includes('/'));
+          dataLength = newData.length;
+
+          const result = new Array(Math.ceil(newData.length / itemsPerPage)).fill().map(_ => newData.splice(0, itemsPerPage));
 
           this.setState({historyList: result, filteredList: result, customersList: customers, filteredDataCount: dataLength});
           this.updateLoading();
@@ -128,15 +123,15 @@ class InvoiceScreen extends Component {
 
           let addable = true;
 
-          if (selectedDate) {
-            if (selectedDate !== h.DisplayInvoiceDate) {
-              addable = false;
-            }
-          }
+          // if (selectedDate) {
+          //   if (selectedDate !== h.DisplayInvoiceDate) {
+          //     addable = false;
+          //   }
+          // }
 
           if(selectedState !== 'Customer') {
             if (addable && selectedState) {
-              if (selectedState !== h.UserId) {
+              if (selectedState !== h.Customer.CompanyName) {
                 addable = false;
               }
             }
@@ -176,6 +171,10 @@ class InvoiceScreen extends Component {
     }
   };
 
+  returnDash = (value) => {
+    return value && value.length > 0? value : '-';
+  }
+
   renderRow = () => {
 
     const {filteredList, page} = this.state;
@@ -193,21 +192,20 @@ class InvoiceScreen extends Component {
         hist.forEach((h) => {
 
           rows.push(
-            <DataTable.Row style={{ width: 600 }} key={h.Id}>
+            <DataTable.Row style={{ width: 600 }} key={h.Customer.Id}>
               <DataTable.Cell style={{ flex: 1 }}>
                 <Text
                   style={{ color: colors.green }}
-                  onPress={() => this._onPrint()}>
-                  Print
+                  onPress={ () => this.props.navigation.navigate('CustomerInfoScreen', {
+                    CustInfo: h
+                  })}>
+                  {h.Customer.Id}
                 </Text>
               </DataTable.Cell>
-              <DataTable.Cell style={{ flex: 2 }}>{h.Id}</DataTable.Cell>
-              <DataTable.Cell style={{ flex: 2 }}>{h.DisplayInvoiceDate}</DataTable.Cell>
-              {/*<DataTable.Cell style={{ flex: 4 }}>*/}
-              {/*  UB APPPPARREL (M) SDN BHD*/}
-              {/*</DataTable.Cell>*/}
-              <DataTable.Cell numeric style={{ flex: 2 }}>
-                {((h.Amount * 100) / 100).toFixed(2)}
+              <DataTable.Cell style={{ flex: 2 }}>{this.returnDash(h.Customer.CompanyName)}</DataTable.Cell>
+              <DataTable.Cell style={{ flex: 1 }}>{this.returnDash(h.Customer.Email)}</DataTable.Cell>
+              <DataTable.Cell numeric style={{ flex: 1 }}>
+                {this.returnDash(h.Customer.Phone)}
               </DataTable.Cell>
             </DataTable.Row>
           );
@@ -243,7 +241,7 @@ class InvoiceScreen extends Component {
         <NavigationBar
           back
           navigation={this.props.navigation}
-          title="INVOICE"
+          title="CUSTOMER"
           rightButtons={[
             {
               key: 1,
@@ -260,18 +258,18 @@ class InvoiceScreen extends Component {
               horizontal
               contentContainerStyle={{ flexDirection: 'column' }}>
               <DataTable.Header style={{ width: 600 }}>
-                <DataTable.Title style={{ flex: 1 }}>Print</DataTable.Title>
+                <DataTable.Title style={{ flex: 1 }}>Id</DataTable.Title>
                 <DataTable.Title style={{ flex: 2 }}>
-                  Invoice Number
+                  Company Name
                 </DataTable.Title>
-                <DataTable.Title style={{ flex: 2 }}>
-                  Invoice Date
+                <DataTable.Title style={{ flex: 1 }}>
+                  Email
                 </DataTable.Title>
                 {/*<DataTable.Title style={{ flex: 4 }}>*/}
                 {/*  Shipping Name*/}
                 {/*</DataTable.Title>*/}
-                <DataTable.Title numeric style={{ flex: 2 }}>
-                  Net Total
+                <DataTable.Title numeric style={{ flex: 1 }}>
+                  Phone
                 </DataTable.Title>
               </DataTable.Header>
 
@@ -454,46 +452,42 @@ class InvoiceScreen extends Component {
         <ScrollView style={CommonStyles.modalBody}>
           <View style={styles.form} onLayout={this.onLayout.bind(this)}>
             <Form>
-              {
-                hasAccessRight(this.props.role, VIEW_ALL_INVOICE) && (
-                  <SelectBox
-                    isRightIcon
-                    // eslint-disable-next-line react-native/no-inline-styles
-                    containerStyle={{
-                      ...SelectBox.defaultProps.containerStyle,
-                      flex: 1,
-                      marginTop: spaceVertical.small,
-                    }}
-                    label={this.state.selectedState}
-                    onPressAction={() => this.toggleModal(true)}
-                  />
-                )
-              }
-              <View style={styles.calendarInput}>
-                <Image
-                  source={require('../../img/icons/calendar.png')}
-                  // eslint-disable-next-line react-native/no-inline-styles
-                  style={{
-                    width: 20,
-                    height: 20,
-                  }}
-                />
-                <DatePicker
-                  defaultDate={new Date()}
-                  minimumDate={new Date(2018, 1, 1)}
-                  maximumDate={new Date()}
-                  locale={'en'}
-                  timeZoneOffsetInMinutes={undefined}
-                  modalTransparent={false}
-                  animationType={'fade'}
-                  androidMode={'default'}
-                  placeHolderText="Select date"
-                  textStyle={{ color: colors.black }}
-                  placeHolderTextStyle={{ color: colors.gray }}
-                  onDateChange={this.setCalendarDate}
-                  disabled={false}
-                />
-              </View>
+              <SelectBox
+                isRightIcon
+                // eslint-disable-next-line react-native/no-inline-styles
+                containerStyle={{
+                  ...SelectBox.defaultProps.containerStyle,
+                  flex: 1,
+                  marginTop: spaceVertical.small,
+                }}
+                label={this.state.selectedState}
+                onPressAction={() => this.toggleModal(true)}
+              />
+              {/*<View style={styles.calendarInput}>*/}
+              {/*  <Image*/}
+              {/*    source={require('../../img/icons/calendar.png')}*/}
+              {/*    // eslint-disable-next-line react-native/no-inline-styles*/}
+              {/*    style={{*/}
+              {/*      width: 20,*/}
+              {/*      height: 20,*/}
+              {/*    }}*/}
+              {/*  />*/}
+              {/*  <DatePicker*/}
+              {/*    defaultDate={new Date()}*/}
+              {/*    minimumDate={new Date(2018, 1, 1)}*/}
+              {/*    maximumDate={new Date()}*/}
+              {/*    locale={'en'}*/}
+              {/*    timeZoneOffsetInMinutes={undefined}*/}
+              {/*    modalTransparent={false}*/}
+              {/*    animationType={'fade'}*/}
+              {/*    androidMode={'default'}*/}
+              {/*    placeHolderText="Select date"*/}
+              {/*    textStyle={{ color: colors.black }}*/}
+              {/*    placeHolderTextStyle={{ color: colors.gray }}*/}
+              {/*    onDateChange={this.setCalendarDate}*/}
+              {/*    disabled={false}*/}
+              {/*  />*/}
+              {/*</View>*/}
             </Form>
           </View>
         </ScrollView>
@@ -533,11 +527,10 @@ class InvoiceScreen extends Component {
 const mapStateToProps = (state) => {
   return {
     role: state.loginReducer.role,
-    userId: state.loginReducer.username,
   }
 }
 
-export default connect(mapStateToProps)(InvoiceScreen);
+export default connect(mapStateToProps)(CustomerScreen);
 
 const styles = StyleSheet.create({
   loading: {
@@ -576,6 +569,6 @@ const styles = StyleSheet.create({
   },
 });
 
-InvoiceScreen.propTypes = {
+CustomerScreen.propTypes = {
   navigation: PropTypes.any,
 };

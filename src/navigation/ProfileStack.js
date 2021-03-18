@@ -9,6 +9,9 @@ import ThemeController from '@components/ThemeController';
 import { StatusBar } from 'react-native';
 import ROUTES from '@ultis/routes';
 
+import CustomerStack from './CustomerStack';
+import StatementStack from './StatementStack';
+
 import ProfileScreen from '@screens/ProfileScreen';
 import WishListScreen from '@screens/WishListScreen';
 import TrackOrderScreen from '@screens/TrackOrderScreen';
@@ -21,6 +24,7 @@ import AddNewPaymentScreen from '@screens/AddNewPaymentScreen';
 import SettingsProfileScreen from '@screens/SettingsProfileScreen';
 import PurchaseHistoryScreen from '@screens/PurchaseHistoryScreen';
 import InvoiceScreen from '@screens/InvoiceScreen';
+import InvoiceInfoScreen from '@screens/InvoiceInfoScreen';
 import InventoryScreen from '@screens/InventoryScreen';
 import StatementScreen from '@screens/StatementScreen';
 
@@ -37,6 +41,11 @@ function Main(props) {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name={'CustomerStack'}
+        component={CustomerStack}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name={ROUTES.PurchaseHistoryScreen}
         component={PurchaseHistoryScreen}
         options={{ headerShown: false }}
@@ -47,8 +56,13 @@ function Main(props) {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name={ROUTES.StatementScreen}
-        component={StatementScreen}
+        name={ROUTES.InvoiceInfoScreen}
+        component={InvoiceInfoScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name={'StatementStack'}
+        component={StatementStack}
         options={{ headerShown: false }}
       />
       <Stack.Screen

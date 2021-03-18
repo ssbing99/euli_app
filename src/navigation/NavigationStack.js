@@ -17,6 +17,7 @@ import LoginScreen from '@screens/LoginScreen';
 
 import MainDrawer from './MainDrawer';
 import ContactUsScreen from '@screens/ContactUsScreen';
+import SignUpScreen from '@screens/SignUpScreen';
 
 const Stack = createStackNavigator();
 
@@ -55,6 +56,11 @@ function Main(props) {
           <Stack.Screen
             name={ROUTES.LoginScreen}
             component={LoginScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name={ROUTES.SignUpScreen}
+            component={SignUpScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen

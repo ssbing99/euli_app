@@ -24,6 +24,8 @@ import {
 } from '../../styles/icon-variables';
 import { avaImg } from '../../styles/image-variables';
 import * as loginActions from 'src/actions/loginActions';
+import { hasAccessRight } from '../../store/accessRight';
+import * as ACCESS from '../../config/access';
 
 class NormalProfile extends Component {
   constructor(props) {
@@ -108,6 +110,22 @@ class NormalProfile extends Component {
             borderWidth={responsiveWidth(91.47)}
             onPressItem={() => this.props.navigation.navigate('CameraStack',{ screen: 'ScanScreen' })}
           />
+          {
+            hasAccessRight(this.props.role, ACCESS.VIEW_ALL_CUSTOMER) &&
+
+            <ListItem
+              leftIcon={require('../../../img/icons/ic_profile_active.png')}
+              leftIconStyles={{
+                width: orderIc.width,
+                height: orderIc.height,
+              }}
+              header="Customer"
+              borderWidth={responsiveWidth(91.47)}
+              onPressItem={() =>
+                this.props.navigation.navigate('CustomerStack',{ screen: 'CustomerScreen' })
+              }
+            />
+          }
           <ListItem
             leftIcon={require('../../../img/icons/ic_order.png')}
             leftIconStyles={{
@@ -149,9 +167,11 @@ class NormalProfile extends Component {
             header="Statement"
             borderWidth={responsiveWidth(91.47)}
             onPressItem={() =>
-              this.props.navigation.navigate('StatementScreen')
+              this.props.navigation.navigate('StatementStack',{ screen: 'StatementStack' })
             }
           />
+          {
+            hasAccessRight(this.props.role, ACCESS.VIEW_ALL_INVENTORY) &&
           <ListItem
             leftIcon={require('../../../img/icons/inbox-multiple-outline.png')}
             leftIconStyles={{
@@ -164,6 +184,7 @@ class NormalProfile extends Component {
               this.props.navigation.navigate('InventoryScreen')
             }
           />
+          }
           {/* <ListItem
             leftIcon={require('../../../img/icons/outline_ic_heart.png')}
             leftIconStyles={{
@@ -196,7 +217,14 @@ const mapDispatchToProps = (dispatch) => {
     onPressLogout: () => dispatch(loginActions.logOut())
   }
 }
-export default connect(null, mapDispatchToProps)(NormalProfile);
+
+const mapStateToProps = (state) => {
+  return {
+    role: state.loginReducer.role,
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(NormalProfile);
 
 const styles = StyleSheet.create({
   user: {

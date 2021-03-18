@@ -18,12 +18,9 @@ import {
 } from '../styles/variables';
 import { searchIc } from '../styles/icon-variables';
 
-import { CATEGORIES } from '../static/data';
-import CategoryCard from '../components/CategoryCard';
 import ColorCard from '@components/ColorCard';
 import { getColorList } from '../api/methods/colors';
 import { connect } from 'react-redux';
-import { getColor } from '../store/actionStore';
 
 const imgWidth = responsiveWidth(87.19) / 2;
 const imgHeight = imgWidth * 1.19;
@@ -71,7 +68,7 @@ class ColorPickerListScreen extends Component {
       getColor = getColor.sort((a, b) => {
         return new Date(b.datetime) - new Date(a.datetime);
       });
-      console.log(getColor);
+      // console.log(getColor);
       this.setState({colors: getColor});
     });
   }

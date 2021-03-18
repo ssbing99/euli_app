@@ -31,16 +31,15 @@ import {
 import { searchIc } from '../styles/icon-variables';
 import { CUSTOMERS } from '../static/data';
 import { DataTable } from 'react-native-paper';
-import RNPrint from 'react-native-print';
-import { getInvoice, getInvoiceListById } from '../api/methods/invoice';
+import { getPurchaseHistory } from '../api/methods/purchaseHistory';
 import { connect } from 'react-redux';
 import { hasAccessRight } from '../store/accessRight';
-import { VIEW_ALL_CUSTOMER, VIEW_ALL_INVOICE, VIEW_OWN_INVOICE } from '../config/access';
+import { VIEW_ALL_CUSTOMER, VIEW_OWN_INVOICE } from '../config/access';
 
 const itemsPerPage = 10;
 
-class InvoiceScreen extends Component {
-  constructor(props) {
+class StatementListScreen extends Component {
+  constructor (props) {
     super(props);
     this.state = {
       layout: {
@@ -52,6 +51,7 @@ class InvoiceScreen extends Component {
       modalVisible: false,
       selectedState: 'Customer',
       isSelectedState: false,
+      selectedDate: null,
       showSearchModal: false,
       historyList: [],
       page: 0,
@@ -62,9 +62,9 @@ class InvoiceScreen extends Component {
   }
 
   componentDidMount () {
-    console.log('did mount');
+    console.log('did mount', this.props.role);
 
-    this.getInvoiceHistory();
+    this.getPurchaseHistory();
 
   }
 
@@ -74,26 +74,23 @@ class InvoiceScreen extends Component {
     });
   }
 
-  getInvoiceHistory = () => {
+  getPurchaseHistory = () => {
     try {
       this.updateLoading();
-
-      const custId = hasAccessRight(this.props.role, VIEW_ALL_INVOICE)? null : this.props.userId;;
-
-      getInvoiceListById(custId).then(res => {
+      getPurchaseHistory(this.props.role).then(res => {
         if (res.data && !res.data.Message) {
 
           let customers = [];
           let c = 0;
           const dataLength = res.data.length;
           res.data.map(data => {
-            let dt = new Date(data.CreatedAt);
+            let dt = new Date(data.InvoiceDate);
             data.DisplayInvoiceDate = `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`;
 
-            const added = customers.find(cust => cust.name == data.UserId);
+            const added = customers.find(cust => cust.name == data.CustomerName);
 
             if (!added) {
-              customers.push({id: c++, name: data.UserId});
+              customers.push({id: c++, name: data.CustomerName});
             }
 
           });
@@ -136,7 +133,7 @@ class InvoiceScreen extends Component {
 
           if(selectedState !== 'Customer') {
             if (addable && selectedState) {
-              if (selectedState !== h.UserId) {
+              if (selectedState !== h.CustomerName) {
                 addable = false;
               }
             }
@@ -178,9 +175,9 @@ class InvoiceScreen extends Component {
 
   renderRow = () => {
 
-    const {filteredList, page} = this.state;
+    const {filteredList, page, filteredDataCount} = this.state;
 
-    let defaultRow = (<DataTable.Row style={{width: 600}}>
+    let defaultRow = (<DataTable.Row style={{width: 500}}>
       <DataTable.Cell style={{flex: 1}}>Data Not Found !</DataTable.Cell>
     </DataTable.Row>);
 
@@ -193,21 +190,26 @@ class InvoiceScreen extends Component {
         hist.forEach((h) => {
 
           rows.push(
-            <DataTable.Row style={{ width: 600 }} key={h.Id}>
-              <DataTable.Cell style={{ flex: 1 }}>
+            <DataTable.Row style={{width: 500}} key={i++}>
+              <DataTable.Cell style={{flex: 2}}>{h.DisplayInvoiceDate}</DataTable.Cell>
+              <DataTable.Cell style={{flex: 2}}>
                 <Text
-                  style={{ color: colors.green }}
-                  onPress={() => this._onPrint()}>
-                  Print
+                  style={{color: colors.green}}
+                  onPress={() => this.props.navigation.navigate('InvoiceInfoScreen', { InvId: h.InvoiceNumber })}>
+                  {h.InvoiceNumber}
                 </Text>
               </DataTable.Cell>
-              <DataTable.Cell style={{ flex: 2 }}>{h.Id}</DataTable.Cell>
-              <DataTable.Cell style={{ flex: 2 }}>{h.DisplayInvoiceDate}</DataTable.Cell>
-              {/*<DataTable.Cell style={{ flex: 4 }}>*/}
-              {/*  UB APPPPARREL (M) SDN BHD*/}
-              {/*</DataTable.Cell>*/}
-              <DataTable.Cell numeric style={{ flex: 2 }}>
-                {((h.Amount * 100) / 100).toFixed(2)}
+              {
+                hasAccessRight(this.props.role, VIEW_ALL_CUSTOMER) && (
+                  <DataTable.Cell style={{flex: 2}}>{h.CustomerName}</DataTable.Cell>
+                )
+              }
+              <DataTable.Cell style={{flex: 2}}>{h.ItemID}</DataTable.Cell>
+              <DataTable.Cell numeric style={{flex: 1}}>
+                {((h.ItemTotal * 100) / 100).toFixed(2)}
+              </DataTable.Cell>
+              <DataTable.Cell numeric style={{flex: 1}}>
+                {parseInt(h.OrderQty)}
               </DataTable.Cell>
             </DataTable.Row>
           );
@@ -218,6 +220,7 @@ class InvoiceScreen extends Component {
         return rows;
       } else {
         return defaultRow;
+
       }
 
     } else {
@@ -225,7 +228,8 @@ class InvoiceScreen extends Component {
     }
   };
 
-  render() {
+  render () {
+
     if (this.state.isLoading) {
       return (
         <View style={[styles.loading]}>
@@ -243,7 +247,7 @@ class InvoiceScreen extends Component {
         <NavigationBar
           back
           navigation={this.props.navigation}
-          title="INVOICE"
+          title="PURCHASE HISTORY"
           rightButtons={[
             {
               key: 1,
@@ -258,58 +262,47 @@ class InvoiceScreen extends Component {
           <DataTable>
             <ScrollView
               horizontal
-              contentContainerStyle={{ flexDirection: 'column' }}>
-              <DataTable.Header style={{ width: 600 }}>
-                <DataTable.Title style={{ flex: 1 }}>Print</DataTable.Title>
-                <DataTable.Title style={{ flex: 2 }}>
-                  Invoice Number
+              contentContainerStyle={{flexDirection: 'column'}}>
+              <DataTable.Header style={{width: 500}}>
+                <DataTable.Title style={{flex: 2}}>Date</DataTable.Title>
+                <DataTable.Title style={{flex: 2}}>Doc No.</DataTable.Title>
+                {
+                  hasAccessRight(this.props.role, VIEW_ALL_CUSTOMER) && (
+                    <DataTable.Title style={{flex: 2}}>Customer</DataTable.Title>
+                  )
+                }
+                <DataTable.Title style={{flex: 2}}>Item ID</DataTable.Title>
+                <DataTable.Title numeric style={{flex: 1}}>
+                  Item Price
                 </DataTable.Title>
-                <DataTable.Title style={{ flex: 2 }}>
-                  Invoice Date
-                </DataTable.Title>
-                {/*<DataTable.Title style={{ flex: 4 }}>*/}
-                {/*  Shipping Name*/}
-                {/*</DataTable.Title>*/}
-                <DataTable.Title numeric style={{ flex: 2 }}>
-                  Net Total
+                <DataTable.Title numeric style={{flex: 1}}>
+                  OrderQty
                 </DataTable.Title>
               </DataTable.Header>
 
               {this.renderRow()}
 
-              {/*<DataTable.Row style={{ width: 600 }}>*/}
-              {/*  <DataTable.Cell style={{ flex: 1 }}>*/}
-              {/*    <Text*/}
-              {/*      style={{ color: colors.green }}*/}
-              {/*      onPress={() => this._onPrint()}>*/}
-              {/*      Print*/}
-              {/*    </Text>*/}
-              {/*  </DataTable.Cell>*/}
-              {/*  <DataTable.Cell style={{ flex: 2 }}>INV001091</DataTable.Cell>*/}
+              {/*<DataTable.Row style={{ width: 500 }}>*/}
               {/*  <DataTable.Cell style={{ flex: 2 }}>26/12/2017</DataTable.Cell>*/}
-              {/*  <DataTable.Cell style={{ flex: 4 }}>*/}
-              {/*    UB APPPPARREL (M) SDN BHD*/}
+              {/*  <DataTable.Cell style={{ flex: 2 }}>INV001091</DataTable.Cell>*/}
+              {/*  <DataTable.Cell style={{ flex: 2 }}>ADD-JJ</DataTable.Cell>*/}
+              {/*  <DataTable.Cell numeric style={{ flex: 1 }}>*/}
+              {/*    5.00*/}
               {/*  </DataTable.Cell>*/}
-              {/*  <DataTable.Cell numeric style={{ flex: 2 }}>*/}
-              {/*    2,500.00*/}
+              {/*  <DataTable.Cell numeric style={{ flex: 1 }}>*/}
+              {/*    4*/}
               {/*  </DataTable.Cell>*/}
               {/*</DataTable.Row>*/}
 
-              {/*<DataTable.Row style={{ width: 600 }}>*/}
-              {/*  <DataTable.Cell style={{ flex: 1 }}>*/}
-              {/*    <Text*/}
-              {/*      style={{ color: colors.green }}*/}
-              {/*      onPress={() => this._onPrint()}>*/}
-              {/*      Print*/}
-              {/*    </Text>*/}
-              {/*  </DataTable.Cell>*/}
-              {/*  <DataTable.Cell style={{ flex: 2 }}>INV001091</DataTable.Cell>*/}
+              {/*<DataTable.Row style={{ width: 500 }}>*/}
               {/*  <DataTable.Cell style={{ flex: 2 }}>26/12/2017</DataTable.Cell>*/}
-              {/*  <DataTable.Cell style={{ flex: 4 }}>*/}
-              {/*    UB APPPPARREL (M) SDN BHD*/}
+              {/*  <DataTable.Cell style={{ flex: 2 }}>INV001091</DataTable.Cell>*/}
+              {/*  <DataTable.Cell style={{ flex: 2 }}>ADD-JJ</DataTable.Cell>*/}
+              {/*  <DataTable.Cell numeric style={{ flex: 1 }}>*/}
+              {/*    5.00*/}
               {/*  </DataTable.Cell>*/}
-              {/*  <DataTable.Cell numeric style={{ flex: 2 }}>*/}
-              {/*    2,500.00*/}
+              {/*  <DataTable.Cell numeric style={{ flex: 1 }}>*/}
+              {/*    4*/}
               {/*  </DataTable.Cell>*/}
               {/*</DataTable.Row>*/}
             </ScrollView>
@@ -378,14 +371,13 @@ class InvoiceScreen extends Component {
   /**
    * Hide and show state list modal
    */
-  toggleModal(visible) {
+  toggleModal (visible) {
     this.setState({
-      showSearchModal: !this.state.showSearchModal,
       modalVisible: visible,
     });
   }
 
-  _searchModal() {
+  _searchModal () {
     this.setState({
       showSearchModal: !this.state.showSearchModal,
       selectedDate: null,
@@ -397,7 +389,7 @@ class InvoiceScreen extends Component {
     this.filterSelectedList();
   }
 
-  renderBody() {
+  renderBody () {
     const modalBtnSetting = {
       btnWidth: responsiveWidth(38.4),
       btnHeight: responsiveHeight(5.99),
@@ -432,8 +424,8 @@ class InvoiceScreen extends Component {
           <PrimeButton
             navigation={this.props.navigation}
             setting={modalBtnSetting}
-            btnText="Close"
             underlayColor={colors.red}
+            btnText="Close"
             onPressButton={() => this.toggleModal(false)}
           />
         </View>
@@ -441,7 +433,7 @@ class InvoiceScreen extends Component {
     );
   }
 
-  renderSearchBody() {
+  renderSearchBody () {
     const modalBtnSetting = {
       btnWidth: responsiveWidth(38.4),
       btnHeight: responsiveHeight(5.99),
@@ -455,7 +447,7 @@ class InvoiceScreen extends Component {
           <View style={styles.form} onLayout={this.onLayout.bind(this)}>
             <Form>
               {
-                hasAccessRight(this.props.role, VIEW_ALL_INVOICE) && (
+                hasAccessRight(this.props.role, VIEW_ALL_CUSTOMER) && (
                   <SelectBox
                     isRightIcon
                     // eslint-disable-next-line react-native/no-inline-styles
@@ -488,8 +480,8 @@ class InvoiceScreen extends Component {
                   animationType={'fade'}
                   androidMode={'default'}
                   placeHolderText="Select date"
-                  textStyle={{ color: colors.black }}
-                  placeHolderTextStyle={{ color: colors.gray }}
+                  textStyle={{color: colors.black}}
+                  placeHolderTextStyle={{color: colors.gray}}
                   onDateChange={this.setCalendarDate}
                   disabled={false}
                 />
@@ -516,28 +508,21 @@ class InvoiceScreen extends Component {
    * @param: {Integer} id
    * @param: {String} state
    */
-  selectItem(id, state) {
+  selectItem (id, state) {
     this.setState({
       selectedState: state,
       isSelectedState: true,
     });
-  }
-
-  async _onPrint(
-    url = 'https://stage.thebitetribe.com/uploads/Statement%20Sample.pdf',
-  ) {
-    await RNPrint.print({ filePath: url });
   }
 }
 
 const mapStateToProps = (state) => {
   return {
     role: state.loginReducer.role,
-    userId: state.loginReducer.username,
   }
 }
 
-export default connect(mapStateToProps)(InvoiceScreen);
+export default connect(mapStateToProps)(StatementListScreen);
 
 const styles = StyleSheet.create({
   loading: {
@@ -576,6 +561,6 @@ const styles = StyleSheet.create({
   },
 });
 
-InvoiceScreen.propTypes = {
+StatementListScreen.propTypes = {
   navigation: PropTypes.any,
 };

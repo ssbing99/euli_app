@@ -40,12 +40,22 @@ export async function getInventoryItemByKeyword (keyword) {
   );
 }
 
-export async function getInventoryItemByColor (rgbCode) {
+export async function getInventoryItemByRGB (rgbCode) {
 
   const token = await _retrieveData(USER_TOKEN);
 
+  let Rcode = rgbCode.split(',')[0];
+  let Gcode = rgbCode.split(',')[1];
+  let Bcode = rgbCode.split(',')[2];
+
+  let rgbUrl =
+    ApiConstants.INVENTORY_BY_RGB
+    .replace(':Rcode', Rcode)
+    .replace(':Gcode', Gcode)
+    .replace(':Bcode', Bcode);
+
   return Api(
-    ApiConstants.INVENTORY_BY_COLOR + rgbCode,
+    rgbUrl,
     null,
     'get',
     token,

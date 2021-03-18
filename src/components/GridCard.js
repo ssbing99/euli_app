@@ -15,6 +15,7 @@ import {
   responsiveHeight,
   lineHeight,
   borderRadius,
+  isColorCode
 } from '../styles/variables';
 import { DataTable } from 'react-native-paper';
 
@@ -53,7 +54,7 @@ export default class GridCard extends Component {
           activeOpacity={0.6}
           style={[cardStyles, { width: imgWidth }]}
           onPress={onPressListItem}>
-          { proInfo.ColorCode &&
+          { isColorCode && proInfo.ColorCode &&
           <View
             style={ [
               imgStyles,
@@ -62,17 +63,17 @@ export default class GridCard extends Component {
             ] }
           />
           }
-          {/*{ this.state.image &&*/}
-          {/*<Image*/}
-          {/*  source={ this.state.image }*/}
-          {/*  style={ [*/}
-          {/*    imgStyles,*/}
-          {/*    styles.image,*/}
-          {/*    { width: imgWidth, height: imgHeight },*/}
-          {/*  ] }*/}
-          {/*  onError={ this.loadFallBack }*/}
-          {/*/>*/}
-          {/*}*/}
+          { !isColorCode && this.state.image &&
+          <Image
+            source={ this.state.image }
+            style={ [
+              imgStyles,
+              styles.image,
+              { width: imgWidth, height: imgHeight },
+            ] }
+            onError={ this.loadFallBack }
+          />
+          }
           <View style={styles.textCont}>
             {(proInfo.name != null || proInfo.Name != null )&& (
               <Text

@@ -1,27 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, ScrollView, Text, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, ActivityIndicator, Linking } from 'react-native';
 
 import NavigationBar from '../elements/NavigationBar';
 
 import CommonStyles from '../styles/CommonStyles';
 import {
-  responsiveHeight,
   responsiveWidth,
   marginHorizontal,
-  spaceVertical,
-  deviceWidth,
   colors,
-  fontSize,
-  fontFamily,
-  scrollableTabHeight,
 } from '../styles/variables';
-import { searchIc } from '../styles/icon-variables';
 
-import { CATEGORIES } from '../static/data';
-import CategoryCard from '../components/CategoryCard';
+import { getInventoryItemByRGB } from '../api/methods/inventoryItem';
 import ColorCard from '@components/ColorCard';
-import { getColorList } from '../api/methods/colors';
 import { connect } from 'react-redux';
 
 const imgWidth = responsiveWidth(87.19) / 2;
@@ -70,9 +61,25 @@ class ColorListingScreen extends Component {
   }
 
   getColorList = () => {
+
     if(this.color) {
-      let colorItems = this.color.colorItems || [];
-      this.setState({colors: colorItems});
+      // find color from api
+      const rawRgb = this.color.rgb.replace('rgb(', '').replace(')','');
+      this.setState({isLoading: true});
+      getInventoryItemByRGB(rawRgb).then(res => {
+        console.log("getInventoryItemByColor",rawRgb, res);
+        if (res.data) {
+          res.data.map(dt => {
+            dt['colorRGB'] = rawRgb;
+          });
+          this.setState({ colors: res.data });
+        }
+      }).then(() => this.setState({isLoading: false}));
+
+      // let colorItems = this.color.colorItems || [];
+      // colorItems = findColorItem(this.color);
+      // console.log("getColorList2",this.color);
+      // // this.setState({colors: colorItems});
     }
   }
 
@@ -111,6 +118,7 @@ class ColorListingScreen extends Component {
               justifyContent: 'center',
               alignItems: 'center',
             }}
+            onPressItem={() => Linking.openURL(`mailto:eulitrading@gmail.com?subject=Order%20Enquiry&body=${c.Id}%20${c.Name}`)}
           />
         );
       });

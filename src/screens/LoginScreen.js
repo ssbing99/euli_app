@@ -239,6 +239,7 @@ const mapStateToProps = (state) => {
   return {
     isLoading: state.loadingReducer.isLoginLoading,
     isLoggedIn: state.loginReducer.isLoggedIn,
+    role: state.loginReducer.role,
   }
 }
 

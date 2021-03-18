@@ -8,7 +8,7 @@ import { put, call, select } from 'redux-saga/effects';
 import { delay } from 'redux-saga';
 
 import { Alert } from 'react-native';
-import loginUser from 'src/api/methods/loginUser';
+import { loginUser, getLoginRole } from 'src/api/methods/loginUser';
 // import loginUser from 'src/api/methods/loginUser';
 import * as loginActions from '../actions/loginActions';
 import { _storeData, USER_KEY, USER_TOKEN } from '../store/actionStore';
@@ -23,7 +23,12 @@ export default function* loginAsync(action) {
 
   // const response = { success: true, data: { id: 1 } };
   if (!!response.success) {
-    yield put(loginActions.onLoginResponse(response.data));
+    const role = yield call(getLoginRole,response.data.ReturnString);
+
+    let data = response.data;
+    data['role'] = role.success ? role.data : 'User';
+
+    yield put(loginActions.onLoginResponse(data));
     // yield put(loginActions.disableLoader({}));
 
     _storeData(USER_KEY, {username: action.username});

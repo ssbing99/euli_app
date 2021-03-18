@@ -5,7 +5,7 @@ import {
   View,
   ScrollView,
   Image,
-  TouchableOpacity,
+  TouchableOpacity, Linking,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { ActionSheet } from 'native-base';
@@ -30,7 +30,7 @@ import {
   colors,
   fontSize,
   fontFamily,
-  borderRadius,
+  borderRadius, isColorCode,
 } from '../styles/variables';
 import { heartIc, videoIc, shareIc, arrDownIc } from '../styles/icon-variables';
 
@@ -150,19 +150,19 @@ export default class SingleProductScreen extends Component {
             autoplay
             loop={false}
             activeDotColor={colors.black}>
-            {proInfo.ColorCode &&
-              <View
-                style={{ width: imgWidth, height: imgHeight, backgroundColor: `rgb(${proInfo.ColorCode})` }}
-              />
-            }
-            {/*{this.state.slideImage.map((item, index) => (*/}
-            {/*  <Image*/}
-            {/*    key={index}*/}
-            {/*    source={item.image}*/}
-            {/*    style={{ width: imgWidth, height: imgHeight }}*/}
-            {/*    onError={() => this.loadFallBack(index)}*/}
+            {/*{isColorCode && proInfo.ColorCode &&*/}
+            {/*  <View*/}
+            {/*    style={{ width: imgWidth, height: imgHeight, backgroundColor: `rgb(${proInfo.ColorCode})` }}*/}
             {/*  />*/}
-            {/*))}*/}
+            {/*}*/}
+            {!isColorCode && this.state.slideImage.map((item, index) => (
+              <Image
+                key={index}
+                source={item.image}
+                style={{ width: imgWidth, height: imgHeight }}
+                onError={() => this.loadFallBack(index)}
+              />
+            ))}
           </CustomSwiper>
           {/* slider end here */}
 
@@ -325,23 +325,24 @@ export default class SingleProductScreen extends Component {
             navigation={this.props.navigation}
             setting={btnSetting}
             btnText="Purchase"
+            onPressButton={() => Linking.openURL(`mailto:eulitrading@gmail.com?subject=Order%20Enquiry&body=${proInfo.Id}%20${proInfo.Name}`) }
           />
         </ScrollView>
 
         {/* select color modal start here */}
-        <PrimeModal
-          containerStyle={{
-            alignItems: 'center',
-            backgroundColor: 'transparent',
-          }}
-          modalVisible={this.state.showListColor}
-          body={this.renderBodyColor(proInfo.color)}
-          onRequestClose={() => {
-            this.setState({
-              showListColor: false,
-            });
-          }}
-        />
+        {/*<PrimeModal*/}
+        {/*  containerStyle={{*/}
+        {/*    alignItems: 'center',*/}
+        {/*    backgroundColor: 'transparent',*/}
+        {/*  }}*/}
+        {/*  modalVisible={this.state.showListColor}*/}
+        {/*  body={this.renderBodyColor(proInfo.color)}*/}
+        {/*  onRequestClose={() => {*/}
+        {/*    this.setState({*/}
+        {/*      showListColor: false,*/}
+        {/*    });*/}
+        {/*  }}*/}
+        {/*/>*/}
         {/* select color modal end here */}
 
         {/* select size modal start here */}

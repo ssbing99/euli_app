@@ -3,43 +3,36 @@ import ApiConstants from 'src/api/ApiConstants';
 import { _retrieveData, USER_TOKEN } from 'src/store/actionStore';
 
 
-export async function getInvoice(role) {
+export async function getCustomer() {
 
   const token = await _retrieveData(USER_TOKEN);
 
   return Api(
-    ApiConstants.INVOICE,
+    ApiConstants.CUSTOMER,
     null,
     'get',
     token,
   );
 }
 
-export async function getInvoiceListById(customerId) {
+export async function getCustomerById(id) {
 
   const token = await _retrieveData(USER_TOKEN);
 
-  let apiPath = ApiConstants.INVOICE;
-
-  if (customerId && customerId !== null && customerId != 'undefined') {
-    const custIdBase64 = btoa(customerId);
-    apiPath = ApiConstants.INVOICE_LIST_BY_ID + '/' + custIdBase64;
-  }
-
   return Api(
-    apiPath,
+    ApiConstants.CUSTOMER_BY_ID + id,
     null,
     'get',
     token,
   );
 }
 
-export async function getInvoiceById(id) {
+export async function getCustomerByKeyword(keyword) {
 
   const token = await _retrieveData(USER_TOKEN);
 
   return Api(
-    ApiConstants.INVOICE_BY_ID + id,
+    ApiConstants.CUSTOMER_BY_KEYWORD + keyword.trim(),
     null,
     'get',
     token,
