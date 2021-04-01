@@ -23,6 +23,8 @@ import ImagePicker from 'react-native-image-crop-picker';
 import { storeColor, getColor } from '../store/actionStore';
 import { connect } from 'react-redux';
 import * as colorActions from '../actions/colorActions';
+import { getInventoryItemByRGB } from '../api/methods/inventoryItem';
+import { Toast } from "native-base";
 
 /*
  * https://github.com/herbert84/react-native-pixel-color-picker/blob/master/src/ColorPicker.android.js
@@ -134,6 +136,32 @@ class ScanScreen extends Component {
     });
   };
 
+  checkApiColor = (colorObj) => {
+    //CHECK API got ITEM OR NOT
+    const rawRgb = colorObj.rgb.replace('rgb(', '').replace(')','');
+    getInventoryItemByRGB(rawRgb).then(res => {
+
+      if (res.success && res.data && res.data.length > 0) {
+        Toast.show({
+          text: 'New Items Found!',
+          buttonText: 'Okay',
+          style: {backgroundColor: 'rgb(216,216,216)'},
+          textStyle: {color: '#121314'},
+          buttonTextStyle: {color: '#121314'},
+        });
+        this.props.navigation.navigate('ColorListingScreen', {
+          color: colorObj,
+        });
+      }else{
+        Toast.show({
+          text: 'No matched Item found!', buttonText: 'Okay', type: 'warning', style: { backgroundColor: colors.lightGray }, textStyle: { color: colors.black },
+          buttonTextStyle: { color: colors.black },
+        });
+      }
+    });
+
+  }
+
   getFlashMode = () => {
     const { camera } = this.state;
     const flashOps = camera.flashOn ? camera.ON : camera.OFF;
@@ -184,6 +212,9 @@ class ScanScreen extends Component {
           });
 
           this.props.onPressFindItem(this.props.username, colorObj);
+
+          this.checkApiColor(colorObj);
+
         })
         .catch((err) => {
           // Handle errors

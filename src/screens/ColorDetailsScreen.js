@@ -7,7 +7,7 @@ import Text from '../elements/Text';
 import Clipboard from '@react-native-community/clipboard';
 import { Toast } from 'native-base';
 import {
-  colors, deviceHeight, deviceWidth, NAV_HEIGHT, STATUSBAR_HEIGHT,
+  colors, deviceHeight, deviceWidth, NAV_HEIGHT, STATUSBAR_HEIGHT, fontSize
 } from '../styles/variables';
 import { removeColor } from '../store/actionStore';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -119,7 +119,24 @@ class ColorDetailsScreen extends Component {
             <Text style={ [{ flex: 0 }, styles.colorText, this.getTextColor()] }>{ color(this.color.hex) }</Text>
             { this.renderIcon() }
           </View>
-          <View style={ [styles.rect2, this.getBoxMargin()] }>
+
+          <View style={ [styles.outerRect, this.getBoxMargin()] }>
+          <View style={ [styles.centerBtn] }>
+            <TouchableOpacity style={{width: '100%'}}
+                              onPress={ () => {
+
+                                console.log('press');
+                                this.props.navigation.navigate('ColorListingScreen', {
+                                  color: this.color,
+                                });
+                              }}>
+              <Text style={ [styles.centerBtnText, this.getTextColor()] }>
+                Show Item List
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={ [styles.rect2, {width: '100%'}] }>
             <TouchableOpacity
               onPress={ () => {
                 Clipboard.setString(this.color.rgb);
@@ -143,6 +160,7 @@ class ColorDetailsScreen extends Component {
               <Text style={ [styles.rgb] }>RGB</Text>
             </View>
           </View>
+        </View>
         </View>
       </View>
       <TouchableOpacity
@@ -247,17 +265,52 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  centerBtnText: {
+    color: '#121212',
+    backgroundColor: 'yellow',
+    alignSelf: 'center',
+    fontSize: fontSize.medium,
+    fontWeight: '900'
+  },
+  centerBtn: {
+    width: '100%',
+    height: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+
+  },
+  outerRect: {
+    width: 269,
+    height: 120,
+    marginTop: 135,
+    // marginLeft: 18,
+    borderRadius: 5,
+    alignSelf: 'center',
+
+  },
   rect2: {
     width: 269,
     height: 94,
     backgroundColor: '#E6E6E6',
     borderWidth: 1,
     borderColor: '#000000',
-    marginTop: 165,
+    // marginTop: 165,
     // marginLeft: 18,
     borderRadius: 5,
     alignSelf: 'center',
   },
+  // rect2: {
+  //   width: 269,
+  //   height: 94,
+  //   backgroundColor: '#E6E6E6',
+  //   borderWidth: 1,
+  //   borderColor: '#000000',
+  //   marginTop: 165,
+  //   // marginLeft: 18,
+  //   borderRadius: 5,
+  //   alignSelf: 'center',
+  // },
   icon3: {
     height: 20,
     width: 20,

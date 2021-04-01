@@ -4,7 +4,7 @@ import {
   View,
   ScrollView,
   TouchableHighlight,
-  Image, Linking,
+  Image, Linking, PermissionsAndroid,
 } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -14,7 +14,7 @@ import Border from '../elements/Border';
 import SelectBox from '../elements/SelectBox';
 import PrimeModal from '../elements/PrimeModal';
 import PrimeButton from '../elements/PrimeButton';
-import { DatePicker, Form, Icon } from 'native-base';
+import { DatePicker, Form, Icon, Toast } from 'native-base';
 import { hasAccessRight } from '../store/accessRight';
 import CommonStyles from '../styles/CommonStyles';
 import {
@@ -44,11 +44,13 @@ import { VIEW_ALL_STMT, VIEW_OWN_STMT } from '../config/access';
 class StatementScreen extends Component {
   constructor(props) {
     super(props);
+    this.hasPermission = false;
     this.state = {
       layout: {
         width: null,
         height: null,
       },
+      filePath: '',//'http://application.connaq.com/Cloud_ETT/UploadFiles/Customer12MonthStatement_TW9iaWxlX1VzZXI=.pdf',
       isChecked: false,
       modalVisible: false,
       selectedState: 'Customer',
@@ -72,7 +74,41 @@ class StatementScreen extends Component {
     if(hasAccessRight(this.props.role, VIEW_OWN_STMT)) {
       // this.setState({})
     }
+    if(!isIOS){
+      this.requestStoragePermission().then( res => this.hasPermission = res);
+    }else{
+      this.hasPermission = true;
+    }
+
   }
+
+  requestStoragePermission = async () => {
+    try {
+      const check = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+
+      if(!check){
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: "Permission to store file to phone.",
+            message:
+              "We need your permission to save file to your phone.",
+            buttonPositive: "OK"
+          }
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          return true;
+        } else {
+          return false;
+        }
+      }else{
+        return true;
+      }
+
+    } catch (err) {
+      console.warn(err);
+    }
+  };
 
   updateLoading = () => {
     this.setState({
@@ -125,52 +161,67 @@ class StatementScreen extends Component {
 
   downloadFile = () => {
 
-    this.setIsDownloading(true);
+    if(this.state.filePath && this.state.filePath != '' && this.state.filePath.indexOf('.pdf') > -1) {
+      console.log(this.hasPermission);
+      if(this.hasPermission){
+        // this.setIsDownloading(true);
 
-    // let FILE_URL = 'http://application.connaq.com/Cloud_ETT/Reports/Customer12monthStatementSelectionMain_API.aspx?CompanyID=Euli Textile Demo&DivisionID=HQ&DepartmentID=HQ&EmployeeID=Mobile_User&CustomerIDFrom=3000/001&CustomerIDTo=Test&FilterDate=09-04-2020';
-    let FILE_URL = 'http://application.connaq.com/Cloud_ETT/(S(whtoxezlippmnvqdchy3tj1t))/EnterpriseASPCommon/CrystalReport/Receivable/Standard/Standard12Statement_API.aspx?CompanyID=Euli%20Textile%20Demo&DivisionID=HQ&DepartmentID=HQ&CustomerFrom=3000/001&CustomerTo=Test&StatementDate=31/01/2021&OpenItem=True.pdf';
-    const { dirs } = RNFetchBlob.fs;
-    const dirToSave = isIOS ? dirs.DocumentDir : dirs.DownloadDir;
-    let date = new Date();
-    const title = `statement_${Math.floor(date.getTime() + date.getSeconds() / 2)}.pdf`;
-    const filePath = `${dirToSave}/${title}`;
-    const configfb = {
-      fileCache: true,
-      useDownloadManager: true,
-      notification: true,
-      mediaScannable: true,
-      title: title,
-      path: filePath,
-    }
-    const configOptions = Platform.select({
-      ios: {
-        fileCache: configfb.fileCache,
-        title: configfb.title,
-        path: configfb.path,
-        appendExt: 'pdf',
-      },
-      android: configfb,
-    });
+        // let FILE_URL = 'https://www.eesd2020.org/wp-content/uploads/2018/10/dummy.pdf';
+        let FILE_URL = this.state.filePath;
+        const {dirs} = RNFetchBlob.fs;
+        const dirToSave = isIOS? dirs.DocumentDir : dirs.DownloadDir;
+        let date = new Date();
+        const title = `statement_${Math.floor(date.getTime() + date.getSeconds() / 2)}.pdf`;
+        const filePath = `${dirToSave}/${title}`;
+        const configfb = {
+          fileCache: true,
+          useDownloadManager: true,
+          notification: true,
+          mediaScannable: true,
+          title: title,
+          path: filePath,
+        }
+        const configOptions = Platform.select({
+          ios: {
+            fileCache: configfb.fileCache,
+            title: configfb.title,
+            path: configfb.path,
+            appendExt: 'pdf',
+          },
+          android: configfb,
+        });
 
-    console.log('The file saved to 23233', configfb, dirs);
+        console.log('The file saved to 23233', configfb, dirs);
 
-    RNFetchBlob.config(configOptions)
-    .fetch('GET', FILE_URL, {})
-    .then((res) => {
-      if (isIOS) {
-        RNFetchBlob.fs.writeFile(configfb.path, res.data, 'base64');
-        RNFetchBlob.ios.previewDocument(configfb.path);
+        // Linking.canOpenURL(FILE_URL).then(supported => {
+        //   if (supported) {
+        //     Linking.openURL(FILE_URL);
+        //   } else {
+        //     console.log('Not Supported. ' + supported);
+        //   }
+        // });
+
+        RNFetchBlob.config(configOptions).fetch('GET', FILE_URL, {}).then((res) => {
+          if (isIOS) {
+            RNFetchBlob.fs.writeFile(configfb.path, res.data, 'base64');
+            RNFetchBlob.ios.previewDocument(configfb.path);
+          }
+          console.log('The file saved to ', res);
+          // this.setIsDownloading(false);
+          alert('File downloaded.');
+        }).catch((e) => {
+          // this.setIsDownloading(false);
+          console.log('The file saved to ERROR', e.message)
+          alert('File download failed.');
+        });
       }
-      console.log('The file saved to ', res);
-      this.setIsDownloading(false);
-      alert('File downloaded.');
-    })
-    .catch((e) => {
-      this.setIsDownloading(false);
-      console.log('The file saved to ERROR', e.message)
-      alert('File download failed.');
-    });
 
+
+
+    }else{
+      console.log('openSearchModal');
+      this._searchModal();
+    }
   };
 
   render() {
@@ -184,8 +235,9 @@ class StatementScreen extends Component {
     }
 
     const source = {
-      uri: 'https://stage.thebitetribe.com/uploads/Statement%20Sample.pdf',
-      cache: true,
+      // uri: 'https://stage.thebitetribe.com/uploads/Statement%20Sample.pdf',
+      uri: this.state.filePath,
+      cache: false,
     };
 
     const modalBtnSetting = {
@@ -314,17 +366,29 @@ class StatementScreen extends Component {
   }
 
   _searchSubmit () {
-    console.log(this.state.selectedDate);
+    // console.log(this.state.selectedDate);
     const {selectedDate, selectedStateId, selectedState} = this.state;
-    console.log(selectedState);
+    // console.log(selectedState);
 
     const custId = selectedStateId || null;
 
-    console.log(custId);
+    // console.log(custId);
     if (selectedDate) {
-      //TODO: get the correct path
+      this.updateLoading();
       getStatementByDateAndId(this.state.selectedDate, custId).then(res => {
         console.log(res);
+        if (res.data) {
+          let path = res.data;
+          if (path.indexOf('http://') < 0) {
+            path = 'http://' + path;
+          }
+          this.setState({filePath: path}, () => this.updateLoading());
+        } else {
+          Toast.show({
+            text: 'No Statement found!', buttonText: 'Okay', type: 'warning', style: { backgroundColor: colors.lightGray }, textStyle: { color: colors.black },
+            buttonTextStyle: { color: colors.black },
+          });
+        }
       });
     }
 

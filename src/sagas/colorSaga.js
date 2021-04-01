@@ -23,7 +23,7 @@ function* calculateMatching (rgb, colorsList) {
   let calCol = [];
   let colMap = new Map();
 
-  console.log('RGB', rgb);
+  // console.log('RGB', rgb);
 
   colorsList.forEach(color => {
     let colArr = color.split(',');
@@ -116,19 +116,19 @@ export default function* colorAsync (action) {
     data: arrObj
   };
 
-  console.log(userColor);
-  // if have newItems
-  if(newItems.length > 0) {
-
-    Toast.show({
-      text: 'New Items Found!',
-      buttonText: 'Okay',
-      style: {backgroundColor: 'rgb(216,216,216)'},
-      textStyle: {color: '#121314'},
-      buttonTextStyle: {color: '#121314'},
-    });
-
-  }
+  // console.log(userColor);
+  // // if have newItems
+  // if(newItems.length > 0) {
+  //
+  //   Toast.show({
+  //     text: 'New Items Found!',
+  //     buttonText: 'Okay',
+  //     style: {backgroundColor: 'rgb(216,216,216)'},
+  //     textStyle: {color: '#121314'},
+  //     buttonTextStyle: {color: '#121314'},
+  //   });
+  //
+  // }
 
   yield put(colorActions.saveColorList(userColor));
 

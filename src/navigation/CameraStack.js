@@ -15,6 +15,7 @@ import CheckOutPaymentScreen from '@screens/CheckOutPaymentScreen';
 import CheckOutConfirmScreen from '@screens/CheckOutConfirmScreen';
 import ScanScreen from '@screens/ScanScreen';
 import ColorDetailsScreen from '@screens/ColorDetailsScreen';
+import ColorListingScreen from '@screens/ColorListingScreen';
 
 const Stack = createStackNavigator();
 
@@ -31,6 +32,11 @@ function Main(props) {
       <Stack.Screen
         name={ROUTES.ColorDetailsScreen}
         component={ColorDetailsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name={ROUTES.ColorListingScreen}
+        component={ColorListingScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen
