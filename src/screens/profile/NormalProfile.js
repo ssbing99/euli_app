@@ -90,16 +90,16 @@ class NormalProfile extends Component {
               this.props.navigation.navigate('NotificationScreen')
             }
           /> */}
-          <ListItem
-            leftIcon={require('../../../img/icons/newspaper.png')}
-            leftIconStyles={{
-              width: walletIc.width,
-              height: walletIc.height,
-            }}
-            header="Latest News"
-            borderWidth={responsiveWidth(91.47)}
-            onPressItem={() => this.props.navigation.navigate('HomeStack',{ screen: 'HomeScreen' })}
-          />
+          {/*<ListItem*/}
+          {/*  leftIcon={require('../../../img/icons/newspaper.png')}*/}
+          {/*  leftIconStyles={{*/}
+          {/*    width: walletIc.width,*/}
+          {/*    height: walletIc.height,*/}
+          {/*  }}*/}
+          {/*  header="Latest News"*/}
+          {/*  borderWidth={responsiveWidth(91.47)}*/}
+          {/*  onPressItem={() => this.props.navigation.navigate('HomeStack',{ screen: 'HomeScreen' })}*/}
+          {/*/>*/}
           <ListItem
             leftIcon={require('../../../img/icons/camera-enhance-outline.png')}
             leftIconStyles={{
@@ -110,22 +110,22 @@ class NormalProfile extends Component {
             borderWidth={responsiveWidth(91.47)}
             onPressItem={() => this.props.navigation.navigate('CameraStack',{ screen: 'ScanScreen' })}
           />
-          {
-            hasAccessRight(this.props.role, ACCESS.VIEW_ALL_CUSTOMER) &&
+          {/*{*/}
+          {/*  hasAccessRight(this.props.role, ACCESS.VIEW_ALL_CUSTOMER) &&*/}
 
-            <ListItem
-              leftIcon={require('../../../img/icons/ic_profile_active.png')}
-              leftIconStyles={{
-                width: orderIc.width,
-                height: orderIc.height,
-              }}
-              header="Customer"
-              borderWidth={responsiveWidth(91.47)}
-              onPressItem={() =>
-                this.props.navigation.navigate('CustomerStack',{ screen: 'CustomerScreen' })
-              }
-            />
-          }
+          {/*  <ListItem*/}
+          {/*    leftIcon={require('../../../img/icons/ic_profile_active.png')}*/}
+          {/*    leftIconStyles={{*/}
+          {/*      width: orderIc.width,*/}
+          {/*      height: orderIc.height,*/}
+          {/*    }}*/}
+          {/*    header="Customer"*/}
+          {/*    borderWidth={responsiveWidth(91.47)}*/}
+          {/*    onPressItem={() =>*/}
+          {/*      this.props.navigation.navigate('CustomerStack',{ screen: 'CustomerScreen' })*/}
+          {/*    }*/}
+          {/*  />*/}
+          {/*}*/}
           <ListItem
             leftIcon={require('../../../img/icons/ic_order.png')}
             leftIconStyles={{

@@ -59,8 +59,13 @@ class StatementScreen extends Component {
       showSearchModal: false,
       isDownloading: false,
       isLoading: false,
-      customersList: []
+      customersList: [],
+      customersListDisplay: [],
+      customersListPage: [],
     };
+
+    this.customerListInit = 30;
+    this.customerListCurrPage = 2;
   }
 
 
@@ -123,19 +128,27 @@ class StatementScreen extends Component {
         if (res.data) {
 
           let customers = [];
+          let customersPage = [];
+          let cnt = 0;
           let c = 0;
           let dataLength = res.data.length;
           res.data.map(data => {
-            if (!data.Customer.Id.includes('/')) {
+            if (data.Customer.Id != null && data.Customer.Id != '' && data.Customer.CompanyName) {
               const added = customers.find(cust => cust.name == data.Customer.CompanyName);
 
               if (!added) {
                 customers.push({id: data.Customer.Id, name: data.Customer.CompanyName});
+
+                if (cnt <= 30 && customersPage.indexOf({id: data.Customer.Id, name: data.Customer.CompanyName}) == -1) {
+                  customersPage.push({id: data.Customer.Id, name: data.Customer.CompanyName});
+                  cnt++;
+                }
               }
             }
           });
 
-          this.setState({customersList: customers});
+          const resultcustomer = new Array(Math.ceil(customers.length / this.customerListInit )).fill().map(_ => customers.splice(0, this.customerListInit));
+          this.setState({customersList: customersPage, customersListDisplay: customersPage, customersListPage: resultcustomer});
           this.updateLoading();
         }else{
           this.setState({customersList: []});
@@ -148,6 +161,26 @@ class StatementScreen extends Component {
 
     }
   };
+
+  addListOfCustomers = () => {
+    //TODO: Need to clean up on close
+
+    const { customersListPage, customersListDisplay } = this.state;
+
+    let newArr = [];
+
+    if(this.customerListCurrPage <= customersListPage.length) {
+
+      for (let i = 0; i < this.customerListCurrPage; i++) {
+        newArr = [...newArr, ...customersListPage[i]];
+      }
+
+      // console.log('result', newArr);
+      this.setState({customersListDisplay: newArr});
+
+      this.customerListCurrPage += 1;
+    }
+  }
 
   setIsDownloading = (bol) => {
     this.setState({ isDownloading : bol });
@@ -191,8 +224,6 @@ class StatementScreen extends Component {
           android: configfb,
         });
 
-        console.log('The file saved to 23233', configfb, dirs);
-
         // Linking.canOpenURL(FILE_URL).then(supported => {
         //   if (supported) {
         //     Linking.openURL(FILE_URL);
@@ -219,7 +250,6 @@ class StatementScreen extends Component {
 
 
     }else{
-      console.log('openSearchModal');
       this._searchModal();
     }
   };
@@ -265,6 +295,7 @@ class StatementScreen extends Component {
           ]}
         />
 
+        {(this.state.filePath != null && this.state.filePath != '') &&
         <Pdf
           source={source}
           onLoadComplete={(numberOfPages, filePath) => {
@@ -281,13 +312,25 @@ class StatementScreen extends Component {
           }}
           style={styles.pdf}
         />
+        }
 
-        <PrimeButton
+
+        {(this.state.filePath == null || this.state.filePath == '') &&
+        <View style={[styles.pdf, {justifyContent: 'center',}]} >
+          <Text style={{alignSelf: 'center'}}>No Data/Statement Found.</Text>
+        </View>
+        }
+
+        {(this.state.filePath != null && this.state.filePath != '') &&
+
+          <PrimeButton
           navigation={this.props.navigation}
           setting={modalBtnSetting}
           btnText="Download"
           onPressButton={() => this.downloadFile()}
-        />
+          />
+
+        }
 
         <PrimeModal
           modalVisible={this.state.modalVisible}
@@ -374,6 +417,7 @@ class StatementScreen extends Component {
 
     // console.log(custId);
     if (selectedDate) {
+      this.setState({ filePath: '' });
       this.updateLoading();
       getStatementByDateAndId(this.state.selectedDate, custId).then(res => {
         console.log(res);
@@ -397,6 +441,13 @@ class StatementScreen extends Component {
     });
   }
 
+  isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) =>{
+    // console.log('isCloseToBottom', layoutMeasurement.height + contentOffset.y
+    //   >= contentSize.height - 50);
+    return layoutMeasurement.height + contentOffset.y
+      >= contentSize.height - 50;
+  }
+
   renderBody() {
     const modalBtnSetting = {
       btnWidth: responsiveWidth(38.4),
@@ -407,10 +458,14 @@ class StatementScreen extends Component {
     };
     return (
       <View style={CommonStyles.modal}>
-        <ScrollView style={CommonStyles.modalBody}>
-          {this.state.customersList.map((item) => (
+        <ScrollView style={CommonStyles.modalBody} onScroll={({ nativeEvent }) => {
+          if (this.isCloseToBottom(nativeEvent)) {
+            this.addListOfCustomers();
+          }
+        }}>
+          {this.state.customersListDisplay.map((item) => (
             <TouchableHighlight
-              key={item.id}
+              key={item.name}
               underlayColor={colors.lightGray}
               onPress={() => this.selectItem(item.id, item.name)}>
               <View style={styles.selectItem}>
@@ -433,7 +488,11 @@ class StatementScreen extends Component {
             navigation={this.props.navigation}
             setting={modalBtnSetting}
             btnText="Close"
-            onPressButton={() => this.toggleModal(false)}
+            onPressButton={() => {
+              this.setState({ customersListDisplay: this.state.customersList });
+              this.customerListCurrPage = 2;
+              this.toggleModal(false);
+            }}
           />
         </View>
       </View>
@@ -455,7 +514,8 @@ class StatementScreen extends Component {
   setCalendarDate = (date) => {
     if (date) {
       const newDate = new Date(date);
-      this.setState({selectedDate: `${newDate.getDate()}-${newDate.getMonth() + 1}-${newDate.getFullYear()}`});
+      let mthDate = (newDate.getMonth() + 1) < 10? `0${newDate.getMonth() + 1}`:`${newDate.getMonth() + 1}`;
+      this.setState({selectedDate: `${newDate.getDate()}-${mthDate}-${newDate.getFullYear()}`});
     } else {
       this.setState({selectedDate: null});
     }
@@ -533,7 +593,6 @@ class StatementScreen extends Component {
    * @param: {String} state
    */
   selectItem(id, state) {
-    console.log(id,state);
     this.setState({
       selectedStateId: id,
       selectedState: state,

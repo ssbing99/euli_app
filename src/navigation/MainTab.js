@@ -61,43 +61,43 @@ export default function MainTab() {
 
   return (
     <Tab.Navigator
-      initialRouteName="HomeStack"
+      initialRouteName="ProfileStack"
       tabBarOptions={{
         activeTintColor: colors.primary,
         showLabel: true,
       }}>
-      <Tab.Screen
-        name="HomeStack"
-        component={HomeStack}
-        options={{
-          tabBarLabel: 'Latest News',
-          tabBarIcon: ({ focused }) =>
-            TabIcon({
-              focused,
-              activeSrc: require('../../img/icons/red_newspaper.png'),
-              normalSrc: require('../../img/icons/newspaper.png'),
-              width: homeIc.width,
-              height: homeIc.height,
-            }),
-        }}
-        listeners={tabBarListeners}
-      />
-      <Tab.Screen
-        name="StoreStack"
-        component={StoreStack}
-        options={{
-          tabBarLabel: 'Items',
-          tabBarIcon: ({ focused }) =>
-            TabIcon({
-              focused,
-              activeSrc: require('../../img/icons/tshirt-crew-outline_active.png'),
-              normalSrc: require('../../img/icons/tshirt-crew-outline.png'),
-              width: categoryIc.width,
-              height: categoryIc.height,
-            }),
-        }}
-        listeners={tabBarListeners}
-      />
+      {/*<Tab.Screen*/}
+      {/*  name="HomeStack"*/}
+      {/*  component={HomeStack}*/}
+      {/*  options={{*/}
+      {/*    tabBarLabel: 'Latest News',*/}
+      {/*    tabBarIcon: ({ focused }) =>*/}
+      {/*      TabIcon({*/}
+      {/*        focused,*/}
+      {/*        activeSrc: require('../../img/icons/red_newspaper.png'),*/}
+      {/*        normalSrc: require('../../img/icons/newspaper.png'),*/}
+      {/*        width: homeIc.width,*/}
+      {/*        height: homeIc.height,*/}
+      {/*      }),*/}
+      {/*  }}*/}
+      {/*  listeners={tabBarListeners}*/}
+      {/*/>*/}
+      {/*<Tab.Screen*/}
+      {/*  name="StoreStack"*/}
+      {/*  component={StoreStack}*/}
+      {/*  options={{*/}
+      {/*    tabBarLabel: 'Items',*/}
+      {/*    tabBarIcon: ({ focused }) =>*/}
+      {/*      TabIcon({*/}
+      {/*        focused,*/}
+      {/*        activeSrc: require('../../img/icons/tshirt-crew-outline_active.png'),*/}
+      {/*        normalSrc: require('../../img/icons/tshirt-crew-outline.png'),*/}
+      {/*        width: categoryIc.width,*/}
+      {/*        height: categoryIc.height,*/}
+      {/*      }),*/}
+      {/*  }}*/}
+      {/*  listeners={tabBarListeners}*/}
+      {/*/>*/}
       <Tab.Screen
         name="CameraStack"
         component={CameraStack}

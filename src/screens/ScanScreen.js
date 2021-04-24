@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import CommonStyles from '../styles/CommonStyles';
-import { StyleSheet, View, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Image, ScrollView } from 'react-native';
 import GetPixelColor from 'react-native-get-pixel-color';
 import NavigationBar from '../elements/NavigationBar';
 import Text from '../elements/Text';
@@ -12,7 +12,7 @@ import {
   deviceWidth,
   deviceHeight,
   responsiveHeight,
-  responsiveWidth,
+  responsiveWidth, marginHorizontal, spaceVertical,
 } from '../styles/variables';
 import { Switch } from 'react-native-switch';
 import ColorViewer from '@components/ColorViewer';
@@ -39,12 +39,23 @@ const CAM_OPTIONS = {
   forceUpOrientation: true,
 };
 
+const WHITE_BALANCE_OPT = [
+  { id: 'Auto', property: RNCamera.Constants.WhiteBalance.auto },
+  { id: 'Sunny', property: RNCamera.Constants.WhiteBalance.sunny },
+  { id: 'Cloudy', property: RNCamera.Constants.WhiteBalance.cloudy },
+  { id: 'Shadow', property: RNCamera.Constants.WhiteBalance.shadow },
+  { id: 'Incandescent', property: RNCamera.Constants.WhiteBalance.incandescent },
+  { id: 'Fluorescent', property: RNCamera.Constants.WhiteBalance.fluorescent },
+];
+
 class ScanScreen extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       camera: {
+        wbOn: false,
+        whiteBalance: RNCamera.Constants.WhiteBalance.auto,
         exposure: -1,
         exposureOn: false,
         flashOn: false,
@@ -95,6 +106,8 @@ class ScanScreen extends Component {
   resetState = () => {
     this.setState({
       camera: {
+        wbOn: false,
+        whiteBalance: RNCamera.Constants.WhiteBalance.auto,
         exposure: -1,
         exposureOn: false,
         flashOn: false,
@@ -454,6 +467,7 @@ class ScanScreen extends Component {
           type={RNCamera.Constants.Type.back}
           flashMode={this.getFlashMode()}
           exposure={this.state.camera.exposure}
+          whiteBalance={this.state.camera.whiteBalance}
           ratio={'3:2'}
           pictureSize={'640x480'}
           captureAudio={false}
@@ -534,11 +548,34 @@ class ScanScreen extends Component {
               ...camera,
               exposureOn: exposureOn,
               exposure: exposureOn ? 0 : -1,
+              wbOn: false,
             },
           });
         }}
         style={styles.capture}>
         <Icon name={'exposure'} size={20} color={'white'} />
+      </TouchableOpacity>
+    );
+  };
+
+  renderWhiteBalance = () => {
+    const { camera } = this.state;
+    const wbOn = !camera.wbOn;
+
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          this.setState({
+            camera: {
+              ...camera,
+              wbOn: wbOn,
+              exposureOn: false,
+              // whiteBalance: wbOn? this.state.camera.whiteBalance : RNCamera.Constants.WhiteBalance.auto,
+            },
+          });
+        }}
+        style={styles.capture}>
+        <Text bold regular white style={{height: 20}}>WB</Text>
       </TouchableOpacity>
     );
   };
@@ -596,6 +633,43 @@ class ScanScreen extends Component {
       );
     }
   };
+
+  renderWBselection = () => {
+
+    if (this.state.camera.wbOn) {
+      const checkSelection = (wbProperty, mode) => {
+        if (wbProperty === mode) {
+          return { backgroundColor: colors.black };
+        }
+      }
+
+      const updateWhiteBalance = (wb) => {
+        this.setState({
+          camera: { ...this.state.camera, whiteBalance: wb.property },
+        });
+      }
+
+      return (
+        <View style={styles.whiteBalanceContainer}>
+          <ScrollView
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}>
+            <View style={styles.horizontalList}>
+              { WHITE_BALANCE_OPT.map((wb) => {
+                return <View style={{ position: 'relative', justifyContent: 'center' }}>
+                  <TouchableOpacity key={wb.id} activeOpacity={0.6} onPress={()=> {
+                    updateWhiteBalance(wb);
+                  }} style={[styles.wbCapture, checkSelection(wb.property, this.state.camera.whiteBalance)]}>
+                    <Text medium regular style={{ color: colors.white }}>{wb.id}</Text>
+                  </TouchableOpacity></View>
+              }) }
+            </View>
+          </ScrollView>
+
+        </View>
+      );
+    }
+  }
 
   renderColorViewList = () => {
     const { storeColor } = this.state;
@@ -699,6 +773,9 @@ class ScanScreen extends Component {
 
         {this.renderSlider()}
 
+        {/*{this.renderWBselection()}*/}
+
+
         <View style={styles.componentContainer}>
           <Switch
             trackColor={{ false: colors.darkGray, true: colors.green }}
@@ -725,6 +802,7 @@ class ScanScreen extends Component {
           />
           {this.renderFlash()}
           {this.renderExposure()}
+          {/*{this.renderWhiteBalance()}*/}
 
           {this.renderGallery()}
         </View>
@@ -774,6 +852,19 @@ const styles = StyleSheet.create({
     margin: 20,
     borderWidth: 1,
   },
+  wbCapture: {
+    // flex: 0,
+    // backgroundColor: colors.transparent,
+    borderRadius: 5,
+    padding: 2,
+    paddingHorizontal: 10,
+    borderColor: colors.white,
+    justifyContent: 'flex-end',
+    // margin: 20,
+    borderWidth: 1,
+    alignSelf: 'center',
+    marginHorizontal: marginHorizontal.small / 2,
+  },
   icon: {
     flex: 0,
     backgroundColor: colors.transparent,
@@ -784,6 +875,16 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     margin: 20,
     borderWidth: 1,
+  },
+  whiteBalanceContainer: {
+    position: 'absolute',
+    bottom: 105,
+    width: deviceWidth,
+    height: deviceHeight /6 ,
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   componentContainer: {
     position: 'absolute',
@@ -853,6 +954,13 @@ const styles = StyleSheet.create({
     width: 40,
     borderWidth: 1,
     borderRadius: 20,
+  },
+  horizontalList: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginHorizontal: marginHorizontal.small / 2,
+    paddingTop: spaceVertical.small / 2,
+    paddingBottom: spaceVertical.small / 2,
   },
 });
 

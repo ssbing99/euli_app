@@ -106,13 +106,13 @@ class ColorListingScreen extends Component {
             cardStyles={{ margin: marginHorizontal.small / 2 }}
             textStyle={{ color: textColor}}
             colorInfo={{
-              colorCode: `(${c.colorRGB})`,
+              colorCode: `(${c.ColorCode})`,
               itemId: c.Id,
               SellingPrice: c.SellingPrice
             }}
             imgWidth={imgWidth}
             imgHeight={imgHeight}
-            color={`rgb(${c.colorRGB})`}
+            color={`rgb(${c.ColorCode})`}
             // eslint-disable-next-line react-native/no-inline-styles
             imgStyles={{
               justifyContent: 'center',

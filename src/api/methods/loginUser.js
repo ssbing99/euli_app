@@ -5,7 +5,7 @@ import { _retrieveData, USER_TOKEN } from '../../store/actionStore';
 export function loginUser(username, password) {
 
   let params = {
-    "CompanyID": "Euli Textile Demo",
+    "CompanyID": "Euli Textile Trading",
     "LoginUserId": username,
     "LoginPassword": password
   };
