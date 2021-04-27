@@ -773,7 +773,7 @@ class ScanScreen extends Component {
 
         {this.renderSlider()}
 
-        {/*{this.renderWBselection()}*/}
+        {this.renderWBselection()}
 
 
         <View style={styles.componentContainer}>
@@ -802,7 +802,7 @@ class ScanScreen extends Component {
           />
           {this.renderFlash()}
           {this.renderExposure()}
-          {/*{this.renderWhiteBalance()}*/}
+          {this.renderWhiteBalance()}
 
           {this.renderGallery()}
         </View>
@@ -893,7 +893,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingLeft: 40,
+    paddingLeft: 30,
     alignItems: 'center',
     paddingHorizontal: 5,
   },
