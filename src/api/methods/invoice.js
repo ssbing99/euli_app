@@ -1,6 +1,7 @@
 import Api from 'src/api';
 import ApiConstants from 'src/api/ApiConstants';
 import { _retrieveData, USER_TOKEN } from 'src/store/actionStore';
+import Base64 from '../../lib/Base64';
 
 
 export async function getInvoice(role) {
@@ -22,10 +23,10 @@ export async function getInvoiceListById(customerId) {
   let apiPath = ApiConstants.INVOICE;
 
   if (customerId && customerId !== null && customerId != 'undefined') {
-    const custIdBase64 = btoa(customerId);
-    apiPath = ApiConstants.INVOICE_LIST_BY_ID + '/' + custIdBase64;
+    const custIdBase64 = Base64.btoa(customerId);
+    apiPath = ApiConstants.INVOICE_LIST_BY_ID + custIdBase64;
   }
-
+  console.log('getInvoiceListById', apiPath);
   return Api(
     apiPath,
     null,

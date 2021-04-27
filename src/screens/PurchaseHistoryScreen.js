@@ -56,9 +56,14 @@ class PurchaseHistoryScreen extends Component {
       historyList: [],
       page: 0,
       customersList: [],
+      customersListDisplay: [],
+      customersListPage: [],
       filteredList: [],
       filteredDataCount: 0,
     };
+
+    this.customerListInit = 30;
+    this.customerListCurrPage = 2;
   }
 
   componentDidMount () {
@@ -84,9 +89,20 @@ class PurchaseHistoryScreen extends Component {
         if (res.data && !res.data.Message) {
 
           let customers = [];
+          let customersPage = [];
+          let cnt = 0;
           let c = 0;
-          const dataLength = res.data.length;
-          res.data.map(data => {
+          let dataLength = res.data.length;
+
+          const resData = res.data.sort((da,db) => {
+            if(da.CustomerName.toLowerCase() < db.CustomerName.toLowerCase()) return -1;
+            if(da.CustomerName.toLowerCase() > db.CustomerName.toLowerCase()) return 1;
+            return 0;
+          }).filter(data => data.CustomerName != '');
+
+          dataLength = resData.length;
+
+          resData.map(data => {
             let dt = new Date(data.InvoiceDate);
             data.DisplayInvoiceDate = `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`;
 
@@ -94,14 +110,18 @@ class PurchaseHistoryScreen extends Component {
 
             if (!added) {
               customers.push({id: c++, name: data.CustomerName});
+
+              if (cnt <= 30 && customersPage.indexOf({id: data.CustomerName, name: data.CustomerName}) == -1) {
+                customersPage.push({id: data.CustomerName, name: data.CustomerName});
+                cnt++;
+              }
             }
 
           });
 
-          const result = new Array(Math.ceil(res.data.length / itemsPerPage)).fill().map(_ => res.data.splice(0, itemsPerPage));
-
-          this.setState({historyList: result, filteredList: result, customersList: customers, filteredDataCount: dataLength});
-          console.log(customers);
+          const result = new Array(Math.ceil(resData.length / itemsPerPage)).fill().map(_ => resData.splice(0, itemsPerPage));
+          const resultcustomer = new Array(Math.ceil(customers.length / this.customerListInit )).fill().map(_ => customers.splice(0, this.customerListInit));
+          this.setState({historyList: result, filteredList: result, customersList: customersPage, customersListDisplay: customersPage, customersListPage: resultcustomer, filteredDataCount: dataLength});
           this.updateLoading();
         }else{
           this.setState({historyList: [], filteredList: [], customersList: [], filteredDataCount: 0});
@@ -166,6 +186,26 @@ class PurchaseHistoryScreen extends Component {
       showSearchModal: !this.state.showSearchModal,
     });
 
+  }
+
+  addListOfCustomers = () => {
+    //TODO: Need to clean up on close
+
+    const { customersListPage, customersListDisplay } = this.state;
+
+    let newArr = [];
+
+    if(this.customerListCurrPage <= customersListPage.length) {
+
+      for (let i = 0; i < this.customerListCurrPage; i++) {
+        newArr = [...newArr, ...customersListPage[i]];
+      }
+
+      // console.log('result', newArr);
+      this.setState({customersListDisplay: newArr});
+
+      this.customerListCurrPage += 1;
+    }
   }
 
   setCalendarDate = (date) => {
@@ -394,6 +434,13 @@ class PurchaseHistoryScreen extends Component {
     this.filterSelectedList();
   }
 
+  isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) =>{
+    // console.log('isCloseToBottom', layoutMeasurement.height + contentOffset.y
+    //   >= contentSize.height - 50);
+    return layoutMeasurement.height + contentOffset.y
+      >= contentSize.height - 50;
+  }
+
   renderBody () {
     const modalBtnSetting = {
       btnWidth: responsiveWidth(38.4),
@@ -404,8 +451,12 @@ class PurchaseHistoryScreen extends Component {
     };
     return (
       <View style={CommonStyles.modal}>
-        <ScrollView style={CommonStyles.modalBody}>
-          {this.state.customersList.map((item) => (
+        <ScrollView style={CommonStyles.modalBody} onScroll={({ nativeEvent }) => {
+          if (this.isCloseToBottom(nativeEvent)) {
+            this.addListOfCustomers();
+          }
+        }}>
+          {this.state.customersListDisplay.map((item) => (
             <TouchableHighlight
               key={item.id}
               underlayColor={colors.lightGray}
@@ -431,7 +482,11 @@ class PurchaseHistoryScreen extends Component {
             setting={modalBtnSetting}
             underlayColor={colors.red}
             btnText="Close"
-            onPressButton={() => this.toggleModal(false)}
+            onPressButton={() => {
+              this.setState({ customersListDisplay: this.state.customersList });
+              this.customerListCurrPage = 2;
+              this.toggleModal(false);
+            }}
           />
         </View>
       </View>
@@ -524,7 +579,7 @@ class PurchaseHistoryScreen extends Component {
 const mapStateToProps = (state) => {
   return {
     role: state.loginReducer.role,
-    userId: state.loginReducer.username,
+    userId: state.loginReducer.customerId,
   }
 }
 

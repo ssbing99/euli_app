@@ -39,7 +39,7 @@ export async function getStatementByDateAndId(dateStr, customerId) {
     const custIdBase64 = Base64.btoa(customerId);
     apiPath += ',' + custIdBase64;
   }
-
+console.log('getStatementByDateAndId', apiPath);
   return Api(
     apiPath,
     null,

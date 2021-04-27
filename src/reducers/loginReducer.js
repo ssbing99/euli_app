@@ -7,6 +7,7 @@ import * as types from 'src/actions/types';
 const initialState = {
   isLoggedIn: false,
   id: 0,
+  customerId: '',
   username: '',
   password: '',
   bearerToken: '',
@@ -26,14 +27,15 @@ export const loginReducer = createReducer(initialState, {
   },
   [types.LOGIN_RESPONSE](state, action) {
     let thisRole = 'company';
-    if(action.role && action.role != 'User'){
+    if(action.response.role && action.response.role != 'User'){
       thisRole = 'customer';
     }
     return {
       ...state,
-      bearerToken: action.ReturnString,
+      bearerToken: action.response.ReturnString,
       isLoggedIn: true,
       role: thisRole,
+      customerId: action.response.customerId,
     };
   },
   [types.LOGIN_FAILED](state) {

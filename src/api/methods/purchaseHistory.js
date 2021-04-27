@@ -1,6 +1,7 @@
 import Api from 'src/api';
 import ApiConstants from 'src/api/ApiConstants';
 import { _retrieveData, USER_TOKEN } from 'src/store/actionStore';
+import Base64 from '../../lib/Base64';
 
 
 // export async function getPurchaseHistory(role) {
@@ -22,10 +23,10 @@ export async function getPurchaseHistory(customerId) {
   let apiPath = ApiConstants.PURCHASE_HISTORY;
 
   if (customerId && customerId !== null && customerId != 'undefined') {
-    const custIdBase64 = btoa(customerId);
+    const custIdBase64 = Base64.btoa(customerId);
     apiPath += '/' + custIdBase64;
   }
-
+  console.log('getPurchaseHistory', apiPath);
   return Api(
     apiPath,
     null,

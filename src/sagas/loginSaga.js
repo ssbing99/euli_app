@@ -27,6 +27,7 @@ export default function* loginAsync(action) {
 
     let data = response.data;
     data['role'] = role.success ? role.data : 'User';
+    data['customerId'] = data['role'] != 'User' ? data['role'] : null;
 
     yield put(loginActions.onLoginResponse(data));
     // yield put(loginActions.disableLoader({}));

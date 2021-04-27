@@ -39,7 +39,7 @@ import { ActivityIndicator } from 'react-native-paper';
 import { getStatementByDateAndId } from '../api/methods/statement';
 import { getCustomer } from '../api/methods/customer';
 import { connect } from 'react-redux';
-import { VIEW_ALL_STMT, VIEW_OWN_STMT } from '../config/access';
+import { VIEW_ALL_CUSTOMER, VIEW_ALL_STMT, VIEW_OWN_STMT } from '../config/access';
 
 class StatementScreen extends Component {
   constructor(props) {
@@ -413,7 +413,9 @@ class StatementScreen extends Component {
     const {selectedDate, selectedStateId, selectedState} = this.state;
     // console.log(selectedState);
 
-    const custId = selectedStateId || null;
+    // const custId = selectedStateId || null;
+
+    const custId = hasAccessRight(this.props.role, VIEW_ALL_STMT)? (selectedStateId || null) : this.props.userId;
 
     // console.log(custId);
     if (selectedDate) {
@@ -534,17 +536,21 @@ class StatementScreen extends Component {
         <ScrollView style={CommonStyles.modalBody}>
           <View style={styles.form} onLayout={this.onLayout.bind(this)}>
             <Form>
-              <SelectBox
-                isRightIcon
-                // eslint-disable-next-line react-native/no-inline-styles
-                containerStyle={{
-                  ...SelectBox.defaultProps.containerStyle,
-                  flex: 1,
-                  marginTop: spaceVertical.small,
-                }}
-                label={this.state.selectedState}
-                onPressAction={() => this.toggleModal(true)}
-              />
+              {
+                hasAccessRight(this.props.role, VIEW_ALL_STMT) && (
+                  <SelectBox
+                    isRightIcon
+                    // eslint-disable-next-line react-native/no-inline-styles
+                    containerStyle={{
+                      ...SelectBox.defaultProps.containerStyle,
+                      flex: 1,
+                      marginTop: spaceVertical.small,
+                    }}
+                    label={this.state.selectedState}
+                    onPressAction={() => this.toggleModal(true)}
+                  />
+                )
+              }
               <View style={styles.calendarInput}>
                 <Image
                   source={require('../../img/icons/calendar.png')}
@@ -605,7 +611,7 @@ class StatementScreen extends Component {
 const mapStateToProps = (state) => {
   return {
     role: state.loginReducer.role,
-    userId: state.loginReducer.username,
+    userId: state.loginReducer.customerId,
   }
 }
 
