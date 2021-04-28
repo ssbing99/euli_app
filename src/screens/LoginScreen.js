@@ -36,6 +36,7 @@ class LoginScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isLogining: false,
       isRedirecting: false,
       signinLayout: {
         width: null,
@@ -64,21 +65,30 @@ class LoginScreen extends Component {
   callRedirect = (prevProps) =>{
     console.log("isLoading",prevProps.isLoading, this.props.isLoading);
     console.log("isLoggedIn",prevProps.isLoggedIn, this.props.isLoggedIn);
+    console.log("username",prevProps.username, this.props.username);
+    console.log("password",prevProps.password, this.props.password);
 
     if(!!this.props.isLoading && !!this.props.isLoggedIn){
       console.log("DISABLE LOADER");
       this.props.disableLoader();
     }
 
-    setTimeout(() => {
-      if(!this.props.isLoading  && !!this.props.isLoggedIn) {
+    if(!this.props.isLoading  && !!this.props.isLoggedIn) {
+      setTimeout(() => {
 
-        console.log("REDIRECT");
-        // this.props.disableLoader();
-        this.props.navigation.navigate('MainDrawer');
-      }
-    }, 100);
+        if (this.props.username && this.props.password && !this.state.isLogining) {
+          console.log("LOGIN");
+          this.setState({isLogining: true}, () => {
+            this.props.onPressSignIn(this.props.username, this.props.password);
+          });
+        } else if (this.state.isLogining) {
+          console.log("REDIRECT");
+          // this.props.disableLoader();
+          this.props.navigation.navigate('MainDrawer');
+        }
 
+      }, 1000);
+    }
   }
 
 
@@ -214,7 +224,10 @@ class LoginScreen extends Component {
    * @param {String} password
    */
   handleSignInWithEmailAndPassword(email, password) {
-    this.props.onPressSignIn(email,password);
+    this.setState( {  isLogining: true }, () => {
+      this.props.onPressSignIn(email,password);
+    } );
+
   }
 
   /**
@@ -239,6 +252,8 @@ const mapStateToProps = (state) => {
   return {
     isLoading: state.loadingReducer.isLoginLoading,
     isLoggedIn: state.loginReducer.isLoggedIn,
+    username: state.loginReducer.username,
+    password: state.loginReducer.password,
     role: state.loginReducer.role,
   }
 }

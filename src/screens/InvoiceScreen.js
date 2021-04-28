@@ -236,20 +236,20 @@ class InvoiceScreen extends Component {
         hist.forEach((h) => {
 
           rows.push(
-            <DataTable.Row style={{ width: 600 }} key={h.Id}>
-              <DataTable.Cell style={{ flex: 1 }}>
-                <Text
-                  style={{ color: colors.green }}
-                  onPress={() => this._onPrint()}>
-                  Print
-                </Text>
-              </DataTable.Cell>
-              <DataTable.Cell style={{ flex: 2 }}>{h.Id}</DataTable.Cell>
-              <DataTable.Cell style={{ flex: 2 }}>{h.DisplayInvoiceDate}</DataTable.Cell>
+            <DataTable.Row style={{ width: 400 }} key={h.Id}>
+              {/*<DataTable.Cell style={{ flex: 1 }}>*/}
+              {/*  <Text*/}
+              {/*    style={{ color: colors.green }}*/}
+              {/*    onPress={() => this._onPrint()}>*/}
+              {/*    Print*/}
+              {/*  </Text>*/}
+              {/*</DataTable.Cell>*/}
+              <DataTable.Cell style={{ flex: 1 }}>{h.Id}</DataTable.Cell>
+              <DataTable.Cell style={{ flex: 1 }}>{h.DisplayInvoiceDate}</DataTable.Cell>
               {/*<DataTable.Cell style={{ flex: 4 }}>*/}
               {/*  UB APPPPARREL (M) SDN BHD*/}
               {/*</DataTable.Cell>*/}
-              <DataTable.Cell numeric style={{ flex: 2 }}>
+              <DataTable.Cell numeric style={{ flex: 1 }}>
                 {((h.Amount * 100) / 100).toFixed(2)}
               </DataTable.Cell>
             </DataTable.Row>
@@ -302,18 +302,18 @@ class InvoiceScreen extends Component {
             <ScrollView
               horizontal
               contentContainerStyle={{ flexDirection: 'column' }}>
-              <DataTable.Header style={{ width: 600 }}>
-                <DataTable.Title style={{ flex: 1 }}>Print</DataTable.Title>
-                <DataTable.Title style={{ flex: 2 }}>
+              <DataTable.Header style={{ width: 400 }}>
+                {/*<DataTable.Title style={{ flex: 1 }}>Print</DataTable.Title>*/}
+                <DataTable.Title style={{ flex: 1 }}>
                   Invoice Number
                 </DataTable.Title>
-                <DataTable.Title style={{ flex: 2 }}>
+                <DataTable.Title style={{ flex: 1 }}>
                   Invoice Date
                 </DataTable.Title>
                 {/*<DataTable.Title style={{ flex: 4 }}>*/}
                 {/*  Shipping Name*/}
                 {/*</DataTable.Title>*/}
-                <DataTable.Title numeric style={{ flex: 2 }}>
+                <DataTable.Title numeric style={{ flex: 1 }}>
                   Net Total
                 </DataTable.Title>
               </DataTable.Header>
