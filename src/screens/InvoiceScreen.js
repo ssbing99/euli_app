@@ -29,13 +29,13 @@ import {
   fontSize,
 } from '../styles/variables';
 import { searchIc } from '../styles/icon-variables';
-import { CUSTOMERS } from '../static/data';
 import { DataTable } from 'react-native-paper';
 import RNPrint from 'react-native-print';
-import { getInvoice, getInvoiceListById } from '../api/methods/invoice';
+import { getInvoiceListById } from '../api/methods/invoice';
 import { connect } from 'react-redux';
 import { hasAccessRight } from '../store/accessRight';
-import { VIEW_ALL_CUSTOMER, VIEW_ALL_INVOICE, VIEW_OWN_INVOICE } from '../config/access';
+import { VIEW_ALL_INVOICE } from '../config/access';
+import { getCustomer, getCustomerById } from '../api/methods/customer';
 
 const itemsPerPage = 10;
 
@@ -55,6 +55,7 @@ class InvoiceScreen extends Component {
       showSearchModal: false,
       historyList: [],
       page: 0,
+      customersDataList: [],
       customersList: [],
       customersListDisplay: [],
       customersListPage: [],
@@ -69,7 +70,41 @@ class InvoiceScreen extends Component {
   componentDidMount () {
     console.log('did mount');
 
-    this.getInvoiceHistory();
+    if(hasAccessRight(this.props.role, VIEW_ALL_INVOICE)) {
+      this.updateLoading();
+      getCustomer().then(res => {
+        if (res.data) {
+          let customersData = [];
+
+          res.data.map(data => {
+            if (data.Customer.Id != null && data.Customer.Id != '' && data.Customer.CompanyName) {
+              const added = customersData.find(cust => cust.name == data.Customer.CompanyName);
+
+              if (!added) {
+                customersData.push({id: data.Customer.Id, name: data.Customer.CompanyName});
+              }
+            }
+          });
+          this.setState({customersDataList: customersData});
+        }else{
+          this.setState({customersDataList: []});
+        }
+      }).then(() => this.getInvoiceHistory());
+    } else {
+      this.updateLoading();
+      getCustomerById(this.props.userId).then(res => {
+        console.log(res);
+        if (res.data) {
+          let customersData = [];
+
+          customersData.push({id: res.data.Customer.Id, name: res.data.Customer.CompanyName});
+
+          this.setState({customersDataList: customersData});
+        }else{
+          this.setState({customersDataList: []});
+        }
+      }).then(() => this.getInvoiceHistory());
+    }
 
   }
 
@@ -81,9 +116,10 @@ class InvoiceScreen extends Component {
 
   getInvoiceHistory = () => {
     try {
-      this.updateLoading();
 
-      const custId = hasAccessRight(this.props.role, VIEW_ALL_INVOICE)? null : this.props.userId;;
+      let customersData = this.state.customersDataList;
+
+      const custId = hasAccessRight(this.props.role, VIEW_ALL_INVOICE)? null : this.props.userId;
 
       getInvoiceListById(custId).then(res => {
         if (res.data && !res.data.Message) {
@@ -94,11 +130,25 @@ class InvoiceScreen extends Component {
           let c = 0;
           let dataLength = res.data.length;
 
+          // MAP name first
+          res.data.map(data => {
+            let dtCustId = data.CustomerId;
+
+            //TODO: check with customerData for display customerName
+            if (customersData.length > 0) {
+              const ctDt = customersData.find(custDt => custDt.id == dtCustId);
+              data.CustomerName = ctDt.name;
+            }else{
+              data.CustomerName = '';
+            }
+
+          });
+
           const resData = res.data.sort((da,db) => {
-            if(da.CustomerId.toLowerCase() < db.CustomerId.toLowerCase()) return -1;
-            if(da.CustomerId.toLowerCase() > db.CustomerId.toLowerCase()) return 1;
+            if (da.CustomerName.toLowerCase() < db.CustomerName.toLowerCase()) return -1;
+            if (da.CustomerName.toLowerCase() > db.CustomerName.toLowerCase()) return 1;
             return 0;
-          }).filter(data => data.CustomerId != '' && data.CustomerId != null);
+          }).filter(data => data.CustomerName != '' && data.CustomerName != null);
 
           dataLength = resData.length;
 
@@ -106,24 +156,22 @@ class InvoiceScreen extends Component {
             let dt = new Date(data.CreatedAt);
             data.DisplayInvoiceDate = `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`;
 
-            const added = customers.find(cust => cust.name == data.CustomerId);
+            const added = customers.find(cust => cust.name == data.CustomerName);
 
             if (!added) {
-              customers.push({id: c++, name: data.CustomerId});
+              customers.push({id: c++, name: data.CustomerName});
 
-              if (cnt <= 30 && customersPage.indexOf({id: data.CustomerId, name: data.CustomerId}) == -1) {
-                customersPage.push({id: data.CustomerId, name: data.CustomerId});
+              if (cnt <= 30 && customersPage.indexOf({id: data.CustomerName, name: data.CustomerName}) == -1) {
+                customersPage.push({id: data.CustomerName, name: data.CustomerName});
                 cnt++;
               }
             }
 
           });
 
-          // const result = new Array(Math.ceil(res.data.length / itemsPerPage)).fill().map(_ => res.data.splice(0, itemsPerPage));
           const result = new Array(Math.ceil(resData.length / itemsPerPage)).fill().map(_ => resData.splice(0, itemsPerPage));
           const resultcustomer = new Array(Math.ceil(customers.length / this.customerListInit )).fill().map(_ => customers.splice(0, this.customerListInit));
           this.setState({historyList: result, filteredList: result, customersList: customersPage, customersListDisplay: customersPage, customersListPage: resultcustomer, filteredDataCount: dataLength});
-          // this.setState({historyList: result, filteredList: result, customersList: customers, filteredDataCount: dataLength});
           this.updateLoading();
         }else{
           this.setState({historyList: [], filteredList: [], customersList: [], filteredDataCount: 0});
@@ -159,7 +207,7 @@ class InvoiceScreen extends Component {
 
           if(selectedState !== 'Customer') {
             if (addable && selectedState) {
-              if (selectedState !== h.CustomerId) {
+              if (selectedState !== h.CustomerName) {
                 addable = false;
               }
             }
@@ -236,7 +284,7 @@ class InvoiceScreen extends Component {
         hist.forEach((h) => {
 
           rows.push(
-            <DataTable.Row style={{ width: 400 }} key={h.Id}>
+            <DataTable.Row style={{ width: (hasAccessRight(this.props.role, VIEW_ALL_INVOICE)? 600 : 400) }} key={h.Id}>
               {/*<DataTable.Cell style={{ flex: 1 }}>*/}
               {/*  <Text*/}
               {/*    style={{ color: colors.green }}*/}
@@ -245,6 +293,11 @@ class InvoiceScreen extends Component {
               {/*  </Text>*/}
               {/*</DataTable.Cell>*/}
               <DataTable.Cell style={{ flex: 1 }}>{h.Id}</DataTable.Cell>
+              {
+                hasAccessRight(this.props.role, VIEW_ALL_INVOICE) && (
+                  <DataTable.Cell style={{flex: 2}}>{h.CustomerName}</DataTable.Cell>
+                )
+              }
               <DataTable.Cell style={{ flex: 1 }}>{h.DisplayInvoiceDate}</DataTable.Cell>
               {/*<DataTable.Cell style={{ flex: 4 }}>*/}
               {/*  UB APPPPARREL (M) SDN BHD*/}
@@ -302,11 +355,18 @@ class InvoiceScreen extends Component {
             <ScrollView
               horizontal
               contentContainerStyle={{ flexDirection: 'column' }}>
-              <DataTable.Header style={{ width: 400 }}>
+              <DataTable.Header style={{ width: (hasAccessRight(this.props.role, VIEW_ALL_INVOICE)? 600 : 400) }}>
                 {/*<DataTable.Title style={{ flex: 1 }}>Print</DataTable.Title>*/}
                 <DataTable.Title style={{ flex: 1 }}>
                   Invoice Number
                 </DataTable.Title>
+                {
+                  hasAccessRight(this.props.role, VIEW_ALL_INVOICE) && (
+                    <DataTable.Title style={{flex: 2}}>
+                      Customer Name
+                    </DataTable.Title>
+                  )
+                }
                 <DataTable.Title style={{ flex: 1 }}>
                   Invoice Date
                 </DataTable.Title>

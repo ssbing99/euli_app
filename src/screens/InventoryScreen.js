@@ -210,12 +210,12 @@ export default class InventoryScreen extends Component {
         hist.forEach((i) => {
 
           rows.push(
-            <DataTable.Row key={ii++}>
-              <DataTable.Cell>{i.Id}</DataTable.Cell>
+            <DataTable.Row key={ii++} style={{ width: 600 }}>
+              <DataTable.Cell style={{ flex: 1 }}>{i.Id}</DataTable.Cell>
               <DataTable.Cell style={{ flex: 3 }}>
                 {i.Name}
               </DataTable.Cell>
-              <DataTable.Cell numeric>{i.OHQ}</DataTable.Cell>
+              <DataTable.Cell numeric style={{ flex: 1 }}>{i.OHQ}</DataTable.Cell>
             </DataTable.Row>
           );
         });
@@ -265,10 +265,13 @@ export default class InventoryScreen extends Component {
         />
         <ScrollView>
           <DataTable>
-            <DataTable.Header>
-              <DataTable.Title>Item ID</DataTable.Title>
+            <ScrollView
+              horizontal
+              contentContainerStyle={{ flexDirection: 'column' }}>
+            <DataTable.Header style={{ width: 600 }}>
+              <DataTable.Title style={{ flex: 1 }}>Item ID</DataTable.Title>
               <DataTable.Title style={{ flex: 3 }}>Desc 1</DataTable.Title>
-              <DataTable.Title numeric>OHQ</DataTable.Title>
+              <DataTable.Title numeric style={{ flex: 1 }}>OHQ</DataTable.Title>
             </DataTable.Header>
 
             {this.renderRow()}
@@ -288,6 +291,8 @@ export default class InventoryScreen extends Component {
             {/*  </DataTable.Cell>*/}
             {/*  <DataTable.Cell numeric>4</DataTable.Cell>*/}
             {/*</DataTable.Row>*/}
+
+            </ScrollView>
 
             {filteredList.length > 0 &&
             <DataTable.Pagination

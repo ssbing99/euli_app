@@ -25,6 +25,7 @@ import { connect } from 'react-redux';
 import * as colorActions from '../actions/colorActions';
 import { getInventoryItemByRGB } from '../api/methods/inventoryItem';
 import { Toast } from "native-base";
+import { getColorList } from '../api/methods/colors';
 
 /*
  * https://github.com/herbert84/react-native-pixel-color-picker/blob/master/src/ColorPicker.android.js
@@ -136,8 +137,8 @@ class ScanScreen extends Component {
   };
 
   getUpdateColor = () => {
-    getColor().then((res) => {
-      let getColor = res['colors'] || [];
+    getColorList(this.props.username).then((res) => {
+      let getColor = res || [];
 
       if (getColor.length > 0) {
         getColor = getColor.sort((a, b) => {
