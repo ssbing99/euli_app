@@ -5,12 +5,13 @@ import {
   View,
   ScrollView,
   TouchableHighlight,
-  Image, ActivityIndicator,
+  Image, ActivityIndicator, TouchableOpacity,
+  Text,
+  Linking,
 } from 'react-native';
 import PropTypes from 'prop-types';
 
 import NavigationBar from '../elements/NavigationBar';
-import Text from '../elements/Text';
 import Border from '../elements/Border';
 import SelectBox from '../elements/SelectBox';
 import PrimeModal from '../elements/PrimeModal';
@@ -26,7 +27,7 @@ import {
   deviceWidth,
   colors,
   borderRadius,
-  fontSize,
+  fontSize, inputHeight, fontFamily,
 } from '../styles/variables';
 import { searchIc } from '../styles/icon-variables';
 import { DataTable } from 'react-native-paper';
@@ -34,8 +35,9 @@ import RNPrint from 'react-native-print';
 import { getInvoiceListById } from '../api/methods/invoice';
 import { connect } from 'react-redux';
 import { hasAccessRight } from '../store/accessRight';
-import { VIEW_ALL_INVOICE } from '../config/access';
+import { VIEW_ALL_CUSTOMER, VIEW_ALL_INVOICE } from '../config/access';
 import { getCustomer, getCustomerById } from '../api/methods/customer';
+import TextInput from '../elements/TextInput';
 
 const itemsPerPage = 10;
 
@@ -53,6 +55,7 @@ class InvoiceScreen extends Component {
       selectedState: 'Customer',
       isSelectedState: false,
       showSearchModal: false,
+      keyword: null,
       historyList: [],
       page: 0,
       customersDataList: [],
@@ -187,7 +190,7 @@ class InvoiceScreen extends Component {
 
   filterSelectedList = () => {
 
-    const {historyList, selectedDate, selectedState} = this.state;
+    const {historyList, selectedDate, selectedState, keyword} = this.state;
 
     if (historyList && historyList.length > 0) {
       let rows = [];
@@ -211,6 +214,13 @@ class InvoiceScreen extends Component {
                 addable = false;
               }
             }
+          }
+
+          if (addable && keyword && keyword != null && keyword != 'undefined') {
+            addable = (
+              (hasAccessRight(this.props.role, VIEW_ALL_INVOICE) && h.CustomerName.toLowerCase().includes(keyword.toLowerCase().trim()))
+              || (h.Id.toLowerCase().includes(keyword.toLowerCase().trim()))
+            );
           }
 
           if (addable) {
@@ -292,18 +302,31 @@ class InvoiceScreen extends Component {
               {/*    Print*/}
               {/*  </Text>*/}
               {/*</DataTable.Cell>*/}
+              <DataTable.Cell style={{ flex: 1 }}>{h.DisplayInvoiceDate}</DataTable.Cell>
               <DataTable.Cell style={{ flex: 1 }}>{h.Id}</DataTable.Cell>
               {
                 hasAccessRight(this.props.role, VIEW_ALL_INVOICE) && (
                   <DataTable.Cell style={{flex: 2}}>{h.CustomerName}</DataTable.Cell>
                 )
               }
-              <DataTable.Cell style={{ flex: 1 }}>{h.DisplayInvoiceDate}</DataTable.Cell>
               {/*<DataTable.Cell style={{ flex: 4 }}>*/}
               {/*  UB APPPPARREL (M) SDN BHD*/}
               {/*</DataTable.Cell>*/}
               <DataTable.Cell numeric style={{ flex: 1 }}>
                 {((h.Amount * 100) / 100).toFixed(2)}
+              </DataTable.Cell>
+              <DataTable.Cell numeric style={{ flex: 1 }}>
+                <Text
+                  style={{color: colors.green}}
+                  onPress={() => {
+                    if (h.URLPath.indexOf('http') == -1) {
+                      Linking.openURL(`http://${h.URLPath}`);
+                    } else {
+                      Linking.openURL(`${h.URLPath}`);
+                    }
+                  }}>
+                  Download
+                </Text>
               </DataTable.Cell>
             </DataTable.Row>
           );
@@ -358,6 +381,9 @@ class InvoiceScreen extends Component {
               <DataTable.Header style={{ width: (hasAccessRight(this.props.role, VIEW_ALL_INVOICE)? 600 : 400) }}>
                 {/*<DataTable.Title style={{ flex: 1 }}>Print</DataTable.Title>*/}
                 <DataTable.Title style={{ flex: 1 }}>
+                  Invoice Date
+                </DataTable.Title>
+                <DataTable.Title style={{ flex: 1 }}>
                   Invoice Number
                 </DataTable.Title>
                 {
@@ -367,14 +393,14 @@ class InvoiceScreen extends Component {
                     </DataTable.Title>
                   )
                 }
-                <DataTable.Title style={{ flex: 1 }}>
-                  Invoice Date
-                </DataTable.Title>
                 {/*<DataTable.Title style={{ flex: 4 }}>*/}
                 {/*  Shipping Name*/}
                 {/*</DataTable.Title>*/}
                 <DataTable.Title numeric style={{ flex: 1 }}>
-                  Net Total
+                  Amount
+                </DataTable.Title>
+                <DataTable.Title numeric style={{ flex: 1 }}>
+
                 </DataTable.Title>
               </DataTable.Header>
 
@@ -492,6 +518,7 @@ class InvoiceScreen extends Component {
     this.setState({
       showSearchModal: !this.state.showSearchModal,
       selectedDate: null,
+      keyword: null,
       selectedState: 'Customer',
     });
   }
@@ -587,6 +614,16 @@ class InvoiceScreen extends Component {
                   />
                 )
               }
+
+              <TextInput
+                inputHeight={inputHeight}
+                itemStyles={{marginTop: (hasAccessRight(this.props.role, VIEW_ALL_INVOICE)? 0 : spaceVertical.small) }}
+                onChangeText={(text) =>
+                  this.setState({keyword: text})
+                }
+                label="Keyword"
+              />
+
               <View style={styles.calendarInput}>
                 <Image
                   source={require('../../img/icons/calendar.png')}

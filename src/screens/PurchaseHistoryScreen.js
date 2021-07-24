@@ -26,15 +26,16 @@ import {
   deviceWidth,
   colors,
   borderRadius,
-  fontSize,
+  fontSize, inputHeight,
 } from '../styles/variables';
-import { searchIc } from '../styles/icon-variables';
+import { passIc, searchIc } from '../styles/icon-variables';
 import { CUSTOMERS } from '../static/data';
 import { DataTable } from 'react-native-paper';
 import { getPurchaseHistory } from '../api/methods/purchaseHistory';
 import { connect } from 'react-redux';
 import { hasAccessRight } from '../store/accessRight';
 import { VIEW_ALL_CUSTOMER, VIEW_OWN_INVOICE } from '../config/access';
+import TextInput from '../elements/TextInput';
 
 const itemsPerPage = 10;
 
@@ -52,6 +53,7 @@ class PurchaseHistoryScreen extends Component {
       selectedState: 'Customer',
       isSelectedState: false,
       selectedDate: null,
+      keyword: null,
       showSearchModal: false,
       historyList: [],
       page: 0,
@@ -137,7 +139,7 @@ class PurchaseHistoryScreen extends Component {
 
   filterSelectedList = () => {
 
-    const {historyList, selectedDate, selectedState} = this.state;
+    const {historyList, selectedDate, selectedState, keyword} = this.state;
 
     if (historyList && historyList.length > 0) {
       let rows = [];
@@ -161,6 +163,14 @@ class PurchaseHistoryScreen extends Component {
                 addable = false;
               }
             }
+          }
+
+          if (addable && keyword && keyword != null && keyword != 'undefined') {
+            addable = (
+              (hasAccessRight(this.props.role, VIEW_ALL_CUSTOMER) && h.CustomerName.toLowerCase().includes(keyword.toLowerCase().trim()))
+              || (h.InvoiceNumber.toLowerCase().includes(keyword.toLowerCase().trim()))
+              || (h.ItemID.toLowerCase().includes(keyword.toLowerCase().trim()))
+            );
           }
 
           if (addable) {
@@ -234,7 +244,7 @@ class PurchaseHistoryScreen extends Component {
         hist.forEach((h) => {
 
             rows.push(
-              <DataTable.Row style={{width: 500}} key={i++}>
+              <DataTable.Row style={{width: 600}} key={i++}>
                 <DataTable.Cell style={{flex: 2}}>{h.DisplayInvoiceDate}</DataTable.Cell>
                 <DataTable.Cell style={{flex: 2}}>
                   <Text
@@ -250,10 +260,10 @@ class PurchaseHistoryScreen extends Component {
                 }
                 <DataTable.Cell style={{flex: 2}}>{h.ItemID}</DataTable.Cell>
                 <DataTable.Cell numeric style={{flex: 1}}>
-                  {((h.ItemTotal * 100) / 100).toFixed(2)}
-                </DataTable.Cell>
-                <DataTable.Cell numeric style={{flex: 1}}>
                   {parseInt(h.OrderQty)}
+                </DataTable.Cell>
+                <DataTable.Cell numeric style={{flex: 2}}>
+                  {((h.ItemTotal * 100) / 100).toFixed(2)}
                 </DataTable.Cell>
               </DataTable.Row>
             );
@@ -307,9 +317,9 @@ class PurchaseHistoryScreen extends Component {
             <ScrollView
               horizontal
               contentContainerStyle={{flexDirection: 'column'}}>
-              <DataTable.Header style={{width: 500}}>
+              <DataTable.Header style={{width: 600}}>
                 <DataTable.Title style={{flex: 2}}>Date</DataTable.Title>
-                <DataTable.Title style={{flex: 2}}>Doc No.</DataTable.Title>
+                <DataTable.Title style={{flex: 2}}>Invoice</DataTable.Title>
                 {
                   hasAccessRight(this.props.role, VIEW_ALL_CUSTOMER) && (
                     <DataTable.Title style={{flex: 2}}>Customer</DataTable.Title>
@@ -317,10 +327,10 @@ class PurchaseHistoryScreen extends Component {
                 }
                 <DataTable.Title style={{flex: 2}}>Item ID</DataTable.Title>
                 <DataTable.Title numeric style={{flex: 1}}>
-                  Item Price
+                  Qty
                 </DataTable.Title>
-                <DataTable.Title numeric style={{flex: 1}}>
-                  OrderQty
+                <DataTable.Title numeric style={{flex: 2}}>
+                  Price
                 </DataTable.Title>
               </DataTable.Header>
 
@@ -426,6 +436,7 @@ class PurchaseHistoryScreen extends Component {
     this.setState({
       showSearchModal: !this.state.showSearchModal,
       selectedDate: null,
+      keyword: null,
       selectedState: 'Customer',
     });
   }
@@ -521,6 +532,16 @@ class PurchaseHistoryScreen extends Component {
                   />
                 )
               }
+
+              <TextInput
+                inputHeight={inputHeight}
+                itemStyles={{marginTop: (hasAccessRight(this.props.role, VIEW_ALL_CUSTOMER)? 0 : spaceVertical.small) }}
+                onChangeText={(text) =>
+                  this.setState({keyword: text})
+                }
+                label="Keyword"
+              />
+
               <View style={styles.calendarInput}>
                 <Image
                   source={require('../../img/icons/calendar.png')}

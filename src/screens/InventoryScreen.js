@@ -26,14 +26,15 @@ import {
   deviceWidth,
   colors,
   borderRadius,
-  fontSize,
+  fontSize, inputHeight,
 } from '../styles/variables';
 import { searchIc } from '../styles/icon-variables';
 import { CUSTOMERS } from '../static/data';
 import { DataTable } from 'react-native-paper';
 import { getInventoryItem } from '../api/methods/inventoryItem';
 import { hasAccessRight } from '../store/accessRight';
-import { VIEW_ALL_CUSTOMER } from '../config/access';
+import { VIEW_ALL_CUSTOMER, VIEW_ALL_INVOICE } from '../config/access';
+import TextInput from '../elements/TextInput';
 
 const itemsPerPage = 10;
 
@@ -51,6 +52,7 @@ export default class InventoryScreen extends Component {
       selectedState: 'Item ID',
       isSelectedState: false,
       showSearchModal: false,
+      keyword: null,
       historyList: [],
       page: 0,
       itemIdsList: [],
@@ -128,7 +130,7 @@ export default class InventoryScreen extends Component {
 
   filterSelectedList = () => {
 
-    const {historyList, selectedState} = this.state;
+    const {historyList, selectedState, keyword} = this.state;
 
     if (historyList && historyList.length > 0) {
       let rows = [];
@@ -146,6 +148,12 @@ export default class InventoryScreen extends Component {
                 addable = false;
               }
             }
+          }
+
+          if (addable && keyword && keyword != null && keyword != 'undefined') {
+            addable = (
+              (h.Id.toLowerCase().includes(keyword.toLowerCase().trim()))
+            );
           }
 
           if (addable) {
@@ -210,11 +218,11 @@ export default class InventoryScreen extends Component {
         hist.forEach((i) => {
 
           rows.push(
-            <DataTable.Row key={ii++} style={{ width: 600 }}>
+            <DataTable.Row key={ii++} style={{ width: 400 }}>
               <DataTable.Cell style={{ flex: 1 }}>{i.Id}</DataTable.Cell>
-              <DataTable.Cell style={{ flex: 3 }}>
-                {i.Name}
-              </DataTable.Cell>
+              {/*<DataTable.Cell style={{ flex: 3 }}>*/}
+              {/*  {i.Name}*/}
+              {/*</DataTable.Cell>*/}
               <DataTable.Cell numeric style={{ flex: 1 }}>{i.OHQ}</DataTable.Cell>
             </DataTable.Row>
           );
@@ -268,9 +276,9 @@ export default class InventoryScreen extends Component {
             <ScrollView
               horizontal
               contentContainerStyle={{ flexDirection: 'column' }}>
-            <DataTable.Header style={{ width: 600 }}>
+            <DataTable.Header style={{ width: 400 }}>
               <DataTable.Title style={{ flex: 1 }}>Item ID</DataTable.Title>
-              <DataTable.Title style={{ flex: 3 }}>Desc 1</DataTable.Title>
+              {/*<DataTable.Title style={{ flex: 3 }}>Desc 1</DataTable.Title>*/}
               <DataTable.Title numeric style={{ flex: 1 }}>OHQ</DataTable.Title>
             </DataTable.Header>
 
@@ -371,6 +379,7 @@ export default class InventoryScreen extends Component {
     this.setState({
       showSearchModal: !this.state.showSearchModal,
       selectedDate: null,
+      keyword: null,
       selectedState: 'Item ID',
     });
   }
@@ -463,6 +472,15 @@ export default class InventoryScreen extends Component {
                 }}
                 label={this.state.selectedState}
                 onPressAction={() => this.toggleModal(true)}
+              />
+
+              <TextInput
+                inputHeight={inputHeight}
+                itemStyles={{marginTop: 0 }}
+                onChangeText={(text) =>
+                  this.setState({keyword: text})
+                }
+                label="Keyword"
               />
             </Form>
           </View>
