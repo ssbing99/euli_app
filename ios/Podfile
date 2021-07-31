@@ -1,14 +1,15 @@
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+require_relative '../node_modules/react-native-unimodules/cocoapods.rb'
 
-platform :ios, '9.0'
+platform :ios, '11.0'
 
 def add_flipper_pods!(versions = {})
   versions['Flipper'] ||= '~> 0.33.1'
   versions['DoubleConversion'] ||= '1.1.7'
-  versions['Flipper-Folly'] ||= '~> 2.1'
+  versions['Flipper-Folly'] ||= '~> 2.3.0'
   versions['Flipper-Glog'] ||= '0.3.6'
   versions['Flipper-PeerTalk'] ||= '~> 0.0.4'
-  versions['Flipper-RSocket'] ||= '~> 1.0'
+  versions['Flipper-RSocket'] ||= '~> 1.1.0'
   pod 'FlipperKit', versions['Flipper'], :configuration => 'Debug'
   pod 'FlipperKit/FlipperKitLayoutPlugin', versions['Flipper'], :configuration => 'Debug'
   pod 'FlipperKit/SKIOSNetworkPlugin', versions['Flipper'], :configuration => 'Debug'
@@ -43,7 +44,26 @@ def flipper_post_install(installer)
   end
 end
 
+# fixes for last Mac updates
+# add before target 'xxxx' do
+def find_and_replace(dir, findstr, replacestr)
+  Dir[dir].each do |name|
+      text = File.read(name)
+      replace = text.gsub(findstr,replacestr)
+
+      if text != replace
+          puts "Fix: " + name
+          system("chmod +w " + name)
+          File.open(name, "w") { |file| file.puts replace }
+          STDOUT.flush
+      end
+  end
+  Dir[dir + '*/'].each(&method(:find_and_replace))
+end
+
+
 target 'Euli' do
+  use_unimodules!
   pod 'FBLazyVector', :path => "../node_modules/react-native/Libraries/FBLazyVector"
   pod 'FBReactNativeSpec', :path => "../node_modules/react-native/Libraries/FBReactNativeSpec"
   pod 'RCTRequired', :path => "../node_modules/react-native/Libraries/RCTRequired"
@@ -71,6 +91,8 @@ target 'Euli' do
   pod 'ReactCommon/turbomodule/core', :path => "../node_modules/react-native/ReactCommon"
   pod 'Yoga', :path => '../node_modules/react-native/ReactCommon/yoga', :modular_headers => true
 
+  pod 'OpenSSL-Universal', '~>1.0.2.20'
+
   pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
@@ -91,6 +113,23 @@ target 'Euli' do
   add_flipper_pods!
   post_install do |installer|
     flipper_post_install(installer)
+
+    ## Fix for XCode 12.5 & RN 0.62.2 - See https://github.com/facebook/react-native/issues/28405
+        find_and_replace("../node_modules/react-native/React/CxxBridge/RCTCxxBridge.mm",
+          "_initializeModules:(NSArray<id<RCTBridgeModule>> *)modules", "_initializeModules:(NSArray<Class> *)modules")
+
+        find_and_replace("../node_modules/react-native/ReactCommon/turbomodule/core/platform/ios/RCTTurboModuleManager.mm",
+          "RCTBridgeModuleNameForClass(strongModule))", "RCTBridgeModuleNameForClass(Class(strongModule)))")
+
+        ## Fix for Flipper-Folly on iOS 14.5
+        find_and_replace("Pods/Flipper-Folly/folly/synchronization/DistributedMutex-inl.h",
+          "atomic_notify_one(state)", "folly::atomic_notify_one(state)")
+
+        #find_and_replace("Pods/Headers/Private/RCT-Folly/folly/synchronization/DistributedMutex-inl.h",
+         # "atomic_notify_one(state)", "folly::atomic_notify_one(state)")
+
+        find_and_replace("Pods/Flipper-Folly/folly/synchronization/DistributedMutex-inl.h",
+          "atomic_wait_until(&state, previous | data, deadline)", "folly::atomic_wait_until(&state, previous | data, deadline)")
   end
 end
 

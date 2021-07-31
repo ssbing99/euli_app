@@ -9,7 +9,7 @@
     "test": "jest",
     "lint": "eslint .",
     "update:pods": "cd ios && pod install --repo-update && cd ..",
-    "postinstall": "yarn run update:pods"
+    "postinstall": "yarn run update:pods && patch-package"
   },
   "husky": {
     "hooks": {
@@ -30,7 +30,7 @@
     "@react-native-community/progress-bar-android": "^1.0.3",
     "@react-native-community/progress-view": "^1.2.1",
     "@react-native-community/toolbar-android": "^0.1.0-rc.2",
-    "@react-native-community/viewpager": "^2.0.1",
+    "@react-native-community/viewpager": "^2.0.2",
     "@react-navigation/bottom-tabs": "^5.7.1",
     "@react-navigation/drawer": "^5.8.5",
     "@react-navigation/native": "^5.2.6",
@@ -39,6 +39,7 @@
     "lint-staged": "^10.2.11",
     "metro-react-native-babel-preset": "^0.63.0",
     "native-base": "^2.13.12",
+    "patch-package": "^6.4.7",
     "react": "16.11.0",
     "react-devtools": "^4.8.2",
     "react-native": "0.62.2",
@@ -51,7 +52,7 @@
     "react-native-keyboard-aware-scroll-view": "^0.9.3",
     "react-native-paper": "^3.10.1",
     "react-native-pdf": "^6.2.2",
-    "react-native-print": "^0.6.0",
+    "react-native-print": "^0.7.0",
     "react-native-reanimated": "^1.8.0",
     "react-native-safe-area-context": "^0.7.3",
     "react-native-screens": "^2.7.0",
@@ -60,6 +61,7 @@
     "react-native-snap-carousel": "^3.9.1",
     "react-native-svg": "^12.1.0",
     "react-native-switch": "^2.0.0",
+    "react-native-unimodules": "^0.13.3",
     "react-native-vector-icons": "^7.0.0",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
