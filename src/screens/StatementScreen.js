@@ -29,7 +29,7 @@ import {
   deviceHeight,
   NAV_HEIGHT,
   STATUSBAR_HEIGHT,
-  isIOS
+  isIOS, inputHeight
 } from '../styles/variables';
 import { searchIc } from '../styles/icon-variables';
 import { CUSTOMERS } from '../static/data';
@@ -40,6 +40,18 @@ import { getStatementByDateAndId } from '../api/methods/statement';
 import { getCustomer } from '../api/methods/customer';
 import { connect } from 'react-redux';
 import { VIEW_ALL_CUSTOMER, VIEW_ALL_STMT, VIEW_OWN_STMT } from '../config/access';
+import TextInput from '../elements/TextInput';
+
+let timeOutId;
+
+const debounce = (func, delay) => {
+  return (...args) => {
+    if (timeOutId) clearTimeout(timeOutId);
+    timeOutId = setTimeout(() => {
+      func.apply(null, args);
+    }, delay);
+  };
+};
 
 class StatementScreen extends Component {
   constructor(props) {
@@ -59,6 +71,7 @@ class StatementScreen extends Component {
       showSearchModal: false,
       isDownloading: false,
       isLoading: false,
+      customerIds: [],
       customersList: [],
       customersListDisplay: [],
       customersListPage: [],
@@ -147,8 +160,9 @@ class StatementScreen extends Component {
             }
           });
 
+          const oriItemIds = [...customers];
           const resultcustomer = new Array(Math.ceil(customers.length / this.customerListInit )).fill().map(_ => customers.splice(0, this.customerListInit));
-          this.setState({customersList: customersPage, customersListDisplay: customersPage, customersListPage: resultcustomer});
+          this.setState({customerIds: oriItemIds, customersList: customersPage, customersListDisplay: customersPage, customersListPage: resultcustomer});
           this.updateLoading();
         }else{
           this.setState({customersList: []});
@@ -161,6 +175,32 @@ class StatementScreen extends Component {
 
     }
   };
+
+  filterKey = keywordInner => {
+
+    const {customerIds} = this.state; // origin list
+    let tempNewList;
+    let customersListDisplay;
+    if(keywordInner && keywordInner != '') {
+      // Filter origin with keyword, update customersListDisplay, itemIdListCurrPage = 2
+      customersListDisplay = customerIds.filter(data => data.name.toLowerCase().includes(keywordInner.toLowerCase().trim()));
+      tempNewList = [...customersListDisplay];
+    }else{
+      customersListDisplay = this.state.customersList;
+      tempNewList = [...customerIds];
+    }
+
+    const resultcustomer = new Array(Math.ceil(tempNewList.length / this.customerListInit )).fill().map(_ => tempNewList.splice(0, this.customerListInit));
+    this.setState({customersListDisplay: customersListDisplay, customersListPage: resultcustomer});
+
+    this.customerListCurrPage = 2;
+  }
+
+  handleKeywordChange = (text) => {
+    this.debounceSearch(text);
+  }
+
+  debounceSearch = debounce(this.filterKey, 500);
 
   addListOfCustomers = () => {
     //TODO: Need to clean up on close
@@ -460,6 +500,18 @@ class StatementScreen extends Component {
     };
     return (
       <View style={CommonStyles.modal}>
+        <View style={CommonStyles.modalFooter}>
+          <Form>
+            <TextInput
+              inputHeight={inputHeight}
+              itemStyles={{marginTop: 0 }}
+              onChangeText={(text) =>
+                this.handleKeywordChange(text)
+              }
+              label="Keyword"
+            />
+          </Form>
+        </View>
         <ScrollView style={CommonStyles.modalBody} onScroll={({ nativeEvent }) => {
           if (this.isCloseToBottom(nativeEvent)) {
             this.addListOfCustomers();

@@ -576,7 +576,7 @@ class ScanScreen extends Component {
           });
         }}
         style={styles.capture}>
-        <Text bold regular white style={{height: 20}}>WB</Text>
+        <Text bold small white style={{height: 20}}>WB</Text>
       </TouchableOpacity>
     );
   };
@@ -847,7 +847,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.transparent,
     borderRadius: 5,
     padding: 5,
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
     borderColor: colors.white,
     justifyContent: 'flex-end',
     margin: 20,
@@ -894,7 +894,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingLeft: 30,
+    paddingLeft: 20,
     alignItems: 'center',
     paddingHorizontal: 5,
   },

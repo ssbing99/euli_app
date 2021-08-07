@@ -40,6 +40,16 @@ import { getCustomer, getCustomerById } from '../api/methods/customer';
 import TextInput from '../elements/TextInput';
 
 const itemsPerPage = 10;
+let timeOutId;
+
+const debounce = (func, delay) => {
+  return (...args) => {
+    if (timeOutId) clearTimeout(timeOutId);
+    timeOutId = setTimeout(() => {
+      func.apply(null, args);
+    }, delay);
+  };
+};
 
 class InvoiceScreen extends Component {
   constructor(props) {
@@ -59,6 +69,7 @@ class InvoiceScreen extends Component {
       historyList: [],
       page: 0,
       customersDataList: [],
+      customerIds: [],
       customersList: [],
       customersListDisplay: [],
       customersListPage: [],
@@ -172,9 +183,10 @@ class InvoiceScreen extends Component {
 
           });
 
+          const oriItemIds = [...customers];
           const result = new Array(Math.ceil(resData.length / itemsPerPage)).fill().map(_ => resData.splice(0, itemsPerPage));
           const resultcustomer = new Array(Math.ceil(customers.length / this.customerListInit )).fill().map(_ => customers.splice(0, this.customerListInit));
-          this.setState({historyList: result, filteredList: result, customersList: customersPage, customersListDisplay: customersPage, customersListPage: resultcustomer, filteredDataCount: dataLength});
+          this.setState({historyList: result, filteredList: result, customerIds: oriItemIds, customersList: customersPage, customersListDisplay: customersPage, customersListPage: resultcustomer, filteredDataCount: dataLength});
           this.updateLoading();
         }else{
           this.setState({historyList: [], filteredList: [], customersList: [], filteredDataCount: 0});
@@ -247,6 +259,32 @@ class InvoiceScreen extends Component {
     });
 
   }
+
+  filterKey = keywordInner => {
+
+    const {customerIds} = this.state; // origin list
+    let tempNewList;
+    let customersListDisplay;
+    if(keywordInner && keywordInner != '') {
+      // Filter origin with keyword, update customersListDisplay, itemIdListCurrPage = 2
+      customersListDisplay = customerIds.filter(data => data.name.toLowerCase().includes(keywordInner.toLowerCase().trim()));
+      tempNewList = [...customersListDisplay];
+    }else{
+      customersListDisplay = this.state.customersList;
+      tempNewList = [...customerIds];
+    }
+
+    const resultcustomer = new Array(Math.ceil(tempNewList.length / this.customerListInit )).fill().map(_ => tempNewList.splice(0, this.customerListInit));
+    this.setState({customersListDisplay: customersListDisplay, customersListPage: resultcustomer});
+
+    this.customerListCurrPage = 2;
+  }
+
+  handleKeywordChange = (text) => {
+    this.debounceSearch(text);
+  }
+
+  debounceSearch = debounce(this.filterKey, 500);
 
   addListOfCustomers = () => {
     //TODO: Need to clean up on close
@@ -544,6 +582,18 @@ class InvoiceScreen extends Component {
     };
     return (
       <View style={CommonStyles.modal}>
+        <View style={CommonStyles.modalFooter}>
+          <Form>
+            <TextInput
+              inputHeight={inputHeight}
+              itemStyles={{marginTop: 0 }}
+              onChangeText={(text) =>
+                this.handleKeywordChange(text)
+              }
+              label="Keyword"
+            />
+          </Form>
+        </View>
         <ScrollView style={CommonStyles.modalBody} onScroll={({ nativeEvent }) => {
           if (this.isCloseToBottom(nativeEvent)) {
             this.addListOfCustomers();
@@ -615,14 +665,14 @@ class InvoiceScreen extends Component {
                 )
               }
 
-              <TextInput
-                inputHeight={inputHeight}
-                itemStyles={{marginTop: (hasAccessRight(this.props.role, VIEW_ALL_INVOICE)? 0 : spaceVertical.small) }}
-                onChangeText={(text) =>
-                  this.setState({keyword: text})
-                }
-                label="Keyword"
-              />
+              {/*<TextInput*/}
+              {/*  inputHeight={inputHeight}*/}
+              {/*  itemStyles={{marginTop: (hasAccessRight(this.props.role, VIEW_ALL_INVOICE)? 0 : spaceVertical.small) }}*/}
+              {/*  onChangeText={(text) =>*/}
+              {/*    this.setState({keyword: text})*/}
+              {/*  }*/}
+              {/*  label="Keyword"*/}
+              {/*/>*/}
 
               <View style={styles.calendarInput}>
                 <Image

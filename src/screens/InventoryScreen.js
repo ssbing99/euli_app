@@ -37,6 +37,16 @@ import { VIEW_ALL_CUSTOMER, VIEW_ALL_INVOICE } from '../config/access';
 import TextInput from '../elements/TextInput';
 
 const itemsPerPage = 10;
+let timeOutId;
+
+const debounce = (func, delay) => {
+  return (...args) => {
+    if (timeOutId) clearTimeout(timeOutId);
+    timeOutId = setTimeout(() => {
+      func.apply(null, args);
+    }, delay);
+  };
+};
 
 export default class InventoryScreen extends Component {
   constructor(props) {
@@ -55,6 +65,7 @@ export default class InventoryScreen extends Component {
       keyword: null,
       historyList: [],
       page: 0,
+      itemIds: [],
       itemIdsList: [],
       itemidsListDisplay: [],
       itemIdsListPage: [],
@@ -112,9 +123,10 @@ export default class InventoryScreen extends Component {
             }
           });
 
+          const oriItemIds = [...itemIds];
           const result = new Array(Math.ceil(resData.length / itemsPerPage)).fill().map(_ => resData.splice(0, itemsPerPage));
           const resultItemId = new Array(Math.ceil(itemIds.length / this.itemIdListInit )).fill().map(_ => itemIds.splice(0, this.itemIdListInit));
-          this.setState({historyList: result, filteredList: result, itemIdsList: itemIdsPage, itemidsListDisplay: itemIdsPage, itemIdsListPage: resultItemId, filteredDataCount: dataLength});
+          this.setState({historyList: result, filteredList: result, itemIds: oriItemIds, itemIdsList: itemIdsPage, itemidsListDisplay: itemIdsPage, itemIdsListPage: resultItemId, filteredDataCount: dataLength});
           this.updateLoading();
         }else{
           this.setState({historyList: [], filteredList: [], itemIdsList:[], filteredDataCount: 0});
@@ -180,6 +192,33 @@ export default class InventoryScreen extends Component {
     });
 
   }
+
+
+  filterKey = keywordInner => {
+
+    const {itemIds} = this.state; // origin list
+    let tempNewList;
+    let itemidsListDisplay;
+    if(keywordInner && keywordInner != '') {
+      // Filter origin with keyword, update itemidsListDisplay, itemIdListCurrPage = 2
+      itemidsListDisplay = itemIds.filter(data => data.name.toLowerCase().includes(keywordInner.toLowerCase().trim()));
+      tempNewList = [...itemidsListDisplay];
+    }else{
+      itemidsListDisplay = this.state.itemIdsList;
+      tempNewList = [...itemIds];
+    }
+
+    const resultItemId = new Array(Math.ceil(tempNewList.length / this.itemIdListInit)).fill().map(_ => tempNewList.splice(0, this.itemIdListInit));
+    this.setState({itemidsListDisplay: itemidsListDisplay, itemIdsListPage: resultItemId});
+
+    this.itemIdListCurrPage = 2;
+  }
+
+  handleKeywordChange = (text) => {
+    this.debounceSearch(text);
+  }
+
+  debounceSearch = debounce(this.filterKey, 500);
 
   addListOfIds = () => {
     //TODO: Need to clean up on close
@@ -406,6 +445,18 @@ export default class InventoryScreen extends Component {
     };
     return (
       <View style={CommonStyles.modal}>
+        <View style={CommonStyles.modalFooter}>
+          <Form>
+            <TextInput
+              inputHeight={inputHeight}
+              itemStyles={{marginTop: 0 }}
+              onChangeText={(text) =>
+                this.handleKeywordChange(text)
+              }
+              label="Keyword"
+            />
+          </Form>
+        </View>
         <ScrollView style={CommonStyles.modalBody} onScroll={({ nativeEvent }) => {
           if (this.isCloseToBottom(nativeEvent)) {
             this.addListOfIds();
@@ -474,14 +525,14 @@ export default class InventoryScreen extends Component {
                 onPressAction={() => this.toggleModal(true)}
               />
 
-              <TextInput
-                inputHeight={inputHeight}
-                itemStyles={{marginTop: 0 }}
-                onChangeText={(text) =>
-                  this.setState({keyword: text})
-                }
-                label="Keyword"
-              />
+              {/*<TextInput*/}
+              {/*  inputHeight={inputHeight}*/}
+              {/*  itemStyles={{marginTop: 0 }}*/}
+              {/*  onChangeText={(text) =>*/}
+              {/*    this.setState({keyword: text})*/}
+              {/*  }*/}
+              {/*  label="Keyword"*/}
+              {/*/>*/}
             </Form>
           </View>
         </ScrollView>

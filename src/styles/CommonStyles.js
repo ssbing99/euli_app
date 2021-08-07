@@ -56,7 +56,7 @@ const CommonStyles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   modalBody: {
-    maxHeight: responsiveHeight(80),
+    maxHeight: responsiveHeight(70),
   },
   modalFooter: {
     padding: marginHorizontal.small,
