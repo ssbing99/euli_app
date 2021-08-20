@@ -118,7 +118,7 @@ class ColorListingScreen extends Component {
               justifyContent: 'center',
               alignItems: 'center',
             }}
-            onPressItem={() => Linking.openURL(`mailto:eulitrading@gmail.com?subject=Order%20Enquiry&body=${c.Id}%20${c.Name}`)}
+            onPressItem={() => Linking.openURL(`mailto:eulitrading@gmail.com?subject=Order Enquiry&body=${c.Id} - ${c.Name}`)}
           />
         );
       });

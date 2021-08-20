@@ -5,7 +5,7 @@ import {
   View,
   ScrollView,
   TouchableHighlight,
-  Image, ActivityIndicator,
+  Image, ActivityIndicator, TouchableOpacity,
 } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -16,6 +16,7 @@ import SelectBox from '../elements/SelectBox';
 import PrimeModal from '../elements/PrimeModal';
 import PrimeButton from '../elements/PrimeButton';
 import { DatePicker, Form, Icon } from 'native-base';
+import NewDatePicker from 'react-native-date-picker'
 
 import CommonStyles from '../styles/CommonStyles';
 import {
@@ -26,7 +27,7 @@ import {
   deviceWidth,
   colors,
   borderRadius,
-  fontSize, inputHeight,
+  fontSize, inputHeight, fontFamily,
 } from '../styles/variables';
 import { passIc, searchIc } from '../styles/icon-variables';
 import { CUSTOMERS } from '../static/data';
@@ -59,9 +60,11 @@ class PurchaseHistoryScreen extends Component {
       },
       isLoading: false,
       isChecked: false,
+      dateModalVisible: false,
       modalVisible: false,
       selectedState: 'Customer',
       isSelectedState: false,
+      date: new Date(),
       selectedDate: null,
       keyword: null,
       showSearchModal: false,
@@ -234,6 +237,10 @@ class PurchaseHistoryScreen extends Component {
     this.debounceSearch(text);
   }
 
+  handleDateChange = (date) => {
+    this.debounceDate(date);
+  }
+
   debounceSearch = debounce(this.filterKey, 500);
 
   addListOfCustomers = () => {
@@ -259,11 +266,13 @@ class PurchaseHistoryScreen extends Component {
   setCalendarDate = (date) => {
     if (date) {
       const newDate = new Date(date);
-      this.setState({selectedDate: `${newDate.getDate()}/${newDate.getMonth() + 1}/${newDate.getFullYear()}`});
+      this.setState({date: date, selectedDate: `${newDate.getDate()}/${newDate.getMonth() + 1}/${newDate.getFullYear()}`});
     } else {
-      this.setState({selectedDate: null});
+      this.setState({date: new Date(), selectedDate: null});
     }
   };
+
+  debounceDate = debounce(this.setCalendarDate, 500);
 
   renderRow = () => {
 
@@ -444,6 +453,22 @@ class PurchaseHistoryScreen extends Component {
             });
           }}
         />
+
+        <PrimeModal
+          modalVisible={this.state.dateModalVisible}
+          // eslint-disable-next-line react-native/no-inline-styles
+          containerStyle={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+          }}
+          body={this.renderDateBody()}
+          onRequestClose={() => {
+            this.setState({
+              dateModalVisible: false,
+            });
+          }}
+        />
       </View>
     );
   }
@@ -470,10 +495,18 @@ class PurchaseHistoryScreen extends Component {
     });
   }
 
+  toggleDateModal(visible) {
+    this.setState({
+      showSearchModal: !this.state.showSearchModal,
+      dateModalVisible: visible,
+    });
+  }
+
   _searchModal () {
     this.setState({
       showSearchModal: !this.state.showSearchModal,
       selectedDate: null,
+      date: new Date(),
       keyword: null,
       selectedState: 'Customer',
     });
@@ -554,6 +587,58 @@ class PurchaseHistoryScreen extends Component {
     );
   }
 
+  renderDateBody() {
+    const modalBtnSetting = {
+      btnWidth: responsiveWidth(38.4),
+      btnHeight: responsiveHeight(5.99),
+      style: {
+        alignSelf: 'center',
+      },
+    };
+    return (
+      <View style={[CommonStyles.modal, {paddingHorizontal: marginHorizontal.normal}]}>
+        <View style={{
+          alignSelf: 'center',
+        }}>
+        <NewDatePicker
+          date={this.state.date}
+          onDateChange={this.handleDateChange}
+          mode={'date'}
+          locale={'en'}
+        />
+        </View>
+        <View style={CommonStyles.modalFooter}>
+          <PrimeButton
+            navigation={this.props.navigation}
+            setting={modalBtnSetting}
+            btnText="Close"
+            underlayColor={colors.red}
+            onPressButton={() => {
+              this.toggleDateModal(false)
+            }}
+          />
+        </View>
+      </View>
+    );
+  }
+
+  getNewDatePicker = () => {
+
+    return <TouchableOpacity onPress={() => this.toggleDateModal(true)}>
+      <Text numberOfLines={1} style={StyleSheet.flatten([{
+        paddingLeft: 0,
+        color: colors.gray,
+        fontSize: fontSize.normal,
+        fontFamily: fontFamily.regular,
+        height: 35,
+        marginLeft: responsiveWidth(3.47),
+        paddingTop: 5,
+      }])}>
+        {this.state.selectedDate || 'Select date'}
+      </Text>
+    </TouchableOpacity>
+  }
+
   renderSearchBody () {
     const modalBtnSetting = {
       btnWidth: responsiveWidth(38.4),
@@ -601,21 +686,22 @@ class PurchaseHistoryScreen extends Component {
                     height: 20,
                   }}
                 />
-                <DatePicker
-                  defaultDate={new Date(2018, 1, 1)}
-                  minimumDate={new Date(2018, 1, 1)}
-                  maximumDate={new Date()}
-                  locale={'en'}
-                  timeZoneOffsetInMinutes={undefined}
-                  modalTransparent={false}
-                  animationType={'fade'}
-                  androidMode={'default'}
-                  placeHolderText="Select date"
-                  textStyle={{color: colors.black}}
-                  placeHolderTextStyle={{color: colors.gray}}
-                  onDateChange={this.setCalendarDate}
-                  disabled={false}
-                />
+                {this.getNewDatePicker()}
+                {/*<DatePicker*/}
+                {/*  defaultDate={new Date(2018, 1, 1)}*/}
+                {/*  minimumDate={new Date(2018, 1, 1)}*/}
+                {/*  maximumDate={new Date()}*/}
+                {/*  locale={'en'}*/}
+                {/*  timeZoneOffsetInMinutes={undefined}*/}
+                {/*  modalTransparent={false}*/}
+                {/*  animationType={'fade'}*/}
+                {/*  androidMode={'default'}*/}
+                {/*  placeHolderText="Select date"*/}
+                {/*  textStyle={{color: colors.black}}*/}
+                {/*  placeHolderTextStyle={{color: colors.gray}}*/}
+                {/*  onDateChange={this.setCalendarDate}*/}
+                {/*  disabled={false}*/}
+                {/*/>*/}
               </View>
             </Form>
           </View>

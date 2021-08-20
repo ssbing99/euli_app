@@ -4,7 +4,7 @@ import {
   View,
   ScrollView,
   TouchableHighlight,
-  Image, Linking, PermissionsAndroid,
+  Image, Linking, PermissionsAndroid, TouchableOpacity,
 } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -15,6 +15,7 @@ import SelectBox from '../elements/SelectBox';
 import PrimeModal from '../elements/PrimeModal';
 import PrimeButton from '../elements/PrimeButton';
 import { DatePicker, Form, Icon, Toast } from 'native-base';
+import NewDatePicker from 'react-native-date-picker'
 import { hasAccessRight } from '../store/accessRight';
 import CommonStyles from '../styles/CommonStyles';
 import {
@@ -29,7 +30,7 @@ import {
   deviceHeight,
   NAV_HEIGHT,
   STATUSBAR_HEIGHT,
-  isIOS, inputHeight
+  isIOS, inputHeight, fontFamily
 } from '../styles/variables';
 import { searchIc } from '../styles/icon-variables';
 import { CUSTOMERS } from '../static/data';
@@ -64,8 +65,10 @@ class StatementScreen extends Component {
       },
       filePath: '',//'http://application.connaq.com/Cloud_ETT/UploadFiles/Customer12MonthStatement_TW9iaWxlX1VzZXI=.pdf',
       isChecked: false,
+      dateModalVisible: false,
       modalVisible: false,
       selectedState: 'Customer',
+      date: new Date(),
       selectedDate: null,
       isSelectedState: false,
       showSearchModal: false,
@@ -198,6 +201,10 @@ class StatementScreen extends Component {
 
   handleKeywordChange = (text) => {
     this.debounceSearch(text);
+  }
+
+  handleDateChange = (date) => {
+    this.debounceDate(date);
   }
 
   debounceSearch = debounce(this.filterKey, 500);
@@ -414,6 +421,22 @@ class StatementScreen extends Component {
             });
           }}
         />
+
+        <PrimeModal
+          modalVisible={this.state.dateModalVisible}
+          // eslint-disable-next-line react-native/no-inline-styles
+          containerStyle={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+          }}
+          body={this.renderDateBody()}
+          onRequestClose={() => {
+            this.setState({
+              dateModalVisible: false,
+            });
+          }}
+        />
       </View>
     );
   }
@@ -440,10 +463,18 @@ class StatementScreen extends Component {
     });
   }
 
+  toggleDateModal(visible) {
+    this.setState({
+      showSearchModal: !this.state.showSearchModal,
+      dateModalVisible: visible,
+    });
+  }
+
   _searchModal() {
     this.setState({
       showSearchModal: !this.state.showSearchModal,
       selectedDate: null,
+      date: new Date(),
       selectedState: 'Customer',
     });
   }
@@ -569,11 +600,65 @@ class StatementScreen extends Component {
     if (date) {
       const newDate = new Date(date);
       let mthDate = (newDate.getMonth() + 1) < 10? `0${newDate.getMonth() + 1}`:`${newDate.getMonth() + 1}`;
-      this.setState({selectedDate: `${newDate.getDate()}-${mthDate}-${newDate.getFullYear()}`});
+      this.setState({date: date, selectedDate: `${newDate.getDate()}-${mthDate}-${newDate.getFullYear()}`});
     } else {
-      this.setState({selectedDate: null});
+      this.setState({date: new Date(), selectedDate: null});
     }
   };
+
+  debounceDate = debounce(this.setCalendarDate, 500);
+
+  renderDateBody() {
+    const modalBtnSetting = {
+      btnWidth: responsiveWidth(38.4),
+      btnHeight: responsiveHeight(5.99),
+      style: {
+        alignSelf: 'center',
+      },
+    };
+    return (
+      <View style={[CommonStyles.modal, {paddingHorizontal: marginHorizontal.normal}]}>
+        <View style={{
+            alignSelf: 'center',
+        }}>
+        <NewDatePicker
+          date={this.state.date}
+          onDateChange={this.handleDateChange}
+          mode={'date'}
+          locale={'en'}
+        />
+        </View>
+        <View style={CommonStyles.modalFooter}>
+          <PrimeButton
+            navigation={this.props.navigation}
+            setting={modalBtnSetting}
+            btnText="Close"
+            underlayColor={colors.red}
+            onPressButton={() => {
+              this.toggleDateModal(false)
+            }}
+          />
+        </View>
+      </View>
+    );
+  }
+
+  getNewDatePicker = () => {
+
+    return <TouchableOpacity onPress={() => this.toggleDateModal(true)}>
+      <Text numberOfLines={1} style={StyleSheet.flatten([{
+        paddingLeft: 0,
+        color: colors.gray,
+        fontSize: fontSize.normal,
+        fontFamily: fontFamily.regular,
+        height: 35,
+        marginLeft: responsiveWidth(3.47),
+        paddingTop: 5,
+      }])}>
+        {this.state.selectedDate || 'Select date'}
+      </Text>
+    </TouchableOpacity>
+  }
 
   renderSearchBody() {
     const modalBtnSetting = {
@@ -612,21 +697,22 @@ class StatementScreen extends Component {
                     height: 20,
                   }}
                 />
-                <DatePicker
-                  defaultDate={new Date()}
-                  minimumDate={new Date(2018, 1, 1)}
-                  maximumDate={new Date()}
-                  locale={'en'}
-                  timeZoneOffsetInMinutes={undefined}
-                  modalTransparent={false}
-                  animationType={'fade'}
-                  androidMode={'default'}
-                  placeHolderText="Select date"
-                  textStyle={{ color: colors.black }}
-                  placeHolderTextStyle={{ color: colors.gray }}
-                  onDateChange={this.setCalendarDate}
-                  disabled={false}
-                />
+                {this.getNewDatePicker()}
+                {/*<DatePicker*/}
+                {/*  defaultDate={new Date()}*/}
+                {/*  minimumDate={new Date(2018, 1, 1)}*/}
+                {/*  maximumDate={new Date()}*/}
+                {/*  locale={'en'}*/}
+                {/*  timeZoneOffsetInMinutes={undefined}*/}
+                {/*  modalTransparent={false}*/}
+                {/*  animationType={'fade'}*/}
+                {/*  androidMode={'default'}*/}
+                {/*  placeHolderText="Select date"*/}
+                {/*  textStyle={{ color: colors.black }}*/}
+                {/*  placeHolderTextStyle={{ color: colors.gray }}*/}
+                {/*  onDateChange={this.setCalendarDate}*/}
+                {/*  disabled={false}*/}
+                {/*/>*/}
               </View>
             </Form>
           </View>

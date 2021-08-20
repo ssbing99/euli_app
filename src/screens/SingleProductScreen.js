@@ -325,7 +325,7 @@ export default class SingleProductScreen extends Component {
             navigation={this.props.navigation}
             setting={btnSetting}
             btnText="Purchase"
-            onPressButton={() => Linking.openURL(`mailto:eulitrading@gmail.com?subject=Order%20Enquiry&body=${proInfo.Id}%20${proInfo.Name}`) }
+            onPressButton={() => Linking.openURL(`mailto:eulitrading@gmail.com?subject=Order Enquiry&body=${proInfo.Id} - ${proInfo.Name}`) }
           />
         </ScrollView>
 

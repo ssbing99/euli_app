@@ -93,7 +93,7 @@ export default class ContactUsScreen extends Component {
                 setting={btnEmail}
                 btnText="Email"
                 underlayColor={colors.lightGray}
-                onPressButton={() => Linking.openURL('mailto:eulitrading@gmail.com?subject=Order%20Enquiry') }
+                onPressButton={() => Linking.openURL('mailto:eulitrading@gmail.com?subject=Order Enquiry') }
               />
             </View>
           </View>

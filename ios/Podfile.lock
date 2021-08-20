@@ -254,6 +254,8 @@ PODS:
     - React-Core
   - react-native-camera/RN (3.43.6):
     - React-Core
+  - react-native-date-picker (3.3.2):
+    - React-Core
   - react-native-get-pixel-color (1.1.0-alpha.23):
     - React
   - react-native-pdf (6.2.2):
@@ -427,6 +429,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-camera (from `../node_modules/react-native-camera`)
+  - react-native-date-picker (from `../node_modules/react-native-date-picker`)
   - react-native-get-pixel-color (from `../node_modules/react-native-get-pixel-color`)
   - react-native-pdf (from `../node_modules/react-native-pdf`)
   - react-native-print (from `../node_modules/react-native-print`)
@@ -527,6 +530,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   react-native-camera:
     :path: "../node_modules/react-native-camera"
+  react-native-date-picker:
+    :path: "../node_modules/react-native-date-picker"
   react-native-get-pixel-color:
     :path: "../node_modules/react-native-get-pixel-color"
   react-native-pdf:
@@ -645,6 +650,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 1540d1c01bb493ae3124ed83351b1b6a155db7da
   React-jsinspector: 512e560d0e985d0e8c479a54a4e5c147a9c83493
   react-native-camera: 68bc0c37d11df806570bfe53e8d7561bd984cb76
+  react-native-date-picker: 96a07ca27a6225da8a3935324d85046028456b0f
   react-native-get-pixel-color: 68005d505be66fd0329f65e67b2a3db83154fde3
   react-native-pdf: 4b5a9e4465a6a3b399e91dc4838eb44ddf716d1f
   react-native-print: b31a7afe481fc7c27960fbd1a10055bce7146a86
