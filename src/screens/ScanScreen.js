@@ -329,14 +329,14 @@ class ScanScreen extends Component {
               width: width,
               height: height,
             },
+          }, () => {
+            const { capImage } = this.state;
+
+            let getPiX = this.getPixelByPercentage(50, capImage.width);
+            let getPiY = this.getPixelByPercentage(50, capImage.height);
+
+            this.getPixel(capImage.data, getPiX, getPiY);
           });
-        }).then((res) => {
-          const { capImage } = this.state;
-
-          let getPiX = this.getPixelByPercentage(50, capImage.width);
-          let getPiY = this.getPixelByPercentage(50, capImage.height);
-
-          this.getPixel(capImage.data, getPiX, getPiY);
         });
       }
     }
@@ -426,7 +426,7 @@ class ScanScreen extends Component {
             isEnabled: !this.state.isEnabled,
             camera: { ...this.state.camera, exposureOn: false, exposure: -1 },
           });
-        }).then((res) => {});
+        });
       }
     }
   };
