@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import CommonStyles from '../styles/CommonStyles';
-import { StyleSheet, View, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
 import GetPixelColor from 'react-native-get-pixel-color';
 import NavigationBar from '../elements/NavigationBar';
 import Text from '../elements/Text';
@@ -122,7 +122,7 @@ class ScanScreen extends Component {
           flashIcon: 'flash-off',
         },
       },
-      mainView: { height: deviceHeight, width: deviceWidth },
+      // mainView: { height: deviceHeight, width: deviceWidth },
       dragView: {},
       width: deviceWidth,
       height: deviceHeight,
@@ -144,7 +144,7 @@ class ScanScreen extends Component {
         getColor = getColor.sort((a, b) => {
           return new Date(b.datetime) - new Date(a.datetime);
         });
-        console.log(getColor);
+        // console.log(getColor);
       }
       this.setState({ storeColor: getColor });
     });
@@ -203,14 +203,10 @@ class ScanScreen extends Component {
     console.log(`getPixel: X = ${x}, Y = ${y}`);
     //
     try {
-      GetPixelColor.setImage(isIOS ? imageData.uri : imageData.base64).catch(
-        (err) => {
-          // Handle errors
-          console.error(err);
-        },
-      );
 
-      GetPixelColor.pickColorAt(x, y)
+      GetPixelColor.setImage(isIOS ? imageData.uri : imageData.base64)
+      .then(() => {
+        GetPixelColor.pickColorAt(x, y)
         .then((color) => {
           // console.log("COLOR", color);
           // console.log("COLOR RGB", this.hex2rgb(color));
@@ -234,6 +230,11 @@ class ScanScreen extends Component {
           // Handle errors
           console.error(err);
         });
+
+      })
+      .catch(err => {
+        // Handle errors
+      });
     } catch (e) {}
   }
 
@@ -320,8 +321,12 @@ class ScanScreen extends Component {
         // console.log(ratio);
         // console.log(data);
         await Image.getSize(data.uri, (width, height) => {
-          console.log('W: ', width);
-          console.log('H: ', height);
+          // console.log('W---: ', width);
+          // console.log('H---: ', height);
+          // console.log('D---: ', Dimensions.get('window').width + ":::" + Dimensions.get('window').height);
+          // console.log('M---: ', this.state.mainView.width + ":::" + this.state.mainView.height);
+          // console.log('H---: ',width + "::" + height);
+
           this.setState({
             capImage: {
               data: data,
@@ -354,34 +359,34 @@ class ScanScreen extends Component {
       compressImageMaxHeight: 640,
       forceJpg: true,
     })
-      .then(async (response) => {
-        // console.log(response);
-        const { width, height } = response;
-        // console.log("SELECTED W", width);
-        // console.log("SELECTED h", height);
-        const data = {
-          uri: response.path,
-          base64: response.data,
-        };
+    .then(async (response) => {
+      // console.log(response);
+      const { width, height } = response;
+      // console.log("SELECTED W", width);
+      // console.log("SELECTED h", height);
+      const data = {
+        uri: response.path,
+        base64: response.data,
+      };
 
-        this.setState(
-          {
-            liveImg: {
-              data: data,
-              imageBase64: data.base64,
-              width: width,
-              height: height,
-            },
+      this.setState(
+        {
+          liveImg: {
+            data: data,
+            imageBase64: data.base64,
+            width: width,
+            height: height,
           },
-          () => {
-            this.setState({
-              isEnabled: true,
-              camera: { ...this.state.camera, exposureOn: false, exposure: -1 },
-            });
-          },
-        );
-      })
-      .catch((err) => console.warn(err));
+        },
+        () => {
+          this.setState({
+            isEnabled: true,
+            camera: { ...this.state.camera, exposureOn: false, exposure: -1 },
+          });
+        },
+      );
+    })
+    .catch((err) => console.warn(err));
   };
 
   switchChange = async () => {
@@ -435,7 +440,6 @@ class ScanScreen extends Component {
     const { camera } = this.state;
     const flashOn = !camera.flashOn;
     const flashOps = flashOn ? camera.ON : camera.OFF;
-
     this.setState({
       camera: { ...camera, flashOn: flashOn, flashMode: flashOps.flashMode },
     });
@@ -469,7 +473,7 @@ class ScanScreen extends Component {
           flashMode={this.getFlashMode()}
           exposure={this.state.camera.exposure}
           whiteBalance={this.state.camera.whiteBalance}
-          ratio={'3:2'}
+          ratio={'4:3'}
           pictureSize={'640x480'}
           captureAudio={false}
           androidCameraPermissionOptions={{
@@ -487,7 +491,6 @@ class ScanScreen extends Component {
     if (this.state.isEnabled) {
       const { liveImg, mainView } = this.state;
       //TO-DO: control the draggleble maximum x and y
-
       return (
         <Draggable
           x={this.state.mainView.width / 2 - 20}
