@@ -514,6 +514,21 @@ class StatementScreen extends Component {
     });
   }
 
+  _modalClose(funcToClose) {
+    return (
+      <View style={CommonStyles.modalClose}>
+        <TouchableHighlight
+          style={{borderRadius: 8, padding: 5, paddingRight: 10, paddingLeft: 10, marginBottom: -15}}
+          underlayColor={colors.lightGray}
+          onPress={() => funcToClose(false)}>
+          <Text black style={{fontSize: fontSize.large}}>
+            X
+          </Text>
+        </TouchableHighlight>
+      </View>
+    );
+  }
+
   isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) =>{
     // console.log('isCloseToBottom', layoutMeasurement.height + contentOffset.y
     //   >= contentSize.height - 50);
@@ -596,6 +611,15 @@ class StatementScreen extends Component {
     );
   }
 
+  checkDefaultDate = () => {
+    const { selectedDate } = this.state;
+    if (selectedDate == null) {
+      const newDate = new Date();
+      let mthDate = (newDate.getMonth() + 1) < 10? `0${newDate.getMonth() + 1}`:`${newDate.getMonth() + 1}`;
+      this.setState({date: newDate, selectedDate: `${newDate.getDate()}-${mthDate}-${newDate.getFullYear()}`});
+    }
+  };
+
   setCalendarDate = (date) => {
     if (date) {
       const newDate = new Date(date);
@@ -635,7 +659,8 @@ class StatementScreen extends Component {
             btnText="Close"
             underlayColor={colors.red}
             onPressButton={() => {
-              this.toggleDateModal(false)
+              this.checkDefaultDate();
+              this.toggleDateModal(false);
             }}
           />
         </View>
@@ -670,6 +695,7 @@ class StatementScreen extends Component {
     };
     return (
       <View style={CommonStyles.modal}>
+        {this._modalClose(this.toggleModal.bind(this))}
         <ScrollView style={CommonStyles.modalBody}>
           <View style={styles.form} onLayout={this.onLayout.bind(this)}>
             <Form>

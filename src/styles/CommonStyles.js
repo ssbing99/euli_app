@@ -61,6 +61,11 @@ const CommonStyles = StyleSheet.create({
   modalFooter: {
     padding: marginHorizontal.small,
   },
+  modalClose: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    borderColor: '#D9D5DC',
+  },
 });
 
 export default CommonStyles;

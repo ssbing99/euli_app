@@ -32,6 +32,16 @@ import * as loginActions from '../actions/loginActions';
 const logoWidth = responsiveWidth(22.67);
 const logoHeight = logoWidth * 1;
 
+let timeOutId;
+const debounce = (func, delay) => {
+  return (...args) => {
+    if (timeOutId) clearTimeout(timeOutId);
+    timeOutId = setTimeout(() => {
+      func.apply(null, args);
+    }, delay);
+  };
+};
+
 class LoginScreen extends Component {
   constructor(props) {
     super(props);
@@ -54,6 +64,29 @@ class LoginScreen extends Component {
 
   }
 
+  loginMainAndReset = () => {
+    this.props.navigation.reset({
+      index: 0,
+      routes: [{name: 'MainDrawer'},],
+    })
+  }
+
+  loginState = () => {
+    if (this.props.username && this.props.password && !this.state.isLogining) {
+      console.log("LOGIN");
+      this.setState({isLogining: true}, () => {
+        this.props.onPressSignIn(this.props.username, this.props.password);
+      });
+    } else if (this.state.isLogining) {
+      console.log("REDIRECT");
+      // this.props.disableLoader();
+      // this.props.navigation.navigate('MainDrawer');
+      this.debounceLogin();
+    }
+  }
+
+  debounceLogin = debounce(this.loginMainAndReset, 500);
+  debounceLoginState = debounce(this.loginState, 1000);
 
   componentDidUpdate (prevProps, prevState, snapshot) {
     // console.log("prevProps",prevProps);
@@ -74,20 +107,7 @@ class LoginScreen extends Component {
     }
 
     if(!this.props.isLoading  && !!this.props.isLoggedIn) {
-      setTimeout(() => {
-
-        if (this.props.username && this.props.password && !this.state.isLogining) {
-          console.log("LOGIN");
-          this.setState({isLogining: true}, () => {
-            this.props.onPressSignIn(this.props.username, this.props.password);
-          });
-        } else if (this.state.isLogining) {
-          console.log("REDIRECT");
-          // this.props.disableLoader();
-          this.props.navigation.navigate('MainDrawer');
-        }
-
-      }, 1000);
+      this.debounceLoginState();
     }
   }
 
