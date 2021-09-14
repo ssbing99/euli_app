@@ -91,7 +91,7 @@ class ColorPickerListScreen extends Component {
 
       colors.forEach(c => {
         let textColor = this.getContrastColor(c.rgb);
-        rows.unshift(
+        rows.push(
           <ColorCard
             isTile
             cardStyles={{margin: marginHorizontal.small / 2}}

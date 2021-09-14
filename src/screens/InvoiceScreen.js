@@ -350,7 +350,7 @@ class InvoiceScreen extends Component {
         hist.forEach((h) => {
 
           rows.push(
-            <DataTable.Row style={{ width: (hasAccessRight(this.props.role, VIEW_ALL_INVOICE)? 600 : 400) }} key={h.Id}>
+            <DataTable.Row style={{ width: (hasAccessRight(this.props.role, VIEW_ALL_INVOICE)? 680 : 400) }} key={h.Id}>
               {/*<DataTable.Cell style={{ flex: 1 }}>*/}
               {/*  <Text*/}
               {/*    style={{ color: colors.green }}*/}
@@ -434,7 +434,7 @@ class InvoiceScreen extends Component {
             <ScrollView
               horizontal
               contentContainerStyle={{ flexDirection: 'column' }}>
-              <DataTable.Header style={{ width: (hasAccessRight(this.props.role, VIEW_ALL_INVOICE)? 600 : 400) }}>
+              <DataTable.Header style={{ width: (hasAccessRight(this.props.role, VIEW_ALL_INVOICE)? 680 : 400) }}>
                 {/*<DataTable.Title style={{ flex: 1 }}>Print</DataTable.Title>*/}
                 <DataTable.Title style={{ flex: 1 }}>
                   Invoice Date

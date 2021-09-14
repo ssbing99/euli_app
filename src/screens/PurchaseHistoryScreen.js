@@ -299,7 +299,7 @@ class PurchaseHistoryScreen extends Component {
         hist.forEach((h) => {
 
             rows.push(
-              <DataTable.Row style={{width: 600}} key={i++}>
+              <DataTable.Row style={{width: 680}} key={i++}>
                 <DataTable.Cell style={{flex: 2}}>{h.DisplayInvoiceDate}</DataTable.Cell>
                 <DataTable.Cell style={{flex: 2}}>
                   <Text
@@ -310,10 +310,10 @@ class PurchaseHistoryScreen extends Component {
                 </DataTable.Cell>
                 {
                   hasAccessRight(this.props.role, VIEW_ALL_CUSTOMER) && (
-                    <DataTable.Cell style={{flex: 2}}>{h.CustomerName}</DataTable.Cell>
+                    <DataTable.Cell style={{flex: 3}}>{h.CustomerName}</DataTable.Cell>
                   )
                 }
-                <DataTable.Cell style={{flex: 2}}>{h.ItemID}</DataTable.Cell>
+                <DataTable.Cell style={{flex: 2, paddingLeft: 10}}>{h.ItemID}</DataTable.Cell>
                 <DataTable.Cell numeric style={{flex: 1}}>
                   {parseInt(h.OrderQty)}
                 </DataTable.Cell>
@@ -372,15 +372,15 @@ class PurchaseHistoryScreen extends Component {
             <ScrollView
               horizontal
               contentContainerStyle={{flexDirection: 'column'}}>
-              <DataTable.Header style={{width: 600}}>
+              <DataTable.Header style={{width: 680}}>
                 <DataTable.Title style={{flex: 2}}>Date</DataTable.Title>
                 <DataTable.Title style={{flex: 2}}>Invoice</DataTable.Title>
                 {
                   hasAccessRight(this.props.role, VIEW_ALL_CUSTOMER) && (
-                    <DataTable.Title style={{flex: 2}}>Customer</DataTable.Title>
+                    <DataTable.Title style={{flex: 3}}>Customer</DataTable.Title>
                   )
                 }
-                <DataTable.Title style={{flex: 2}}>Item ID</DataTable.Title>
+                <DataTable.Title style={{flex: 2, paddingLeft: 10}}>Item ID</DataTable.Title>
                 <DataTable.Title numeric style={{flex: 1}}>
                   Qty
                 </DataTable.Title>
